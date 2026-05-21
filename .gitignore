@@ -84,7 +84,7 @@ out
 .nuxt
 dist
 .output
-.diffdoc/
+.diffdoc/vectra
 
 # Gatsby files
 .cache/

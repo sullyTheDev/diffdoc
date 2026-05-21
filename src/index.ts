@@ -2,7 +2,7 @@
 import { Command } from "commander";
 import { buildRuntimeConfig, type RuntimeConfigOptions } from "./config";
 import { runEmbed } from "./commands/embed";
-import { runQuery } from "./commands/query";
+import { runQuery, runSearch } from "./commands/query";
 import { runSummarize } from "./commands/summarize";
 import { promptLlm } from "./utils/llm";
 
@@ -75,7 +75,7 @@ addChatOptions(addBaseOptions(program
 
 addEmbeddingOptions(addChatOptions(addBaseOptions(program
   .command("query"))))
-  .description("Search the local Vectra index with a natural-language question")
+  .description("Answer a question using retrieved local Vectra context")
   .argument("<message...>", "question or search text")
   .option("--top <count>", "number of matches to return", "5")
   .option("--code", "include code snapshots in results", false)
@@ -83,6 +83,22 @@ addEmbeddingOptions(addChatOptions(addBaseOptions(program
     try {
       const config = buildRuntimeConfig(options, { chat: true, embeddings: true });
       await runQuery(messageParts.join(" "), options, config);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+addCloudEndpointAndKeyOptions(addEmbeddingOptions(addBaseOptions(program
+  .command("search"))))
+  .description("Search the local Vectra index and print raw matches")
+  .argument("<message...>", "search text")
+  .option("--top <count>", "number of matches to return", "5")
+  .option("--code", "include code snapshots in results", false)
+  .action(async (messageParts: string[], options: RuntimeConfigOptions & { top: string; code: boolean }) => {
+    try {
+      const config = buildRuntimeConfig(options, { embeddings: true });
+      await runSearch(messageParts.join(" "), options, config);
     } catch (error) {
       console.error(error instanceof Error ? error.message : error);
       process.exit(1);

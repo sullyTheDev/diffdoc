@@ -10,6 +10,11 @@ export interface QueryOptions {
   code: boolean;
 }
 
+export interface SearchOptions {
+  top: string;
+  code: boolean;
+}
+
 function parseTopK(value: string): number {
   const topK = Number.parseInt(value, 10);
   if (!Number.isInteger(topK) || topK < 1) {
@@ -69,6 +74,38 @@ export async function runQuery(message: string, options: QueryOptions, config: R
   }
 
   if (!options.code) {
+    return;
+  }
+
+  for (const [indexPosition, result] of results.entries()) {
+    const metadata = result.item.metadata;
+    console.log(`\n#${indexPosition + 1} ${metadata.filePath}`);
+    console.log(`Score: ${result.score.toFixed(4)}`);
+    console.log(`Hash: ${metadata.hash}`);
+    console.log("Summary:");
+    console.log(trimForDisplay(metadata.summaryText, 1200));
+
+    if (options.code) {
+      console.log("Code Snapshot:");
+      console.log(trimForDisplay(metadata.rawCodeSnapshot, 2000));
+    }
+  }
+}
+
+export async function runSearch(message: string, options: SearchOptions, config: RuntimeConfig): Promise<void> {
+  const topK = parseTopK(options.top);
+  const indexPath = getVectraIndexPath(config);
+  const index = new LocalIndex<DiffdocVectorMetadata>(indexPath);
+
+  if (!await index.isIndexCreated()) {
+    throw new Error(`No Vectra index found at ${indexPath}. Run "diffdoc embed" first.`);
+  }
+
+  const [queryVector] = await generateEmbeddings([`${CODE_QUERY_PREFIX}${message}`], config.embeddings);
+  const results = await index.queryItems(queryVector, message, topK);
+
+  if (results.length === 0) {
+    console.log("No matching embedded summaries found.");
     return;
   }
 

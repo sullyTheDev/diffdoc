@@ -36,6 +36,7 @@ Package scripts can call the installed binary:
   "scripts": {
     "diffdoc:summarize": "diffdoc summarize",
     "diffdoc:embed": "diffdoc embed",
+    "diffdoc:search": "diffdoc search",
     "diffdoc:query": "diffdoc query"
   }
 }
@@ -119,13 +120,25 @@ Embed the manifest into a local Vectra index at `./.diffdoc/vectra`:
 diffdoc embed
 ```
 
-Ask a question using retrieved embedded context:
+Search the local Vectra index and print raw matches:
+
+```bash
+diffdoc search "How does this project process changed files?"
+```
+
+Include retrieved code snapshots in search results:
+
+```bash
+diffdoc search "How does embedding work?" --top 3 --code
+```
+
+Ask a question and have the configured chat model answer using retrieved embedded context:
 
 ```bash
 diffdoc query "How does this project process changed files?"
 ```
 
-Include retrieved code snapshots after the answer:
+Include retrieved code snapshots after the generated answer:
 
 ```bash
 diffdoc query "How does embedding work?" --top 3 --code
@@ -156,6 +169,7 @@ Typical usage is:
 ```bash
 diffdoc summarize --path . --mode all
 diffdoc embed
+diffdoc search "What files explain the summarization flow?"
 diffdoc query "What business behavior does this repository implement?"
 ```
 
@@ -169,8 +183,10 @@ diffdoc embed
 ## Notes
 
 - Node.js `>=22` is required because Vectra requires it.
-- `.diffdoc/` and `.diffdocrc` are ignored by git by default.
+- This repository ignores `.diffdoc/vectra` and `.diffdocrc`; add similar entries to your project's `.gitignore` if you do not want generated indexes or local config committed. The manifest at `.diffdoc/manifest.json` is not ignored by this repository.
+- Commit `.diffdoc/manifest.json` when using delta workflows. Delta summarization reads the previous manifest state to decide which changed files need fresh summaries.
 - `summarize` requires a configured chat model.
 - `embed` requires a configured embedding model.
+- `search` requires a configured embedding model and returns raw retrieval results without calling the chat model.
 - `query` requires both a configured chat model and embedding model.
 - For code-oriented embedding models such as `nomic-embed-code`, DiffDoc prefixes query embeddings with `Represent this query for searching relevant code:`.
