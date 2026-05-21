@@ -1,0 +1,12 @@
+{
+  "baseDir": "./.diffdoc",
+  "aiProvider": "local",
+  "localLlmEndpoint": "http://10.69.1.191:8080/v1",
+  "localEmbedEndpoint": "http://10.69.1.191:8080/v1/embeddings",
+  "localChatModel": "Qwen3.6-35B-A3B-UD-Q6_K_XL.gguf",
+  "localEmbedModel": "nomic-embed-code.Q8_0.gguf",
+  "cloudLlmEndpoint": "https://api.openai.com/v1",
+  "cloudChatModel": "gpt-4o-mini",
+  "cloudEmbedModel": "text-embedding-3-small",
+  "openaiApiKey": ""
+}

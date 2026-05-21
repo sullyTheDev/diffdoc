@@ -69,6 +69,8 @@ web_modules/
 .env
 .env.*
 !.env.example
+.diffdocrc
+!.diffdocrc.example
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -82,6 +84,7 @@ out
 .nuxt
 dist
 .output
+.diffdoc/
 
 # Gatsby files
 .cache/

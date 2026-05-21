@@ -1,0 +1,45 @@
+{
+  "name": "diffdoc",
+  "version": "0.1.0",
+  "description": "Translate repository code shifts into plain-English business context",
+  "license": "MIT",
+  "author": "Christopher Sullivan",
+  "homepage": "https://github.com/sullyTheDev/diffdoc#readme",
+  "bugs": {
+    "url": "https://github.com/sullyTheDev/diffdoc/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sullyTheDev/diffdoc.git"
+  },
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "bin": {
+    "diffdoc": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    ".diffdocrc.example"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
+    "start": "tsc && node ./dist/index.js",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "openai": "^4.28.0",
+    "simple-git": "^3.24.0",
+    "vectra": "^0.14.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.41",
+    "typescript": "^5.3.3"
+  }
+}
