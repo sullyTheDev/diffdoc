@@ -1,6 +1,10 @@
 # DiffDoc
 
-DiffDoc is a CLI-first codebase comprehension pipeline. It summarizes source files into a portable manifest, embeds those summaries into a local Vectra index, and answers questions using the indexed context.
+## Project Description
+
+DiffDoc turns source code into searchable, plain-English project context. It scans repository files, asks an OpenAI-compatible chat model to summarize the business behavior in each file, stores those summaries in a portable JSON manifest, embeds the manifest into a local Vectra index, and answers questions using the indexed results as retrieval context.
+
+The project is designed for teams that need fast codebase comprehension without requiring every stakeholder to read implementation details. It can run against local model servers such as Ollama, LM Studio, or vLLM, or against cloud OpenAI-compatible APIs.
 
 ## Installation
 
@@ -12,7 +16,7 @@ npm run build
 node dist/index.js --help
 ```
 
-Run as a package after publishing:
+Run after publishing:
 
 ```bash
 npx diffdoc --help
@@ -25,7 +29,7 @@ npm install --save-dev diffdoc
 npx diffdoc --help
 ```
 
-You can also add package scripts:
+Package scripts can call the installed binary:
 
 ```json
 {
@@ -39,7 +43,7 @@ You can also add package scripts:
 
 ## Configuration
 
-DiffDoc accepts runtime flags on every command. It can also load a JSON `.diffdocrc` file from the current working directory, or from a custom path using `--config <path>`.
+DiffDoc accepts runtime flags on each command. It also loads a JSON `.diffdocrc` file from the current working directory when present, or from a custom path with `--config <path>`.
 
 Precedence:
 
@@ -47,22 +51,22 @@ Precedence:
 2. `.diffdocrc`
 3. Environment variable fallbacks
 
-Copy the example config:
+Create a local config from the example:
 
 ```bash
 cp .diffdocrc.example .diffdocrc
 ```
 
-Example local config:
+Example config with all supported keys:
 
 ```json
 {
   "baseDir": "./.diffdoc",
   "aiProvider": "local",
-  "localLlmEndpoint": "http://10.69.1.191:8080/v1",
-  "localEmbedEndpoint": "http://10.69.1.191:8080/v1/embeddings",
-  "localChatModel": "Qwen3.6-35B-A3B-UD-Q6_K_XL.gguf",
-  "localEmbedModel": "nomic-embed-code.Q8_0.gguf",
+  "localLlmEndpoint": "http://localhost:11434/v1",
+  "localEmbedEndpoint": "http://localhost:11434/v1/embeddings",
+  "localChatModel": "qwen2.5-coder:7b",
+  "localEmbedModel": "nomic-embed-code",
   "cloudLlmEndpoint": "https://api.openai.com/v1",
   "cloudChatModel": "gpt-4o-mini",
   "cloudEmbedModel": "text-embedding-3-small",
@@ -70,12 +74,43 @@ Example local config:
 }
 ```
 
+Supported environment fallbacks use the uppercase names for the same settings, including `AI_PROVIDER`, `DIFFDOC_BASE_DIR`, `LOCAL_LLM_ENDPOINT`, `LOCAL_EMBED_ENDPOINT`, `LOCAL_CHAT_MODEL`, `LOCAL_EMBED_MODEL`, `CLOUD_LLM_ENDPOINT`, `CLOUD_CHAT_MODEL`, `CLOUD_EMBED_MODEL`, and `OPENAI_API_KEY`.
+
+## Manifest-First Design
+
+DiffDoc separates summarization from embedding. The `summarize` command writes all generated file summaries to `manifest.json` under `baseDir`, usually `./.diffdoc/manifest.json`.
+
+The manifest is plain JSON and contains one entry per tracked file:
+
+```json
+{
+  "lastSyncedCommit": "string-hash",
+  "files": {
+    "src/example.ts": {
+      "hash": "md5-string",
+      "summaryText": "Plain-English explanation text here.",
+      "rawCodeSnapshot": "Full code text here..."
+    }
+  }
+}
+```
+
+Because the summaries are stored independently, users do not have to embed immediately. They can review, archive, transform, or embed the manifest later using their preferred vectorization model and storage solution.
+
+DiffDoc includes `diffdoc embed` as a built-in convenience path for creating a local Vectra index, but the manifest can also be consumed by other tools such as custom OpenAI-compatible embedding pipelines, hosted vector databases, local search systems, or internal documentation workflows.
+
 ## Commands
 
-Summarize a repo into `./.diffdoc/manifest.json`:
+Summarize a repository into `./.diffdoc/manifest.json`:
 
 ```bash
 diffdoc summarize --path . --mode all
+```
+
+Summarize only changed Git files using the existing manifest state:
+
+```bash
+diffdoc summarize --path . --mode delta
 ```
 
 Embed the manifest into a local Vectra index at `./.diffdoc/vectra`:
@@ -88,6 +123,12 @@ Ask a question using retrieved embedded context:
 
 ```bash
 diffdoc query "How does this project process changed files?"
+```
+
+Include retrieved code snapshots after the answer:
+
+```bash
+diffdoc query "How does embedding work?" --top 3 --code
 ```
 
 Prompt the configured chat model directly:
@@ -108,8 +149,28 @@ Override a config value at runtime:
 diffdoc embed --config ./.diffdocrc --base-dir ./tmp-diffdoc
 ```
 
+## Workflow
+
+Typical usage is:
+
+```bash
+diffdoc summarize --path . --mode all
+diffdoc embed
+diffdoc query "What business behavior does this repository implement?"
+```
+
+After the initial run, use delta mode to refresh changed files:
+
+```bash
+diffdoc summarize --path . --mode delta
+diffdoc embed
+```
+
 ## Notes
 
 - Node.js `>=22` is required because Vectra requires it.
 - `.diffdoc/` and `.diffdocrc` are ignored by git by default.
-- For local OpenAI-compatible embedding models such as `nomic-embed-code`, DiffDoc prefixes query embeddings with `Represent this query for searching relevant code:`.
+- `summarize` requires a configured chat model.
+- `embed` requires a configured embedding model.
+- `query` requires both a configured chat model and embedding model.
+- For code-oriented embedding models such as `nomic-embed-code`, DiffDoc prefixes query embeddings with `Represent this query for searching relevant code:`.
