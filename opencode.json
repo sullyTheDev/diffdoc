@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "diffdoc": {
+      "type": "local",
+      "command": ["npx", "diffdoc-mcp", "--config", "./.diffdocrc"],
+      "enabled": true,
+      "timeout": 10000
+    }
+  }
+}

@@ -37,7 +37,8 @@ Package scripts can call the installed binary:
     "diffdoc:summarize": "diffdoc summarize",
     "diffdoc:embed": "diffdoc embed",
     "diffdoc:search": "diffdoc search",
-    "diffdoc:query": "diffdoc query"
+    "diffdoc:query": "diffdoc query",
+    "diffdoc:mcp": "diffdoc-mcp"
   }
 }
 ```
@@ -187,6 +188,39 @@ This repository includes a workflow at `.github/workflows/diffdoc-summarize.yml`
 The workflow intentionally ignores `.diffdoc/manifest.json` and `.diffdoc/vectra/**` changes as triggers so the bot commit does not create a loop.
 
 Configure the same values used by the CLI as GitHub Actions variables or secrets, such as `AI_PROVIDER`, `LOCAL_LLM_ENDPOINT`, `LOCAL_CHAT_MODEL`, `CLOUD_LLM_ENDPOINT`, `CLOUD_CHAT_MODEL`, and `OPENAI_API_KEY`. The workflow uses the environment-variable fallback path in DiffDoc, so no `.diffdocrc` file is required in CI.
+
+## MCP Server
+
+DiffDoc also ships a local MCP stdio server as `diffdoc-mcp`. This lets MCP-compatible agents search or answer questions against the local Vectra index directly.
+
+Run it manually with the same config style as the CLI:
+
+```bash
+diffdoc-mcp --config ./.diffdocrc
+```
+
+Example MCP client configuration:
+
+```json
+{
+  "mcpServers": {
+    "diffdoc": {
+      "command": "npx",
+      "args": ["diffdoc-mcp", "--config", "./.diffdocrc"]
+    }
+  }
+}
+```
+
+If DiffDoc is installed as a project dev dependency, the same `npx diffdoc-mcp` command will resolve the local package binary.
+
+Available MCP tools:
+
+- `diffdoc_search`: searches the local Vectra index and returns raw file matches, summaries, scores, hashes, and optional code snapshots.
+- `diffdoc_answer`: retrieves relevant index context and asks the configured chat model to answer the question.
+- `diffdoc_index_stats`: returns the Vectra index path, whether it exists, and the indexed item count.
+
+Run `diffdoc summarize` and `diffdoc embed` before using the MCP server, otherwise the search and answer tools will not have a local index to query.
 
 ## Notes
 
