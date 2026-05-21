@@ -180,6 +180,14 @@ diffdoc summarize --path . --mode delta
 diffdoc embed
 ```
 
+## GitHub Actions
+
+This repository includes a workflow at `.github/workflows/diffdoc-summarize.yml` that runs on pushes to `main`. It installs the project, builds the CLI, runs delta summarization, and commits `.diffdoc/manifest.json` back to the branch when the manifest changes.
+
+The workflow intentionally ignores `.diffdoc/manifest.json` and `.diffdoc/vectra/**` changes as triggers so the bot commit does not create a loop.
+
+Configure the same values used by the CLI as GitHub Actions variables or secrets, such as `AI_PROVIDER`, `LOCAL_LLM_ENDPOINT`, `LOCAL_CHAT_MODEL`, `CLOUD_LLM_ENDPOINT`, `CLOUD_CHAT_MODEL`, and `OPENAI_API_KEY`. The workflow uses the environment-variable fallback path in DiffDoc, so no `.diffdocrc` file is required in CI.
+
 ## Notes
 
 - Node.js `>=22` is required because Vectra requires it.

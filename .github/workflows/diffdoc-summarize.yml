@@ -1,0 +1,67 @@
+name: DiffDoc Summaries
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - ".diffdoc/manifest.json"
+      - ".diffdoc/vectra/**"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: diffdoc-summarize-main
+  cancel-in-progress: false
+
+jobs:
+  summarize:
+    name: Update DiffDoc manifest
+    runs-on: ubuntu-latest
+
+    env:
+      AI_PROVIDER: ${{ vars.AI_PROVIDER || secrets.AI_PROVIDER || 'local' }}
+      DIFFDOC_BASE_DIR: ${{ vars.DIFFDOC_BASE_DIR || secrets.DIFFDOC_BASE_DIR || './.diffdoc' }}
+      LOCAL_LLM_ENDPOINT: ${{ vars.LOCAL_LLM_ENDPOINT || secrets.LOCAL_LLM_ENDPOINT }}
+      LOCAL_CHAT_MODEL: ${{ vars.LOCAL_CHAT_MODEL || secrets.LOCAL_CHAT_MODEL }}
+      LOCAL_EMBED_ENDPOINT: ${{ vars.LOCAL_EMBED_ENDPOINT || secrets.LOCAL_EMBED_ENDPOINT }}
+      LOCAL_EMBED_MODEL: ${{ vars.LOCAL_EMBED_MODEL || secrets.LOCAL_EMBED_MODEL }}
+      CLOUD_LLM_ENDPOINT: ${{ vars.CLOUD_LLM_ENDPOINT || secrets.CLOUD_LLM_ENDPOINT || 'https://api.openai.com/v1' }}
+      CLOUD_CHAT_MODEL: ${{ vars.CLOUD_CHAT_MODEL || secrets.CLOUD_CHAT_MODEL || 'gpt-4o-mini' }}
+      CLOUD_EMBED_MODEL: ${{ vars.CLOUD_EMBED_MODEL || secrets.CLOUD_EMBED_MODEL || 'text-embedding-3-small' }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build DiffDoc
+        run: npm run build
+
+      - name: Update summary manifest
+        run: node dist/index.js summarize --path . --mode delta
+
+      - name: Commit manifest changes
+        run: |
+          if [ -z "$(git status --porcelain -- .diffdoc/manifest.json)" ]; then
+            echo "No DiffDoc manifest changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .diffdoc/manifest.json
+          git commit -m "Update DiffDoc manifest"
+          git push
