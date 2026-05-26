@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "lastSyncedCommit": "f48cde5a1e6defea3ff10d38672cfe56ed7e6742",
+  "lastSyncedCommit": "588b9ef6ec61f3ec229fc476ed45c82b9bc529a7",
   "files": {
     ".diffdocignore": "7501768e47695380f99fc25f9011ac5b",
     ".diffdocrc": "5395f09c42ed34df83c24d8f79469fb9",
@@ -10,7 +10,7 @@
     "LICENSE": "11af7ad818b0d8f9a44f46a939c2936b",
     "README.md": "8605632a36fa1bbf1d219e4c8b46721f",
     "opencode.json": "b3e0161a57d466f626e79a2314e53061",
-    "package.json": "193b660d19a66a88160b8e3dafa043cb",
+    "package.json": "db20b2573ae07e109aa2346d025ad986",
     "plan.md": "d0c64fb10c363a8a04088b7846b43835",
     "src/commands/embed.ts": "5d3e17e1dcca68322633ad1862c253d7",
     "src/commands/query.ts": "74ae927421e31324d92d9b84727470d6",
