@@ -15,8 +15,8 @@
   "type": "commonjs",
   "main": "dist/index.js",
   "bin": {
-    "diffdoc": "./dist/index.js",
-    "diffdoc-mcp": "./dist/mcp.js"
+    "diffdoc": "dist/index.js",
+    "diffdoc-mcp": "dist/mcp.js"
   },
   "files": [
     "dist",
