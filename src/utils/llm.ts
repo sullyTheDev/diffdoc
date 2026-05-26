@@ -28,7 +28,7 @@ export async function generateFunctionalSummary(fileName: string, codeContent: s
   return response.choices[0]?.message?.content?.trim() || "No business behavior summary was returned.";
 }
 
-export async function promptLlm(prompt: string, config: ChatConfig): Promise<string> {
+export async function generateAnswer(prompt: string, config: ChatConfig): Promise<string> {
   const { client, model } = createClient(config);
   const response = await client.chat.completions.create({
     model,

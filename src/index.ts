@@ -4,7 +4,6 @@ import { buildRuntimeConfig, type RuntimeConfigOptions } from "./config";
 import { runEmbed } from "./commands/embed";
 import { runQuery, runSearch } from "./commands/query";
 import { runSummarize } from "./commands/summarize";
-import { promptLlm } from "./utils/llm";
 
 const program = new Command();
 
@@ -77,21 +76,6 @@ addChatOptions(addBaseOptions(program
         excludeGlobs: options.excludeGlob,
         ignoreFile: options.ignoreFile
       }, config);
-    } catch (error) {
-      console.error(error instanceof Error ? error.message : error);
-      process.exit(1);
-    }
-  });
-
-addChatOptions(addBaseOptions(program
-  .command("prompt")))
-  .description("Send a plain prompt to the configured LLM")
-  .argument("<message...>", "prompt text to send")
-  .action(async (messageParts: string[], options: RuntimeConfigOptions) => {
-    try {
-      const config = buildRuntimeConfig(options, { chat: true });
-      const response = await promptLlm(messageParts.join(" "), config.chat);
-      console.log(response);
     } catch (error) {
       console.error(error instanceof Error ? error.message : error);
       process.exit(1);

@@ -28,6 +28,7 @@ bun.lockb
 # Environment and local machine files
 .env
 .env.*
+.diffdocrc
 .DS_Store
 Thumbs.db
 

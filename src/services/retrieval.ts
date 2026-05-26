@@ -2,7 +2,7 @@ import { LocalIndex } from "vectra";
 import type { QueryResult } from "vectra";
 import type { RuntimeConfig } from "../config";
 import { type DiffdocVectorMetadata, getVectraIndexPath } from "../commands/embed";
-import { generateEmbeddings, promptLlm } from "../utils/llm";
+import { generateAnswer, generateEmbeddings } from "../utils/llm";
 
 const CODE_QUERY_PREFIX = "Represent this query for searching relevant code: ";
 
@@ -99,7 +99,7 @@ export async function answerFromIndex(question: string, topK: number, config: Ru
     };
   }
 
-  const answer = await promptLlm(buildAnswerPrompt(question, results), config.chat);
+  const answer = await generateAnswer(buildAnswerPrompt(question, results), config.chat);
   return {
     answer,
     sources: results.map((result) => ({ filePath: result.filePath, score: result.score })),

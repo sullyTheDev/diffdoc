@@ -174,12 +174,6 @@ Include retrieved code snapshots after the generated answer:
 diffdoc query "How does embedding work?" --top 3 --code
 ```
 
-Prompt the configured chat model directly:
-
-```bash
-diffdoc prompt "Confirm the configured model is reachable."
-```
-
 Use a custom config file:
 
 ```bash
