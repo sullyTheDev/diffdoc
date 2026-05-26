@@ -52,7 +52,7 @@ jobs:
         run: npm run build
 
       - name: Update summary manifest
-        run: node dist/index.js summarize --path . --mode delta
+        run: node dist/index.js summarize --path . --mode delta --include-code-snapshot
 
       - name: Commit manifest changes
         run: |

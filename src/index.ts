@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import { buildRuntimeConfig, type RuntimeConfigOptions } from "./config";
 import { runEmbed } from "./commands/embed";
+import { runInit, type InitOptions } from "./commands/init";
 import { runQuery, runSearch } from "./commands/query";
 import { runStatus } from "./commands/status";
 import { runSummarize } from "./commands/summarize";
@@ -46,6 +47,23 @@ program
   .name("diffdoc")
   .description("Translate repository code shifts into plain-English business context")
   .version("0.1.0");
+
+program
+  .command("init")
+  .description("Initialize DiffDoc configuration for this repository")
+  .option("--yes", "use defaults without prompting", false)
+  .option("--provider <provider>", "AI provider: local or cloud")
+  .option("--config <path>", "path to .diffdocrc JSON config file")
+  .option("--base-dir <path>", "DiffDoc artifact directory")
+  .option("--force", "overwrite existing config file", false)
+  .action(async (options: InitOptions) => {
+    try {
+      await runInit(options);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
 
 addChatOptions(addBaseOptions(program
   .command("summarize")))

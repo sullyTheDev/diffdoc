@@ -34,6 +34,7 @@ Package scripts can call the installed binary:
 ```json
 {
   "scripts": {
+    "diffdoc:init": "diffdoc init",
     "diffdoc:summarize": "diffdoc summarize",
     "diffdoc:status": "diffdoc status",
     "diffdoc:embed": "diffdoc embed",
@@ -114,6 +115,26 @@ Because the summaries are stored independently, users do not have to embed immed
 DiffDoc includes `diffdoc embed` as a built-in convenience path for creating a local Vectra index, but the manifest can also be consumed by other tools such as custom OpenAI-compatible embedding pipelines, hosted vector databases, local search systems, or internal documentation workflows.
 
 ## Commands
+
+Initialize DiffDoc configuration for a repository:
+
+```bash
+diffdoc init
+```
+
+Use defaults without prompts:
+
+```bash
+diffdoc init --yes
+```
+
+Choose a provider and overwrite an existing config file:
+
+```bash
+diffdoc init --provider cloud --force
+```
+
+`init` creates or updates repo setup files, appends missing `.gitignore` entries, and prints next commands. It does not run `summarize` or `embed`.
 
 Summarize a repository into `./.diffdoc/manifest.json`:
 
