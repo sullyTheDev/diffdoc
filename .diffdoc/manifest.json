@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
-  "lastSyncedCommit": "4b8c0ad11f370e2e510d70a9bc4fcc8bd71858d9",
+  "lastSyncedCommit": "f2f41b0d6154a5adb466f561676f3bf581665b5c",
   "files": {
     ".diffdocignore": "55136b821677e85b29ac10e30126ae30",
     ".diffdocrc.example": "e4a89a3f0205e34d65ed8850387f85ad",
-    ".github/workflows/diffdoc-summarize.yml": "96e24b1a72cc84a1ae7bc38a6c8fed9d",
-    ".gitignore": "7283b2126319183bb2ffb5c39efbf46a",
+    ".github/workflows/diffdoc-summarize.yml": "20868a449d460e028f0dd093cc3c0986",
+    ".gitignore": "13300eefb8e0cdb6f42e9a3cf4133792",
     "LICENSE": "11af7ad818b0d8f9a44f46a939c2936b",
-    "README.md": "0a8e3749f0b4644f4f10c187115a67b3",
+    "README.md": "f4b7e0fec4892c8cfa0fed986d63f87b",
     "future-endeavors.md": "58cf096cfd677ec2f67a823c6b9ae82e",
     "opencode.json": "b3e0161a57d466f626e79a2314e53061",
     "package.json": "db20b2573ae07e109aa2346d025ad986",
@@ -17,7 +17,7 @@
     "src/commands/status.ts": "09f54a5199f298195947849a16217f8a",
     "src/commands/summarize.ts": "82a08c3804dd23343a732fb992d52fa7",
     "src/config.ts": "fc6e53ca076efcbb2c5ea8682327c56e",
-    "src/index.ts": "4286029837aacce5b1ae0c4e21d0a8c0",
+    "src/index.ts": "fe529eb65cd493053a1f4e44c48308a7",
     "src/mcp.ts": "1002f8e8e1f54f6268d6d3dc34b63395",
     "src/services/retrieval.ts": "cc660dbf5845554839f403a49c2e8406",
     "src/types/artifacts.ts": "8a29bfb918f46107f6231fb4ae95b349",
@@ -25,6 +25,7 @@
     "src/utils/hashing.ts": "b16f8d533a9ec0d3408738f1c06f6fa1",
     "src/utils/llm.ts": "29df11c80ddf5e9cc0b49d521d9493c1",
     "src/utils/paths.ts": "9761e45294e4c3b6c226a3e0a770362c",
-    "tsconfig.json": "7f2eda840dc1acc72ca788abd740c5fb"
+    "tsconfig.json": "7f2eda840dc1acc72ca788abd740c5fb",
+    "src/commands/init.ts": "bb682ea56ccabbe28aedd52f605d76e1"
   }
 }
