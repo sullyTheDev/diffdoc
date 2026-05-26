@@ -35,6 +35,7 @@ Package scripts can call the installed binary:
 {
   "scripts": {
     "diffdoc:summarize": "diffdoc summarize",
+    "diffdoc:status": "diffdoc status",
     "diffdoc:embed": "diffdoc embed",
     "diffdoc:search": "diffdoc search",
     "diffdoc:query": "diffdoc query",
@@ -136,6 +137,30 @@ Add include/exclude filters at runtime:
 
 ```bash
 diffdoc summarize --path . --mode all --include-glob "src/**/*.ts" --exclude-glob "**/*.test.ts"
+```
+
+Emit a CI-friendly JSON summarize report:
+
+```bash
+diffdoc summarize --path . --mode delta --json
+```
+
+Inspect manifest-relative artifact freshness:
+
+```bash
+diffdoc status
+```
+
+Use a custom manifest path under `--base-dir`:
+
+```bash
+diffdoc status --manifest manifest.json
+```
+
+Emit CI-friendly JSON output:
+
+```bash
+diffdoc status --json
 ```
 
 Embed the manifest into a local Vectra index at `./.diffdoc/vectra`:
@@ -253,6 +278,10 @@ Run `diffdoc summarize` and `diffdoc embed` before using the MCP server, otherwi
 - Manifest schema is currently `schemaVersion: 2`; older manifest shapes are not auto-migrated.
 - Commit `.diffdoc/manifest.json` when using delta workflows. Delta summarization reads the previous manifest state to decide which changed files need fresh summaries.
 - `summarize` requires a configured chat model.
+- `summarize` prints run progress and final totals (`scanned`, `skipped`, `updated`, `failed`, `pruned`).
+- `summarize --json` prints a single machine-readable run report to stdout for CI parsing.
+- `status` does not require a configured chat or embedding model.
+- `status --json` prints a machine-readable report with summary and index freshness details.
 - `embed` requires a configured embedding model.
 - `search` requires a configured embedding model and returns raw retrieval results without calling the chat model.
 - `query` requires both a configured chat model and embedding model.

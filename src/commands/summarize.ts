@@ -12,9 +12,30 @@ export interface SummarizeOptions {
   out: string;
   mode: "all" | "delta";
   includeCodeSnapshot: boolean;
+  json: boolean;
   includeGlobs?: string[];
   excludeGlobs?: string[];
   ignoreFile?: string;
+}
+
+interface SummarizeTotals {
+  scanned: number;
+  skipped: number;
+  updated: number;
+  failed: number;
+  pruned: number;
+}
+
+interface SummarizeReport {
+  mode: "all" | "delta";
+  repoPath: string;
+  manifestPath: string;
+  summaryDir: string;
+  startedAt: string;
+  finishedAt: string;
+  durationMs: number;
+  totals: SummarizeTotals;
+  failures: Array<{ filePath: string; message: string }>;
 }
 
 function normalizeRelativePath(filePath: string): string {
@@ -226,10 +247,10 @@ async function setManifestPathHash(
   manifestPath: string,
   summaryDir: string,
   refs: Map<string, number>
-): Promise<void> {
+): Promise<boolean> {
   const previousHash = manifest.files[filePath];
   if (previousHash === newHash) {
-    return;
+    return false;
   }
 
   if (previousHash) {
@@ -242,6 +263,7 @@ async function setManifestPathHash(
   if (previousHash) {
     await deleteSummaryIfUnreferenced(summaryDir, previousHash, refs);
   }
+  return true;
 }
 
 async function removeManifestPath(
@@ -250,16 +272,17 @@ async function removeManifestPath(
   manifestPath: string,
   summaryDir: string,
   refs: Map<string, number>
-): Promise<void> {
+): Promise<boolean> {
   const previousHash = manifest.files[filePath];
   if (!previousHash) {
-    return;
+    return false;
   }
 
   delete manifest.files[filePath];
   refs.set(previousHash, Math.max((refs.get(previousHash) || 1) - 1, 0));
   await writeManifest(manifestPath, manifest);
   await deleteSummaryIfUnreferenced(summaryDir, previousHash, refs);
+  return true;
 }
 
 async function ensureSummaryAsset(
@@ -316,6 +339,7 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
     throw new Error('Invalid summarize mode. Expected "all" or "delta".');
   }
 
+  const startedAt = new Date();
   const commandCwd = process.cwd();
   const repoPath = path.resolve(commandCwd, options.path);
   const manifestPath = resolveDiffdocArtifactPath(options.out, config.baseDir);
@@ -332,7 +356,19 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
   const ignoreFile = options.ignoreFile || config.summarize.ignoreFile;
   const ignorePatterns = compileGlobs(await readIgnorePatterns(repoPath, ignoreFile));
 
+  const totals: SummarizeTotals = { scanned: 0, skipped: 0, updated: 0, failed: 0, pruned: 0 };
   const failures: Array<{ filePath: string; message: string }> = [];
+
+  const isJson = options.json;
+
+  if (!isJson) {
+    console.log(`Starting summarize run`);
+    console.log(`Mode: ${options.mode}`);
+    console.log(`Repo: ${repoPath}`);
+    console.log(`Manifest: ${manifestPath}`);
+    console.log(`Summaries: ${summaryDir}`);
+    console.log("---");
+  }
 
   if (options.mode === "all") {
     manifest.files = {};
@@ -340,7 +376,16 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
     await writeManifest(manifestPath, manifest);
 
     const files = await walkCodeFiles(repoPath, includePatterns, excludePatterns, ignorePatterns);
-    for (const filePath of files) {
+    const totalFiles = files.length;
+
+    if (!isJson) {
+      console.log(`Candidates: ${totalFiles}`);
+    }
+
+    for (let i = 0; i < files.length; i += 1) {
+      const filePath = files[i];
+      totals.scanned += 1;
+
       try {
         const absolutePath = path.join(repoPath, filePath);
         const rawCodeSnapshot = await fs.readFile(absolutePath, "utf8");
@@ -353,25 +398,53 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
         manifest.files[filePath] = hash;
         refs.set(hash, (refs.get(hash) || 0) + 1);
         await writeManifest(manifestPath, manifest);
-        console.log(`Summarized ${filePath}`);
+        totals.updated += 1;
+
+        if (!isJson) {
+          console.log(`[${i + 1}/${totalFiles}] summarized ${filePath}`);
+        }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         failures.push({ filePath, message });
-        console.error(`Failed ${filePath}: ${message}`);
+        totals.failed += 1;
+        if (!isJson) {
+          console.error(`[${i + 1}/${totalFiles}] failed ${filePath}: ${message}`);
+        }
       }
     }
   } else {
     const deltas = await getGitDeltas(repoPath, manifest.lastSyncedCommit);
+    const totalCandidates = deltas.modifiedOrAdded.length + deltas.deleted.length;
 
-    for (const deletedPath of deltas.deleted) {
-      await removeManifestPath(deletedPath, manifest, manifestPath, summaryDir, refs);
-      console.log(`Pruned ${deletedPath}`);
+    if (!isJson) {
+      console.log(`Candidates: ${totalCandidates} (${deltas.modifiedOrAdded.length} modified/added, ${deltas.deleted.length} deleted)`);
     }
 
-    for (const filePath of deltas.modifiedOrAdded) {
+    for (const deletedPath of deltas.deleted) {
+      const removed = await removeManifestPath(deletedPath, manifest, manifestPath, summaryDir, refs);
+      if (removed) {
+        totals.pruned += 1;
+      }
+      if (!isJson) {
+        console.log(`pruned ${deletedPath}`);
+      }
+    }
+
+    for (let i = 0; i < deltas.modifiedOrAdded.length; i += 1) {
+      const filePath = deltas.modifiedOrAdded[i];
+      totals.scanned += 1;
+
       try {
         if (!shouldIncludeFile(filePath, includePatterns, excludePatterns, ignorePatterns)) {
-          await removeManifestPath(filePath, manifest, manifestPath, summaryDir, refs);
+          const removed = await removeManifestPath(filePath, manifest, manifestPath, summaryDir, refs);
+          if (removed) {
+            totals.pruned += 1;
+          } else {
+            totals.skipped += 1;
+          }
+          if (!isJson) {
+            console.log(`[${i + 1}/${deltas.modifiedOrAdded.length}] excluded ${filePath}`);
+          }
           continue;
         }
 
@@ -380,6 +453,10 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
         const rawCodeSnapshot = await fs.readFile(absolutePath, "utf8");
         const hash = hashFileContent(rawCodeSnapshot);
         if (previousHash === hash) {
+          totals.skipped += 1;
+          if (!isJson) {
+            console.log(`[${i + 1}/${deltas.modifiedOrAdded.length}] unchanged ${filePath}`);
+          }
           continue;
         }
 
@@ -389,18 +466,36 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
           await ensureSummaryAsset(summaryDir, hash, summaryText, rawCodeSnapshot, options.includeCodeSnapshot);
         }
 
-        await setManifestPathHash(filePath, hash, manifest, manifestPath, summaryDir, refs);
-        console.log(`Updated ${filePath}`);
+        const changed = await setManifestPathHash(filePath, hash, manifest, manifestPath, summaryDir, refs);
+        if (changed) {
+          totals.updated += 1;
+        } else {
+          totals.skipped += 1;
+        }
+        if (!isJson) {
+          console.log(`[${i + 1}/${deltas.modifiedOrAdded.length}] updated ${filePath}`);
+        }
       } catch (error) {
         const nodeError = error as NodeJS.ErrnoException;
         if (nodeError.code === "ENOENT") {
-          await removeManifestPath(filePath, manifest, manifestPath, summaryDir, refs);
+          const removed = await removeManifestPath(filePath, manifest, manifestPath, summaryDir, refs);
+          if (removed) {
+            totals.pruned += 1;
+          } else {
+            totals.skipped += 1;
+          }
+          if (!isJson) {
+            console.log(`[${i + 1}/${deltas.modifiedOrAdded.length}] missing ${filePath}`);
+          }
           continue;
         }
 
         const message = error instanceof Error ? error.message : String(error);
         failures.push({ filePath, message });
-        console.error(`Failed ${filePath}: ${message}`);
+        totals.failed += 1;
+        if (!isJson) {
+          console.error(`[${i + 1}/${deltas.modifiedOrAdded.length}] failed ${filePath}: ${message}`);
+        }
       }
     }
   }
@@ -408,12 +503,42 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
   manifest.lastSyncedCommit = await getCurrentCommit(repoPath);
   await writeManifest(manifestPath, manifest);
   await pruneOrphanedSummaries(summaryDir, manifest);
-  console.log(`Wrote manifest to ${manifestPath}`);
+
+  const finishedAt = new Date();
+  const durationMs = finishedAt.getTime() - startedAt.getTime();
+
+  const report: SummarizeReport = {
+    mode: options.mode,
+    repoPath,
+    manifestPath,
+    summaryDir,
+    startedAt: startedAt.toISOString(),
+    finishedAt: finishedAt.toISOString(),
+    durationMs,
+    totals,
+    failures
+  };
+
+  if (isJson) {
+    console.log(JSON.stringify(report, null, 2));
+  } else {
+    console.log("---");
+    console.log(`Summarize complete`);
+    console.log(`Scanned: ${totals.scanned}`);
+    console.log(`Updated: ${totals.updated}`);
+    console.log(`Skipped: ${totals.skipped}`);
+    console.log(`Pruned: ${totals.pruned}`);
+    console.log(`Failed: ${totals.failed}`);
+    console.log(`Duration: ${(durationMs / 1000).toFixed(2)}s`);
+    console.log(`Manifest: ${manifestPath}`);
+  }
 
   if (failures.length > 0) {
-    console.error(`\n${failures.length} file(s) failed during summarization:`);
-    for (const failure of failures) {
-      console.error(`- ${failure.filePath}: ${failure.message}`);
+    if (!isJson) {
+      console.error(`\n${failures.length} file(s) failed during summarization:`);
+      for (const failure of failures) {
+        console.error(`- ${failure.filePath}: ${failure.message}`);
+      }
     }
     throw new Error("Summarization completed with failures.");
   }

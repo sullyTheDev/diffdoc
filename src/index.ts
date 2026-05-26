@@ -3,6 +3,7 @@ import { Command } from "commander";
 import { buildRuntimeConfig, type RuntimeConfigOptions } from "./config";
 import { runEmbed } from "./commands/embed";
 import { runQuery, runSearch } from "./commands/query";
+import { runStatus } from "./commands/status";
 import { runSummarize } from "./commands/summarize";
 
 const program = new Command();
@@ -53,6 +54,7 @@ addChatOptions(addBaseOptions(program
   .option("--out <path>", "manifest output path under --base-dir", "manifest.json")
   .option("--mode <mode>", "summarization mode: all or delta", "all")
   .option("--include-code-snapshot", "store raw code in summary assets", false)
+  .option("--json", "print summarize report as JSON for CI", false)
   .option("--include-glob <pattern>", "include glob pattern (repeatable)", collectOption, [])
   .option("--exclude-glob <pattern>", "exclude glob pattern (repeatable)", collectOption, [])
   .option("--ignore-file <path>", "path to ignore pattern file relative to --path")
@@ -61,6 +63,7 @@ addChatOptions(addBaseOptions(program
     out: string;
     mode: string;
     includeCodeSnapshot: boolean;
+    json: boolean;
     includeGlob: string[];
     excludeGlob: string[];
     ignoreFile?: string;
@@ -72,6 +75,7 @@ addChatOptions(addBaseOptions(program
         out: options.out,
         mode: options.mode as "all" | "delta",
         includeCodeSnapshot: options.includeCodeSnapshot,
+        json: options.json,
         includeGlobs: options.includeGlob,
         excludeGlobs: options.excludeGlob,
         ignoreFile: options.ignoreFile
@@ -124,6 +128,21 @@ addCloudEndpointAndKeyOptions(addEmbeddingOptions(addBaseOptions(program
     try {
       const config = buildRuntimeConfig(options, { embeddings: true });
       await runEmbed({ manifest: options.manifest, rebuild: options.rebuild }, config);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+addBaseOptions(program
+  .command("status"))
+  .description("Show manifest and index sync status")
+  .option("--manifest <path>", "manifest input path under --base-dir", "manifest.json")
+  .option("--json", "print status as JSON for CI", false)
+  .action(async (options: RuntimeConfigOptions & { manifest: string; json: boolean }) => {
+    try {
+      const config = buildRuntimeConfig(options, { embeddings: false, chat: false });
+      await runStatus({ manifest: options.manifest, json: options.json }, config);
     } catch (error) {
       console.error(error instanceof Error ? error.message : error);
       process.exit(1);
