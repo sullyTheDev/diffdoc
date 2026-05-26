@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "content_hash": "55136b821677e85b29ac10e30126ae30",
+  "summary": "This file tells the system which files to ignore when collecting or comparing project content.\n\nWhat it does:\n- Excludes version control files and DiffDoc’s own working files.\n- Skips installed dependencies and package caches.\n- Ignores build outputs, test coverage, and other generated files.\n- Leaves out logs, lockfiles, and local environment settings.\n- Omits common binary and media files like images, videos, fonts, and archives.\n\nBusiness impact:\n- Keeps reviews focused on meaningful source files instead of clutter.\n- Reduces noise from generated or machine-specific files.\n- Helps avoid exposing local secrets or environment settings.\n- Makes comparisons faster and more reliable by skipping large, unimportant files.\n\nVisible outcome:\n- When the project is scanned, these files will not be included in the results or diffs."
+}
