@@ -1,162 +1,204 @@
-# Implementation Plan: DiffDoc (V1 Tracer Bullet)
+# DiffDoc Refactor Plan (Scalable Per-File Summaries)
 
-DiffDoc is a modular, CLI-first codebase comprehension pipeline that bridges the gap between raw code changes and non-technical stakeholder visibility. It uses a **Summary-First RAG** architecture: it intercepts code adjustments via Git deltas, executes file-level processing, and leverages local or cloud LLMs via an OpenAI-compatible API to generate plain-English business logic snapshots. These snapshots are saved to a portable JSON manifest before being indexed into a local vector storage engine.
+## 1. Objective
 
----
+Refactor DiffDoc to scale across large codebases by:
 
-## 1. Core Architectural Constraints
+- Generating and storing summaries as independent per-hash JSON files.
+- Keeping summarization fully decoupled from embedding/indexing.
+- Updating state incrementally and crash-safely, one file at a time.
+- Preserving current CLI naming (`embed`) while changing internal data model.
 
-* **Language & Runtime:** TypeScript compiled to CommonJS targeting Node.js (ES2022).
-* **No Orchestration Frameworks:** Absolute ban on LangChain or similar libraries. Use native vendor SDKs (`openai` package, `chromadb` package) directly.
-* **Decoupled Multi-Pass Pipeline:**
-    * `summarize` command: Processes codebase text, interacts with LLM, updates a local JSON file snapshot.
-    * `embed` command: Reads the local JSON snapshot file, calculates mathematical arrays, ingests to database rows.
-* **API Agnosticism:** Must support seamless hot-swapping between public cloud models and local offline model engines (Ollama/LM Studio) via simple environment configurations.
+This is a **breaking schema change** and does **not** include migration from the old manifest format.
 
 ---
 
-## 2. Directory Layout & Workspace Design
+## 2. Final Decisions (Locked)
 
-The agent must create and maintain the following structural workspace geometry exactly:
+1. Breaking schema change is acceptable; no migration path required.
+2. Manifest maps `source_file -> content_hash`; summary files are hash-addressed.
+3. Raw code snapshot storage is optional, default off.
+4. Atomic write strategy is required.
+5. Continue on per-file summarize errors; fail command at end if any failures.
+6. No lockfile/concurrency control for now.
+7. Embed/indexing should be incremental by default, with prune and optional rebuild.
+8. Orphan summary cleanup happens immediately during summarize.
+9. Add configurable include/exclude filtering plus `.diffdocignore`.
+10. No binary/size safeguards for now (process everything).
+11. Keep `embed` command name (no rename to `index`).
+
+---
+
+## 3. Target Artifact Architecture
+
+All artifacts live under `.diffdoc/` in the target repo.
 
 ```text
-diffdoc/
-├── dist/                     # Compiled JavaScript outputs (tsc target)
-├── src/
-│   ├── commands/
-│   │   ├── summarize.ts      # Tracks file filesystem changes, handles LLM translation
-│   │   └── embed.ts          # Reads manifest, updates local ChromaDB collection
-│   ├── utils/
-│   │   ├── git.ts            # Simple-git integration logic wrappers
-│   │   ├── hashing.ts        # Fast crypto MD5 calculation for file tracking
-│   │   └── llm.ts            # Abstracted OpenAI API client initialization
-│   └── index.ts              # System CLI Entry point (Commander orchestration)
-├── .env                      # Connection endpoints and runtime parameters
-├── package.json              # Direct dependency registry
-└── tsconfig.json             # TypeScript compiler properties
+target-repo/
+└── .diffdoc/
+    ├── manifest.json
+    └── summaries/
+        ├── <hash-a>.json
+        └── <hash-b>.json
 ```
 
----
+### 3.1 Manifest Schema (`.diffdoc/manifest.json`)
 
-## 3. Configuration Blueprints
-
-The agent should initialize the base project configuration profiles exactly as specified below:
-
-### package.json
 ```json
 {
-  "name": "diffdoc",
-  "version": "0.1.0",
-  "description": "Translate repository code shifts into plain-English business context",
-  "main": "dist/index.js",
-  "type": "commonjs",
-  "bin": {
-    "diffdoc": "./dist/index.js"
-  },
-  "scripts": {
-    "build": "tsc",
-    "start": "tsc && node ./dist/index.js"
-  },
-  "dependencies": {
-    "chromadb": "^1.9.0",
-    "commander": "^12.0.0",
-    "dotenv": "^16.4.5",
-    "openai": "^4.28.0",
-    "simple-git": "^3.24.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.11.0",
-    "typescript": "^5.3.3"
-  }
-}
-```
-
-### tsconfig.json
-```json
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "CommonJS",
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
-  },
-  "include": ["src/**/*"]
-}
-```
-
-### .env
-```ini
-# --- ENGINE ROUTING TOGGLE ---
-# Options: "local" (Ollama, LM Studio, vLLM) or "cloud" (Official OpenAI)
-AI_PROVIDER=local
-
-# --- LOCAL OFFLINE ENGINE ARCHITECTURE ---
-LOCAL_LLM_ENDPOINT=http://localhost:11434/v1
-LOCAL_EMBED_ENDPOINT=http://localhost:11434/v1/embeddings
-LOCAL_CHAT_MODEL=qwen2.5-coder:7b
-LOCAL_EMBED_MODEL=nomic-embed-text
-
-# --- CLOUD PRODUCTION ENGINE ARCHITECTURE ---
-CLOUD_LLM_ENDPOINT=https://api.openai.com/v1
-CLOUD_CHAT_MODEL=gpt-4o-mini
-CLOUD_EMBED_MODEL=text-embedding-3-small
-OPENAI_API_KEY=sk-proj-YourActualCloudKeyHere
-```
-
----
-
-## 4. Execution Step Sequence
-
-The agent must implement the system in four progressive, incremental phases. Do not advance to the next step until all behaviors in the current step are fully verified.
-
-### Step 1: Utility Foundations (`src/utils/`)
-* **`hashing.ts`**: Create an exported function that reads a file string and calculates a standard `crypto.createHash('md5')` string.
-* **`git.ts`**: Wrap the `simple-git` instance to create an async function `getGitDeltas(repoPath: string, sinceRef: string)` that returns arrays of modified/added and deleted files matching target code extensions (`.ts`, `.js`, `.cs`, `.py`).
-* **`llm.ts`**: Implement the abstracted `generateFunctionalSummary(fileName: string, codeContent: string)` method using a native conditional router over the `.env` configuration keys (`AI_PROVIDER`). Ensure the system prompt enforces **plain-English, jargon-free business logic capturing with zero conversational preamble**.
-
-### Step 2: The Command Line Interface (`src/index.ts`)
-* Implement `commander` argument layouts to expose two main actions:
-    1.  `summarize` with flags: `--path` (default `.`), `--out` (default `./.repo-ctx.json`), and `--mode` (`all` or `delta`).
-    2.  `embed` with flags: `--manifest` (default `./.repo-ctx.json`).
-* Verify that flags are properly parsed and error paths output clear log feedback.
-
-### Step 3: `summarize` Engine Logic (`src/commands/summarize.ts`)
-* If **`mode === 'all'`**: Responsibly walk the specified code path directory (ignoring binary files, `node_modules`, `dist`, and lockfiles), calculate hashes, pass code text blocks to the LLM utility, and construct the initial manifest state.
-* If **`mode === 'delta'`**: 
-    1. Read the existing `.repo-ctx.json` file if present.
-    2. Pull Git modified/deleted arrays from the utility engine layer.
-    3. Prune deleted files from the JSON memory array object.
-    4. For each modified file, compare its current filesystem hash against the manifest hash. If different, trigger an LLM replacement pass.
-* Save the clean tracking manifest output back to disk:
-```json
-{
-  "lastSyncedCommit": "string-hash",
+  "schemaVersion": 2,
+  "lastSyncedCommit": "optional-commit-sha-or-empty",
   "files": {
-    "src/example.ts": {
-      "hash": "md5-string",
-      "summaryText": "Plain English explanation text here.",
-      "rawCodeSnapshot": "Full code text here..."
-    }
+    "src/services/auth.ts": "a1b2c3d4e5f6...",
+    "src/services/payment.ts": "f9e8d7c6b5a4..."
   }
 }
 ```
 
-### Step 4: `embed` Engine Logic (`src/commands/embed.ts`)
-* Initialize the native `ChromaClient` targeting `http://localhost:8000`.
-* Initialize Chroma's built-in `OpenAIEmbeddingFunction` instance, setting the `openai_proxy_url` string conditional to `LOCAL_EMBED_ENDPOINT` if running under the local provider setting.
-* Read the text objects from `.repo-ctx.json`. Batch process and insert them into the `diffdoc_summaries` collection. Map file paths directly to document `ids`, the business explanation string to `documents`, and copy the source code snapshot into the `metadatas` map layer.
+### 3.2 Summary Asset Schema (`.diffdoc/summaries/<hash>.json`)
+
+```json
+{
+  "schemaVersion": 1,
+  "content_hash": "a1b2c3d4e5f6...",
+  "summary": "Plain-English functional summary...",
+  "raw_code_snapshot": "optional raw source text when enabled"
+}
+```
+
+Notes:
+
+- `raw_code_snapshot` is omitted unless `--include-code-snapshot` is enabled.
+- Summary files are canonical by hash and do not own file-path mapping.
 
 ---
 
-## 5. Verification Checks for Agent
+## 4. Command Behavior
 
-Before considering this task complete, the agent must verify:
-1.  Running `npm run build` compiles clean JS outputs inside the `./dist` folder with no compiler errors.
-2.  Executing the tool generates a perfectly formatted `.repo-ctx.json` manifest file without crashing.
-3.  Toggling `AI_PROVIDER=local` successfully redirects the API requests to the local network port settings without requiring changes to the core code logic.
+### 4.1 `summarize`
+
+Command:
+
+```bash
+diffdoc summarize --path . --mode all|delta [--include-code-snapshot]
 ```
+
+Core behavior:
+
+1. Load/create manifest v2.
+2. Discover target files using default filters + configured include/exclude + `.diffdocignore`.
+3. For each candidate file:
+   - Read content
+   - Hash content
+   - Compare with manifest hash for that path
+   - Skip unchanged
+   - Summarize changed/new files
+   - Write `.diffdoc/summaries/<newHash>.json` atomically
+   - Update `manifest.files[path] = newHash`
+   - Write manifest atomically immediately
+4. In `delta` mode:
+   - Remove deleted paths from manifest
+   - Perform orphan cleanup for unreferenced old hashes
+5. Track per-file failures; continue processing.
+6. Exit non-zero if any failures occurred.
+
+### 4.2 `embed`
+
+Command:
+
+```bash
+diffdoc embed [--manifest manifest.json] [--rebuild]
+```
+
+Core behavior:
+
+1. Load manifest v2.
+2. If `--rebuild`, recreate index from scratch.
+3. Otherwise:
+   - Incrementally upsert current manifest paths using summary files.
+   - Prune vectors for paths no longer present in manifest.
+4. Keep query/search metadata compatibility.
+5. Handle missing optional snapshot gracefully.
+
+---
+
+## 5. Filtering Strategy
+
+Add support for:
+
+- Default built-in filters (existing ignored dirs/files/extensions).
+- `.diffdocignore` file (repo-local ignore patterns).
+- Configurable include/exclude patterns (from CLI/config).
+
+Resolution order:
+
+1. Candidate from directory walk
+2. Must match include rules (if provided)
+3. Must not match exclude rules
+4. Must not match `.diffdocignore`
+
+---
+
+## 6. Crash Safety and Error Handling
+
+### Atomic Writes
+
+Use temp-file + rename for:
+
+- Manifest writes
+- Summary asset writes
+
+### Failure Policy
+
+- Per-file summarize errors are collected and reported.
+- Processing continues across remaining files.
+- Command exits with non-zero status if any file failed.
+
+---
+
+## 7. Orphan Cleanup Rules
+
+When a file path changes hash or is deleted:
+
+- Old hash summary is deleted immediately **only if no remaining manifest path references that hash**.
+- Must account for duplicate-content files (multiple paths sharing same hash).
+
+---
+
+## 8. Out of Scope (For Now)
+
+- Backward compatibility/migration from old manifest schema.
+- Locking/concurrency control for multiple summarize runs.
+- Binary detection and max file-size/token guardrails.
+- Command rename from `embed` to `index`.
+
+---
+
+## 9. Implementation Sequence
+
+1. Introduce new artifact types and schemas (manifest v2 + summary assets).
+2. Add CLI/config flags:
+   - `summarize --include-code-snapshot`
+   - `embed --rebuild`
+   - include/exclude + ignore-file settings
+3. Implement filtering pipeline with `.diffdocignore`.
+4. Rewrite summarize flow to per-file summary assets + immediate manifest updates.
+5. Add atomic write utilities and wire into summarize persistence.
+6. Add per-file failure collection + final non-zero exit behavior.
+7. Implement immediate orphan cleanup with hash reference checks.
+8. Refactor embed for incremental upsert + prune + optional rebuild.
+9. Update retrieval/query handling for optional snapshot metadata.
+10. Update README/docs to match new breaking architecture.
+
+---
+
+## 10. Verification Checklist
+
+- Fresh run creates manifest and per-hash summary files.
+- No-change rerun skips unchanged files.
+- Single-file change updates only that path/hash summary.
+- File deletion removes manifest entry and deletes orphan summary when unreferenced.
+- Duplicate-content paths do not delete shared hash prematurely.
+- Embed default run updates incrementally and prunes removed paths.
+- `embed --rebuild` performs full reindex.
+- Summarize continues through file errors and exits non-zero if any failures exist.

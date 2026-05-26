@@ -6,6 +6,7 @@ on:
       - main
     paths-ignore:
       - ".diffdoc/manifest.json"
+      - ".diffdoc/summaries/**"
       - ".diffdoc/vectra/**"
 
 permissions:
@@ -55,13 +56,13 @@ jobs:
 
       - name: Commit manifest changes
         run: |
-          if [ -z "$(git status --porcelain -- .diffdoc/manifest.json)" ]; then
-            echo "No DiffDoc manifest changes to commit."
+          if [ -z "$(git status --porcelain -- .diffdoc/manifest.json .diffdoc/summaries)" ]; then
+            echo "No DiffDoc artifact changes to commit."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .diffdoc/manifest.json
-          git commit -m "Update DiffDoc manifest"
+          git add .diffdoc/manifest.json .diffdoc/summaries
+          git commit -m "Update DiffDoc summaries"
           git push

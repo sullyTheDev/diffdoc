@@ -8,5 +8,8 @@
   "cloudLlmEndpoint": "https://api.openai.com/v1",
   "cloudChatModel": "gpt-4o-mini",
   "cloudEmbedModel": "text-embedding-3-small",
-  "openaiApiKey": ""
+  "openaiApiKey": "",
+  "includeGlobs": [],
+  "excludeGlobs": [],
+  "ignoreFile": ".diffdocignore"
 }

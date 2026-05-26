@@ -8,6 +8,11 @@ import { promptLlm } from "./utils/llm";
 
 const program = new Command();
 
+function collectOption(value: string, previous: string[]): string[] {
+  previous.push(value);
+  return previous;
+}
+
 function addBaseOptions(command: Command): Command {
   return command
     .option("--config <path>", "path to .diffdocrc JSON config file")
@@ -48,10 +53,30 @@ addChatOptions(addBaseOptions(program
   .option("--path <path>", "repository or code path to scan", ".")
   .option("--out <path>", "manifest output path under --base-dir", "manifest.json")
   .option("--mode <mode>", "summarization mode: all or delta", "all")
-  .action(async (options: RuntimeConfigOptions & { path: string; out: string; mode: string }) => {
+  .option("--include-code-snapshot", "store raw code in summary assets", false)
+  .option("--include-glob <pattern>", "include glob pattern (repeatable)", collectOption, [])
+  .option("--exclude-glob <pattern>", "exclude glob pattern (repeatable)", collectOption, [])
+  .option("--ignore-file <path>", "path to ignore pattern file relative to --path")
+  .action(async (options: RuntimeConfigOptions & {
+    path: string;
+    out: string;
+    mode: string;
+    includeCodeSnapshot: boolean;
+    includeGlob: string[];
+    excludeGlob: string[];
+    ignoreFile?: string;
+  }) => {
     try {
       const config = buildRuntimeConfig(options, { chat: true });
-      await runSummarize({ path: options.path, out: options.out, mode: options.mode as "all" | "delta" }, config);
+      await runSummarize({
+        path: options.path,
+        out: options.out,
+        mode: options.mode as "all" | "delta",
+        includeCodeSnapshot: options.includeCodeSnapshot,
+        includeGlobs: options.includeGlob,
+        excludeGlobs: options.excludeGlob,
+        ignoreFile: options.ignoreFile
+      }, config);
     } catch (error) {
       console.error(error instanceof Error ? error.message : error);
       process.exit(1);
@@ -110,10 +135,11 @@ addCloudEndpointAndKeyOptions(addEmbeddingOptions(addBaseOptions(program
 )
   .description("Embed manifest summaries into a local Vectra index")
   .option("--manifest <path>", "manifest input path under --base-dir", "manifest.json")
-  .action(async (options: RuntimeConfigOptions & { manifest: string }) => {
+  .option("--rebuild", "rebuild local index from scratch", false)
+  .action(async (options: RuntimeConfigOptions & { manifest: string; rebuild: boolean }) => {
     try {
       const config = buildRuntimeConfig(options, { embeddings: true });
-      await runEmbed({ manifest: options.manifest }, config);
+      await runEmbed({ manifest: options.manifest, rebuild: options.rebuild }, config);
     } catch (error) {
       console.error(error instanceof Error ? error.message : error);
       process.exit(1);

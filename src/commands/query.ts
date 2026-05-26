@@ -38,7 +38,7 @@ export async function runQuery(message: string, options: QueryOptions, config: R
 
     if (options.code) {
       console.log("Code Snapshot:");
-      console.log(trimForDisplay(result.rawCodeSnapshot, 2000));
+      console.log(trimForDisplay(result.rawCodeSnapshot || "(not stored)", 2000));
     }
   }
 }
@@ -61,7 +61,7 @@ export async function runSearch(message: string, options: SearchOptions, config:
 
     if (options.code) {
       console.log("Code Snapshot:");
-      console.log(trimForDisplay(result.rawCodeSnapshot, 2000));
+      console.log(trimForDisplay(result.rawCodeSnapshot || "(not stored)", 2000));
     }
   }
 }

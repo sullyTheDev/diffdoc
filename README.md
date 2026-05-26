@@ -2,7 +2,7 @@
 
 ## Project Description
 
-DiffDoc turns source code into searchable, plain-English project context. It scans repository files, asks an OpenAI-compatible chat model to summarize the business behavior in each file, stores those summaries in a portable JSON manifest, embeds the manifest into a local Vectra index, and answers questions using the indexed results as retrieval context.
+DiffDoc turns source code into searchable, plain-English project context. It scans repository files, asks an OpenAI-compatible chat model to summarize the business behavior in each file, stores the summaries as portable per-hash JSON assets, embeds those assets into a local Vectra index, and answers questions using the indexed results as retrieval context.
 
 The project is designed for teams that need fast codebase comprehension without requiring every stakeholder to read implementation details. It can run against local model servers such as Ollama, LM Studio, or vLLM, or against cloud OpenAI-compatible APIs.
 
@@ -72,28 +72,39 @@ Example config with all supported keys:
   "cloudLlmEndpoint": "https://api.openai.com/v1",
   "cloudChatModel": "gpt-4o-mini",
   "cloudEmbedModel": "text-embedding-3-small",
-  "openaiApiKey": ""
+  "openaiApiKey": "",
+  "includeGlobs": [],
+  "excludeGlobs": [],
+  "ignoreFile": ".diffdocignore"
 }
 ```
 
-Supported environment fallbacks use the uppercase names for the same settings, including `AI_PROVIDER`, `DIFFDOC_BASE_DIR`, `LOCAL_LLM_ENDPOINT`, `LOCAL_EMBED_ENDPOINT`, `LOCAL_CHAT_MODEL`, `LOCAL_EMBED_MODEL`, `CLOUD_LLM_ENDPOINT`, `CLOUD_CHAT_MODEL`, `CLOUD_EMBED_MODEL`, and `OPENAI_API_KEY`.
+Supported environment fallbacks use the uppercase names for the same settings, including `AI_PROVIDER`, `DIFFDOC_BASE_DIR`, `LOCAL_LLM_ENDPOINT`, `LOCAL_EMBED_ENDPOINT`, `LOCAL_CHAT_MODEL`, `LOCAL_EMBED_MODEL`, `CLOUD_LLM_ENDPOINT`, `CLOUD_CHAT_MODEL`, `CLOUD_EMBED_MODEL`, `OPENAI_API_KEY`, `DIFFDOC_INCLUDE_GLOBS`, `DIFFDOC_EXCLUDE_GLOBS`, and `DIFFDOC_IGNORE_FILE`.
 
 ## Manifest-First Design
 
-DiffDoc separates summarization from embedding. The `summarize` command writes all generated file summaries to `manifest.json` under `baseDir`, usually `./.diffdoc/manifest.json`.
+DiffDoc separates summarization from embedding. The `summarize` command writes file-to-hash mappings to `manifest.json` and stores each summary in an independent hash-addressed JSON file under `./.diffdoc/summaries/`.
 
 The manifest is plain JSON and contains one entry per tracked file:
 
 ```json
 {
+  "schemaVersion": 2,
   "lastSyncedCommit": "string-hash",
   "files": {
-    "src/example.ts": {
-      "hash": "md5-string",
-      "summaryText": "Plain-English explanation text here.",
-      "rawCodeSnapshot": "Full code text here..."
-    }
+    "src/example.ts": "md5-string"
   }
+}
+```
+
+Example summary asset at `./.diffdoc/summaries/<hash>.json`:
+
+```json
+{
+  "schemaVersion": 1,
+  "content_hash": "md5-string",
+  "summary": "Plain-English explanation text here.",
+  "raw_code_snapshot": "Optional code text when --include-code-snapshot is enabled"
 }
 ```
 
@@ -115,10 +126,28 @@ Summarize only changed Git files using the existing manifest state:
 diffdoc summarize --path . --mode delta
 ```
 
+Store raw code snapshots in summary assets:
+
+```bash
+diffdoc summarize --path . --mode all --include-code-snapshot
+```
+
+Add include/exclude filters at runtime:
+
+```bash
+diffdoc summarize --path . --mode all --include-glob "src/**/*.ts" --exclude-glob "**/*.test.ts"
+```
+
 Embed the manifest into a local Vectra index at `./.diffdoc/vectra`:
 
 ```bash
 diffdoc embed
+```
+
+Force full index rebuild:
+
+```bash
+diffdoc embed --rebuild
 ```
 
 Search the local Vectra index and print raw matches:
@@ -226,6 +255,8 @@ Run `diffdoc summarize` and `diffdoc embed` before using the MCP server, otherwi
 
 - Node.js `>=22` is required because Vectra requires it.
 - This repository ignores `.diffdoc/vectra` and `.diffdocrc`; add similar entries to your project's `.gitignore` if you do not want generated indexes or local config committed. The manifest at `.diffdoc/manifest.json` is not ignored by this repository.
+- Summary assets are written to `.diffdoc/summaries/*.json`.
+- Manifest schema is currently `schemaVersion: 2`; older manifest shapes are not auto-migrated.
 - Commit `.diffdoc/manifest.json` when using delta workflows. Delta summarization reads the previous manifest state to decide which changed files need fresh summaries.
 - `summarize` requires a configured chat model.
 - `embed` requires a configured embedding model.

@@ -1,0 +1,51 @@
+# Version control and DiffDoc artifacts
+.git/**
+.diffdoc/**
+
+# Dependencies and package manager caches
+node_modules/**
+**/node_modules/**
+.pnpm-store/**
+.yarn/**
+
+# Build outputs and tooling caches
+dist/**
+build/**
+coverage/**
+.next/**
+.nuxt/**
+.svelte-kit/**
+.cache/**
+.turbo/**
+
+# Logs and lockfiles
+*.log
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Environment and local machine files
+.env
+.env.*
+.DS_Store
+Thumbs.db
+
+# Binary and non-code assets
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg
+*.ico
+*.pdf
+*.zip
+*.tar
+*.gz
+*.mp3
+*.mp4
+*.mov
+*.ttf
+*.woff
+*.woff2

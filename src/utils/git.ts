@@ -1,8 +1,6 @@
 import path from "node:path";
 import simpleGit from "simple-git";
 
-const TARGET_EXTENSIONS = new Set([".ts", ".js", ".cs", ".py"]);
-
 export interface GitDeltas {
   modifiedOrAdded: string[];
   deleted: string[];
@@ -12,13 +10,9 @@ function normalizePath(filePath: string): string {
   return filePath.split(path.sep).join("/");
 }
 
-function isTargetCodeFile(filePath: string): boolean {
-  return TARGET_EXTENSIONS.has(path.extname(filePath));
-}
-
 function addUnique(target: Set<string>, filePath: string): void {
   const normalized = normalizePath(filePath.trim());
-  if (normalized && isTargetCodeFile(normalized)) {
+  if (normalized) {
     target.add(normalized);
   }
 }

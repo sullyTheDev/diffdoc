@@ -11,7 +11,7 @@ export interface DiffdocSearchResult {
   score: number;
   hash: string;
   summaryText: string;
-  rawCodeSnapshot: string;
+  rawCodeSnapshot?: string;
 }
 
 export interface DiffdocAnswerResult {
@@ -64,7 +64,7 @@ function buildAnswerPrompt(question: string, results: DiffdocSearchResult[]): st
       `File: ${result.filePath}`,
       `Score: ${result.score}`,
       `Summary:\n${result.summaryText}`,
-      `Code Snapshot:\n${result.rawCodeSnapshot}`
+      `Code Snapshot:\n${result.rawCodeSnapshot || "(not stored)"}`
     ].join("\n");
   }).join("\n\n---\n\n");
 

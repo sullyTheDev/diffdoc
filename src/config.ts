@@ -15,11 +15,18 @@ export interface EmbeddingConfig {
   model: string;
 }
 
+export interface SummarizeFilterConfig {
+  includeGlobs: string[];
+  excludeGlobs: string[];
+  ignoreFile: string;
+}
+
 export interface RuntimeConfig {
   baseDir: string;
   provider: AiProvider;
   chat: ChatConfig;
   embeddings: EmbeddingConfig;
+  summarize: SummarizeFilterConfig;
 }
 
 export interface RuntimeConfigOptions {
@@ -34,6 +41,9 @@ export interface RuntimeConfigOptions {
   cloudChatModel?: string;
   cloudEmbedModel?: string;
   openaiApiKey?: string;
+  includeGlobs?: string[] | string;
+  excludeGlobs?: string[] | string;
+  ignoreFile?: string;
 }
 
 export interface RuntimeConfigNeeds {
@@ -43,6 +53,27 @@ export interface RuntimeConfigNeeds {
 
 function readOption(value: string | undefined, envName: string, fallback = ""): string {
   return value || process.env[envName] || fallback;
+}
+
+function parseCsv(value: string): string[] {
+  return value.split(",").map((item) => item.trim()).filter(Boolean);
+}
+
+function readListOption(value: string[] | string | undefined, envName: string, fallback: string[] = []): string[] {
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => parseCsv(item)).filter(Boolean);
+  }
+
+  if (typeof value === "string" && value.trim()) {
+    return parseCsv(value);
+  }
+
+  const envValue = process.env[envName];
+  if (envValue && envValue.trim()) {
+    return parseCsv(envValue);
+  }
+
+  return fallback;
 }
 
 function loadRcFile(configPath: string | undefined): RuntimeConfigOptions {
@@ -83,6 +114,9 @@ export function buildRuntimeConfig(options: RuntimeConfigOptions, needs: Runtime
   const mergedOptions = mergeConfigOptions(options);
   const provider = readProvider(mergedOptions.aiProvider);
   const apiKey = readOption(mergedOptions.openaiApiKey, "OPENAI_API_KEY", provider === "local" ? "local-key" : "");
+  const includeGlobs = readListOption(mergedOptions.includeGlobs, "DIFFDOC_INCLUDE_GLOBS");
+  const excludeGlobs = readListOption(mergedOptions.excludeGlobs, "DIFFDOC_EXCLUDE_GLOBS");
+  const ignoreFile = readOption(mergedOptions.ignoreFile, "DIFFDOC_IGNORE_FILE", ".diffdocignore");
 
   const chatBaseURL = provider === "cloud"
     ? readOption(mergedOptions.cloudLlmEndpoint, "CLOUD_LLM_ENDPOINT", "https://api.openai.com/v1")
@@ -125,6 +159,11 @@ export function buildRuntimeConfig(options: RuntimeConfigOptions, needs: Runtime
       apiKey,
       baseURL: embedBaseURL,
       model: embedModel
+    },
+    summarize: {
+      includeGlobs,
+      excludeGlobs,
+      ignoreFile
     }
   };
 }
