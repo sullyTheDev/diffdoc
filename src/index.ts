@@ -77,6 +77,7 @@ addChatOptions(addBaseOptions(program
   .option("--include-glob <pattern>", "include glob pattern (repeatable)", collectOption, [])
   .option("--exclude-glob <pattern>", "exclude glob pattern (repeatable)", collectOption, [])
   .option("--ignore-file <path>", "path to ignore pattern file relative to --path")
+  .option("--summarize-concurrency <count>", "number of files to summarize concurrently")
   .action(async (options: RuntimeConfigOptions & {
     path: string;
     out: string;

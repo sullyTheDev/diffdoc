@@ -9,6 +9,7 @@
   "cloudChatModel": "gpt-4o-mini",
   "cloudEmbedModel": "text-embedding-3-small",
   "embedBatchSize": 25,
+  "summarizeConcurrency": 2,
   "openaiApiKey": "",
   "includeGlobs": [],
   "excludeGlobs": [],

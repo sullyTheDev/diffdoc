@@ -39,6 +39,8 @@ interface SummarizeReport {
   failures: Array<{ filePath: string; message: string }>;
 }
 
+type ManifestTask<T> = () => Promise<T>;
+
 function normalizeRelativePath(filePath: string): string {
   return filePath.split(path.sep).join("/");
 }
@@ -311,6 +313,29 @@ async function ensureSummaryAsset(
   await writeSummaryAsset(summaryPath, summary);
 }
 
+async function runWithConcurrency<T>(items: T[], concurrency: number, worker: (item: T) => Promise<void>): Promise<void> {
+  let nextIndex = 0;
+  const workerCount = Math.min(concurrency, items.length);
+
+  await Promise.all(Array.from({ length: workerCount }, async () => {
+    while (nextIndex < items.length) {
+      const item = items[nextIndex];
+      nextIndex += 1;
+      await worker(item);
+    }
+  }));
+}
+
+function createManifestLock(): <T>(task: ManifestTask<T>) => Promise<T> {
+  let queue = Promise.resolve();
+
+  return async function withManifestLock<T>(task: ManifestTask<T>): Promise<T> {
+    const run = queue.then(task, task);
+    queue = run.then(() => undefined, () => undefined);
+    return run;
+  };
+}
+
 async function pruneOrphanedSummaries(summaryDir: string, manifest: RepoManifest): Promise<void> {
   const activeHashes = new Set(Object.values(manifest.files));
 
@@ -365,6 +390,29 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
   const failures: Array<{ filePath: string; message: string }> = [];
 
   const isJson = options.json;
+  const concurrency = config.summarize.concurrency;
+  const withManifestLock = createManifestLock();
+  const summaryAssetTasks = new Map<string, Promise<void>>();
+
+  async function ensureSummaryAssetForFile(filePath: string, hash: string, rawCodeSnapshot: string): Promise<void> {
+    const summaryPath = getSummaryPath(summaryDir, hash);
+    if (await fileExists(summaryPath)) {
+      return;
+    }
+
+    let task = summaryAssetTasks.get(hash);
+    if (!task) {
+      task = (async () => {
+        const summaryText = await generateFunctionalSummary(filePath, rawCodeSnapshot, config.chat);
+        await ensureSummaryAsset(summaryDir, hash, summaryText, rawCodeSnapshot, options.includeCodeSnapshot);
+      })().finally(() => {
+        summaryAssetTasks.delete(hash);
+      });
+      summaryAssetTasks.set(hash, task);
+    }
+
+    await task;
+  }
 
   if (!isJson) {
     console.log(`Starting summarize run`);
@@ -382,47 +430,52 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
 
     const files = await walkCodeFiles(repoPath, includePatterns, excludePatterns, ignoreMatcher);
     const totalFiles = files.length;
+    let completedFiles = 0;
 
     if (!isJson) {
       console.log(`Candidates: ${totalFiles}`);
+      console.log(`Concurrency: ${concurrency}`);
     }
 
-    for (let i = 0; i < files.length; i += 1) {
-      const filePath = files[i];
-      totals.scanned += 1;
-
+    await runWithConcurrency(files, concurrency, async (filePath) => {
+      await withManifestLock(async () => {
+        totals.scanned += 1;
+      });
       try {
         const absolutePath = path.join(repoPath, filePath);
         const rawCodeSnapshot = await fs.readFile(absolutePath, "utf8");
         const hash = hashFileContent(rawCodeSnapshot);
-        const summaryPath = getSummaryPath(summaryDir, hash);
-        if (!await fileExists(summaryPath)) {
-          const summaryText = await generateFunctionalSummary(filePath, rawCodeSnapshot, config.chat);
-          await ensureSummaryAsset(summaryDir, hash, summaryText, rawCodeSnapshot, options.includeCodeSnapshot);
-        }
-        manifest.files[filePath] = hash;
-        refs.set(hash, (refs.get(hash) || 0) + 1);
-        await writeManifest(manifestPath, manifest);
-        totals.updated += 1;
-
-        if (!isJson) {
-          console.log(`[${i + 1}/${totalFiles}] summarized ${filePath}`);
-        }
+        await ensureSummaryAssetForFile(filePath, hash, rawCodeSnapshot);
+        await withManifestLock(async () => {
+          manifest.files[filePath] = hash;
+          refs.set(hash, (refs.get(hash) || 0) + 1);
+          await writeManifest(manifestPath, manifest);
+          totals.updated += 1;
+          completedFiles += 1;
+          if (!isJson) {
+            console.log(`[${completedFiles}/${totalFiles}] summarized ${filePath}`);
+          }
+        });
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        failures.push({ filePath, message });
-        totals.failed += 1;
-        if (!isJson) {
-          console.error(`[${i + 1}/${totalFiles}] failed ${filePath}: ${message}`);
-        }
+        await withManifestLock(async () => {
+          failures.push({ filePath, message });
+          totals.failed += 1;
+          completedFiles += 1;
+          if (!isJson) {
+            console.error(`[${completedFiles}/${totalFiles}] failed ${filePath}: ${message}`);
+          }
+        });
       }
-    }
+    });
   } else {
     const deltas = await getGitDeltas(repoPath, manifest.lastSyncedCommit);
     const totalCandidates = deltas.modifiedOrAdded.length + deltas.deleted.length;
+    let completedModified = 0;
 
     if (!isJson) {
       console.log(`Candidates: ${totalCandidates} (${deltas.modifiedOrAdded.length} modified/added, ${deltas.deleted.length} deleted)`);
+      console.log(`Concurrency: ${concurrency}`);
     }
 
     for (const deletedPath of deltas.deleted) {
@@ -435,22 +488,25 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
       }
     }
 
-    for (let i = 0; i < deltas.modifiedOrAdded.length; i += 1) {
-      const filePath = deltas.modifiedOrAdded[i];
-      totals.scanned += 1;
-
+    await runWithConcurrency(deltas.modifiedOrAdded, concurrency, async (filePath) => {
+      await withManifestLock(async () => {
+        totals.scanned += 1;
+      });
       try {
         if (!shouldIncludeFile(filePath, includePatterns, excludePatterns, ignoreMatcher)) {
-          const removed = await removeManifestPath(filePath, manifest, manifestPath, summaryDir, refs);
-          if (removed) {
-            totals.pruned += 1;
-          } else {
-            totals.skipped += 1;
-          }
-          if (!isJson) {
-            console.log(`[${i + 1}/${deltas.modifiedOrAdded.length}] excluded ${filePath}`);
-          }
-          continue;
+          await withManifestLock(async () => {
+            const removed = await removeManifestPath(filePath, manifest, manifestPath, summaryDir, refs);
+            if (removed) {
+              totals.pruned += 1;
+            } else {
+              totals.skipped += 1;
+            }
+            completedModified += 1;
+            if (!isJson) {
+              console.log(`[${completedModified}/${deltas.modifiedOrAdded.length}] excluded ${filePath}`);
+            }
+          });
+          return;
         }
 
         const previousHash = manifest.files[filePath];
@@ -458,51 +514,59 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
         const rawCodeSnapshot = await fs.readFile(absolutePath, "utf8");
         const hash = hashFileContent(rawCodeSnapshot);
         if (previousHash === hash) {
-          totals.skipped += 1;
-          if (!isJson) {
-            console.log(`[${i + 1}/${deltas.modifiedOrAdded.length}] unchanged ${filePath}`);
-          }
-          continue;
+          await withManifestLock(async () => {
+            totals.skipped += 1;
+            completedModified += 1;
+            if (!isJson) {
+              console.log(`[${completedModified}/${deltas.modifiedOrAdded.length}] unchanged ${filePath}`);
+            }
+          });
+          return;
         }
 
-        const summaryPath = getSummaryPath(summaryDir, hash);
-        if (!await fileExists(summaryPath)) {
-          const summaryText = await generateFunctionalSummary(filePath, rawCodeSnapshot, config.chat);
-          await ensureSummaryAsset(summaryDir, hash, summaryText, rawCodeSnapshot, options.includeCodeSnapshot);
-        }
+        await ensureSummaryAssetForFile(filePath, hash, rawCodeSnapshot);
 
-        const changed = await setManifestPathHash(filePath, hash, manifest, manifestPath, summaryDir, refs);
-        if (changed) {
-          totals.updated += 1;
-        } else {
-          totals.skipped += 1;
-        }
-        if (!isJson) {
-          console.log(`[${i + 1}/${deltas.modifiedOrAdded.length}] updated ${filePath}`);
-        }
-      } catch (error) {
-        const nodeError = error as NodeJS.ErrnoException;
-        if (nodeError.code === "ENOENT") {
-          const removed = await removeManifestPath(filePath, manifest, manifestPath, summaryDir, refs);
-          if (removed) {
-            totals.pruned += 1;
+        await withManifestLock(async () => {
+          const changed = await setManifestPathHash(filePath, hash, manifest, manifestPath, summaryDir, refs);
+          if (changed) {
+            totals.updated += 1;
           } else {
             totals.skipped += 1;
           }
+          completedModified += 1;
           if (!isJson) {
-            console.log(`[${i + 1}/${deltas.modifiedOrAdded.length}] missing ${filePath}`);
+            console.log(`[${completedModified}/${deltas.modifiedOrAdded.length}] updated ${filePath}`);
           }
-          continue;
+        });
+      } catch (error) {
+        const nodeError = error as NodeJS.ErrnoException;
+        if (nodeError.code === "ENOENT") {
+          await withManifestLock(async () => {
+            const removed = await removeManifestPath(filePath, manifest, manifestPath, summaryDir, refs);
+            if (removed) {
+              totals.pruned += 1;
+            } else {
+              totals.skipped += 1;
+            }
+            completedModified += 1;
+            if (!isJson) {
+              console.log(`[${completedModified}/${deltas.modifiedOrAdded.length}] missing ${filePath}`);
+            }
+          });
+          return;
         }
 
         const message = error instanceof Error ? error.message : String(error);
-        failures.push({ filePath, message });
-        totals.failed += 1;
-        if (!isJson) {
-          console.error(`[${i + 1}/${deltas.modifiedOrAdded.length}] failed ${filePath}: ${message}`);
-        }
+        await withManifestLock(async () => {
+          failures.push({ filePath, message });
+          totals.failed += 1;
+          completedModified += 1;
+          if (!isJson) {
+            console.error(`[${completedModified}/${deltas.modifiedOrAdded.length}] failed ${filePath}: ${message}`);
+          }
+        });
       }
-    }
+    });
   }
 
   manifest.lastSyncedCommit = await getCurrentCommit(repoPath);
@@ -521,7 +585,7 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
     finishedAt: finishedAt.toISOString(),
     durationMs,
     totals,
-    failures
+    failures: failures.sort((a, b) => a.filePath.localeCompare(b.filePath))
   };
 
   if (isJson) {

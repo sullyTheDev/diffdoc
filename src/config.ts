@@ -20,6 +20,7 @@ export interface SummarizeFilterConfig {
   includeGlobs: string[];
   excludeGlobs: string[];
   ignoreFile: string;
+  concurrency: number;
 }
 
 export interface RuntimeConfig {
@@ -46,6 +47,7 @@ export interface RuntimeConfigOptions {
   includeGlobs?: string[] | string;
   excludeGlobs?: string[] | string;
   ignoreFile?: string;
+  summarizeConcurrency?: number | string;
 }
 
 export interface RuntimeConfigNeeds {
@@ -134,6 +136,7 @@ export function buildRuntimeConfig(options: RuntimeConfigOptions, needs: Runtime
   const includeGlobs = readListOption(mergedOptions.includeGlobs, "DIFFDOC_INCLUDE_GLOBS");
   const excludeGlobs = readListOption(mergedOptions.excludeGlobs, "DIFFDOC_EXCLUDE_GLOBS");
   const ignoreFile = readOption(mergedOptions.ignoreFile, "DIFFDOC_IGNORE_FILE", ".diffdocignore");
+  const summarizeConcurrency = readPositiveIntegerOption(mergedOptions.summarizeConcurrency, "DIFFDOC_SUMMARIZE_CONCURRENCY", 2);
 
   const chatBaseURL = provider === "cloud"
     ? readOption(mergedOptions.cloudLlmEndpoint, "CLOUD_LLM_ENDPOINT", "https://api.openai.com/v1")
@@ -181,7 +184,8 @@ export function buildRuntimeConfig(options: RuntimeConfigOptions, needs: Runtime
     summarize: {
       includeGlobs,
       excludeGlobs,
-      ignoreFile
+      ignoreFile,
+      concurrency: summarizeConcurrency
     }
   };
 }

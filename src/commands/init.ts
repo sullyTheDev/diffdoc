@@ -24,6 +24,7 @@ interface DiffdocRc {
   cloudChatModel: string;
   cloudEmbedModel: string;
   openaiApiKey: string;
+  summarizeConcurrency: number;
   includeGlobs: string[];
   excludeGlobs: string[];
   ignoreFile: string;
@@ -47,6 +48,7 @@ const DEFAULT_CONFIG: DiffdocRc = {
   cloudChatModel: "gpt-4o-mini",
   cloudEmbedModel: "text-embedding-3-small",
   openaiApiKey: "",
+  summarizeConcurrency: 2,
   includeGlobs: [],
   excludeGlobs: [],
   ignoreFile: ".diffdocignore"

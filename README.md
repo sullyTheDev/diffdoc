@@ -125,6 +125,7 @@ Example `.diffdocrc` for local models:
   "localChatModel": "qwen2.5-coder:7b",
   "localEmbedModel": "nomic-embed-code",
   "embedBatchSize": 25,
+  "summarizeConcurrency": 2,
   "includeGlobs": [],
   "excludeGlobs": [],
   "ignoreFile": ".diffdocignore"
@@ -141,6 +142,7 @@ Example `.diffdocrc` for a cloud OpenAI-compatible endpoint:
   "cloudChatModel": "gpt-4o-mini",
   "cloudEmbedModel": "text-embedding-3-small",
   "embedBatchSize": 25,
+  "summarizeConcurrency": 2,
   "includeGlobs": [],
   "excludeGlobs": [],
   "ignoreFile": ".diffdocignore"
@@ -159,6 +161,7 @@ Supported environment variables:
 AI_PROVIDER
 DIFFDOC_BASE_DIR
 DIFFDOC_EMBED_BATCH_SIZE
+DIFFDOC_SUMMARIZE_CONCURRENCY
 DIFFDOC_INCLUDE_GLOBS
 DIFFDOC_EXCLUDE_GLOBS
 DIFFDOC_IGNORE_FILE
@@ -227,7 +230,10 @@ Summarize files into `.diffdoc/manifest.json` and `.diffdoc/summaries/*.json`:
 npx diffdoc summarize --path . --mode all
 npx diffdoc summarize --path . --mode delta
 npx diffdoc summarize --path . --mode delta --json
+npx diffdoc summarize --path . --mode all --summarize-concurrency 4
 ```
+
+Summarization runs with bounded concurrency. The default is `2`; use `1` for strict rate limits, `2-4` for most providers, and higher values only when your local model server or API quota can handle the request volume.
 
 Store raw code snapshots in summary assets when you want retrieved results to include source text:
 
