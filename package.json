@@ -1,6 +1,6 @@
 {
   "name": "diffdoc",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Translate repository code shifts into plain-English business context",
   "license": "MIT",
   "author": "Christopher Sullivan",
