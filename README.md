@@ -1,67 +1,120 @@
 # DiffDoc
 
-## Project Description
+Your codebase already knows how the product works. DiffDoc turns that implementation into a living, portable knowledgebase that humans and agents can search, question, and reuse.
 
-DiffDoc turns source code into searchable, plain-English project context. It scans repository files, asks an OpenAI-compatible chat model to summarize the business behavior in each file, stores the summaries as portable per-hash JSON assets, embeds those assets into a local Vectra index, and answers questions using the indexed results as retrieval context.
+It generates plain-English summaries from source files, records them in a manifest-first artifact model, and keeps the resulting context close to the repository. Use it to give developers, agents, reviewers, and stakeholders implementation-grounded answers without asking them to read every file first.
 
-The project is designed for teams that need fast codebase comprehension without requiring every stakeholder to read implementation details. It can run against local model servers such as Ollama, LM Studio, or vLLM, or against cloud OpenAI-compatible APIs.
+## Guiding Principles
 
-## Installation
+- The codebase is the source of truth. Requirements documents, tickets, wikis, and tribal knowledge can drift, but product behavior is ultimately defined by the code that ships.
+- Summaries should describe implemented behavior, not imagined intent. DiffDoc focuses on what the current files do so product questions are answered from the implementation first.
+- The knowledgebase should evolve with the product. When files change, DiffDoc refreshes affected summaries and manifest entries so generated context does not become a stale snapshot.
+- The manifest is the durable contract. DiffDoc is intentionally manifest-first: the manifest is the source of truth for generated summaries, and downstream tools should be able to consume the manifest and summary assets without depending on DiffDoc's built-in embedding workflow.
+- Retrieval is optional infrastructure. The built-in `embed` command, local Vectra index, `search`, `query`, and MCP server are convenience features for teams that want an end-to-end local workflow, but consumers should be free to use their own embedding provider, vector store, search system, or documentation pipeline.
+- Useful context should serve humans and agents. The generated knowledgebase is intended for product questions, onboarding, code review, agent workflows, audits, and long-term maintenance.
 
-Run from this repository:
+## Requirements
 
-```bash
-npm install
-npm run build
-node dist/index.js --help
-```
+- Node.js `>=22`
+- An OpenAI-compatible chat model for `summarize` and `query`
+- An OpenAI-compatible embedding model for `embed`, `search`, and `query`
+- A local model server such as Ollama, LM Studio, or vLLM, or a cloud OpenAI-compatible endpoint
 
-Run after publishing:
+## Install
+
+Run DiffDoc without adding it to your project:
 
 ```bash
 npx diffdoc --help
 ```
 
-Use as a project dev dependency:
+Install it as a project dev dependency:
 
 ```bash
 npm install --save-dev diffdoc
-npx diffdoc --help
 ```
 
-Package scripts can call the installed binary:
+Recommended package scripts:
 
 ```json
 {
   "scripts": {
     "diffdoc:init": "diffdoc init",
     "diffdoc:summarize": "diffdoc summarize",
-    "diffdoc:status": "diffdoc status",
     "diffdoc:embed": "diffdoc embed",
     "diffdoc:search": "diffdoc search",
     "diffdoc:query": "diffdoc query",
+    "diffdoc:status": "diffdoc status",
     "diffdoc:mcp": "diffdoc-mcp"
   }
 }
 ```
 
-## Configuration
+## Quick Start
 
-DiffDoc accepts runtime flags on each command. It also loads a JSON `.diffdocrc` file from the current working directory when present, or from a custom path with `--config <path>`.
-
-Precedence:
-
-1. CLI flags
-2. `.diffdocrc`
-3. Environment variable fallbacks
-
-Create a local config from the example:
+Initialize DiffDoc in your repository:
 
 ```bash
-cp .diffdocrc.example .diffdocrc
+npx diffdoc init
 ```
 
-Example config with all supported keys:
+For a non-interactive setup using defaults:
+
+```bash
+npx diffdoc init --yes
+```
+
+Create summaries:
+
+```bash
+npx diffdoc summarize --path . --mode all
+```
+
+Build the local search index:
+
+```bash
+npx diffdoc embed
+```
+
+Search raw matches:
+
+```bash
+npx diffdoc search "How does authentication work?"
+```
+
+Ask a question using retrieved project context:
+
+```bash
+npx diffdoc query "What business behavior does this repository implement?"
+```
+
+After the first full run, refresh changed files with delta mode:
+
+```bash
+npx diffdoc summarize --path . --mode delta
+npx diffdoc embed
+```
+
+## What Init Creates
+
+`diffdoc init` creates or updates repository-local setup files:
+
+- `.diffdocrc`: local DiffDoc configuration
+- `.diffdocignore`: gitignore-style file selection rules for summarization
+- `.gitignore`: entries for local/generated DiffDoc files when needed
+
+It does not summarize or embed anything. Run `summarize` and `embed` after initialization.
+
+## Configuration
+
+DiffDoc reads settings in this order:
+
+1. CLI flags
+2. `.diffdocrc` or the file passed with `--config <path>`
+3. Environment variables
+4. Built-in defaults
+
+Example `.diffdocrc` for local models:
 
 ```json
 {
@@ -71,23 +124,166 @@ Example config with all supported keys:
   "localEmbedEndpoint": "http://localhost:11434/v1/embeddings",
   "localChatModel": "qwen2.5-coder:7b",
   "localEmbedModel": "nomic-embed-code",
-  "cloudLlmEndpoint": "https://api.openai.com/v1",
-  "cloudChatModel": "gpt-4o-mini",
-  "cloudEmbedModel": "text-embedding-3-small",
-  "openaiApiKey": "",
+  "embedBatchSize": 25,
   "includeGlobs": [],
   "excludeGlobs": [],
   "ignoreFile": ".diffdocignore"
 }
 ```
 
-Supported environment fallbacks use the uppercase names for the same settings, including `AI_PROVIDER`, `DIFFDOC_BASE_DIR`, `LOCAL_LLM_ENDPOINT`, `LOCAL_EMBED_ENDPOINT`, `LOCAL_CHAT_MODEL`, `LOCAL_EMBED_MODEL`, `CLOUD_LLM_ENDPOINT`, `CLOUD_CHAT_MODEL`, `CLOUD_EMBED_MODEL`, `OPENAI_API_KEY`, `DIFFDOC_INCLUDE_GLOBS`, `DIFFDOC_EXCLUDE_GLOBS`, and `DIFFDOC_IGNORE_FILE`.
+Example `.diffdocrc` for a cloud OpenAI-compatible endpoint:
 
-## Manifest-First Design
+```json
+{
+  "baseDir": "./.diffdoc",
+  "aiProvider": "cloud",
+  "cloudLlmEndpoint": "https://api.openai.com/v1",
+  "cloudChatModel": "gpt-4o-mini",
+  "cloudEmbedModel": "text-embedding-3-small",
+  "embedBatchSize": 25,
+  "includeGlobs": [],
+  "excludeGlobs": [],
+  "ignoreFile": ".diffdocignore"
+}
+```
 
-DiffDoc separates summarization from embedding. The `summarize` command writes file-to-hash mappings to `manifest.json` and stores each summary in an independent hash-addressed JSON file under `./.diffdoc/summaries/`.
+Set `OPENAI_API_KEY` for cloud providers instead of committing API keys:
 
-The manifest is plain JSON and contains one entry per tracked file:
+```bash
+OPENAI_API_KEY="..." npx diffdoc summarize --path . --mode all
+```
+
+Supported environment variables:
+
+```text
+AI_PROVIDER
+DIFFDOC_BASE_DIR
+DIFFDOC_EMBED_BATCH_SIZE
+DIFFDOC_INCLUDE_GLOBS
+DIFFDOC_EXCLUDE_GLOBS
+DIFFDOC_IGNORE_FILE
+LOCAL_LLM_ENDPOINT
+LOCAL_CHAT_MODEL
+LOCAL_EMBED_ENDPOINT
+LOCAL_EMBED_MODEL
+CLOUD_LLM_ENDPOINT
+CLOUD_CHAT_MODEL
+CLOUD_EMBED_MODEL
+OPENAI_API_KEY
+```
+
+## File Selection
+
+`.diffdocignore` uses `.gitignore`-style syntax. This is the main way to keep generated files, dependencies, secrets, binaries, and local artifacts out of summaries.
+
+Example `.diffdocignore`:
+
+```gitignore
+.git/
+.diffdoc/
+node_modules/
+dist/
+coverage/
+.env
+*.log
+```
+
+Precedence is intentionally conservative:
+
+1. `.diffdocignore` skips files first
+2. `excludeGlobs` skip files second
+3. `includeGlobs` narrow whatever remains
+
+An included file is still skipped if it matches `.diffdocignore` or `excludeGlobs`.
+
+Use include and exclude filters from config:
+
+```json
+{
+  "includeGlobs": ["src/**/*.ts"],
+  "excludeGlobs": ["**/*.test.ts"]
+}
+```
+
+Or pass them at runtime:
+
+```bash
+npx diffdoc summarize --path . --mode all --include-glob "src/**/*.ts" --exclude-glob "**/*.test.ts"
+```
+
+## Commands
+
+Initialize setup files:
+
+```bash
+npx diffdoc init
+npx diffdoc init --yes
+npx diffdoc init --provider cloud --force
+```
+
+Summarize files into `.diffdoc/manifest.json` and `.diffdoc/summaries/*.json`:
+
+```bash
+npx diffdoc summarize --path . --mode all
+npx diffdoc summarize --path . --mode delta
+npx diffdoc summarize --path . --mode delta --json
+```
+
+Store raw code snapshots in summary assets when you want retrieved results to include source text:
+
+```bash
+npx diffdoc summarize --path . --mode all --include-code-snapshot
+```
+
+Check manifest and index freshness:
+
+```bash
+npx diffdoc status
+npx diffdoc status --json
+```
+
+Embed summaries into the local Vectra index:
+
+```bash
+npx diffdoc embed
+npx diffdoc embed --rebuild
+npx diffdoc embed --embed-batch-size 20
+```
+
+Search indexed summaries:
+
+```bash
+npx diffdoc search "How does this project process changed files?"
+npx diffdoc search "How does embedding work?" --top 3 --code
+```
+
+Ask questions with retrieval-augmented answers:
+
+```bash
+npx diffdoc query "How does this project process changed files?"
+npx diffdoc query "How does embedding work?" --top 3 --code
+```
+
+Use a custom config or artifact directory:
+
+```bash
+npx diffdoc query "How does embedding work?" --config ./config/diffdoc.local.json
+npx diffdoc embed --config ./.diffdocrc --base-dir ./tmp-diffdoc
+```
+
+## Artifacts
+
+DiffDoc keeps generated project context under `baseDir`, which defaults to `./.diffdoc`:
+
+```text
+.diffdoc/
+  manifest.json
+  summaries/
+    <content-hash>.json
+  vectra/
+```
+
+The manifest maps repository-relative file paths to content hashes:
 
 ```json
 {
@@ -99,7 +295,7 @@ The manifest is plain JSON and contains one entry per tracked file:
 }
 ```
 
-Example summary asset at `./.diffdoc/summaries/<hash>.json`:
+Each summary asset is portable JSON:
 
 ```json
 {
@@ -110,168 +306,18 @@ Example summary asset at `./.diffdoc/summaries/<hash>.json`:
 }
 ```
 
-Because the summaries are stored independently, users do not have to embed immediately. They can review, archive, transform, or embed the manifest later using their preferred vectorization model and storage solution.
+Commit `.diffdoc/manifest.json` and `.diffdoc/summaries/*.json` if you want summaries shared across machines or CI runs. Keep `.diffdoc/vectra/` local unless you have a specific reason to commit the generated vector index.
 
-DiffDoc includes `diffdoc embed` as a built-in convenience path for creating a local Vectra index, but the manifest can also be consumed by other tools such as custom OpenAI-compatible embedding pipelines, hosted vector databases, local search systems, or internal documentation workflows.
-
-## Commands
-
-Initialize DiffDoc configuration for a repository:
-
-```bash
-diffdoc init
-```
-
-Use defaults without prompts:
-
-```bash
-diffdoc init --yes
-```
-
-Choose a provider and overwrite an existing config file:
-
-```bash
-diffdoc init --provider cloud --force
-```
-
-`init` creates or updates repo setup files, appends missing `.gitignore` entries, and prints next commands. It does not run `summarize` or `embed`.
-
-Summarize a repository into `./.diffdoc/manifest.json`:
-
-```bash
-diffdoc summarize --path . --mode all
-```
-
-Summarize only changed Git files using the existing manifest state:
-
-```bash
-diffdoc summarize --path . --mode delta
-```
-
-Store raw code snapshots in summary assets:
-
-```bash
-diffdoc summarize --path . --mode all --include-code-snapshot
-```
-
-Add include/exclude filters at runtime:
-
-```bash
-diffdoc summarize --path . --mode all --include-glob "src/**/*.ts" --exclude-glob "**/*.test.ts"
-```
-
-Emit a CI-friendly JSON summarize report:
-
-```bash
-diffdoc summarize --path . --mode delta --json
-```
-
-Inspect manifest-relative artifact freshness:
-
-```bash
-diffdoc status
-```
-
-Use a custom manifest path under `--base-dir`:
-
-```bash
-diffdoc status --manifest manifest.json
-```
-
-Emit CI-friendly JSON output:
-
-```bash
-diffdoc status --json
-```
-
-Embed the manifest into a local Vectra index at `./.diffdoc/vectra`:
-
-```bash
-diffdoc embed
-```
-
-Limit how many summary documents are sent per embeddings request:
-
-```bash
-diffdoc embed --embed-batch-size 20
-```
-
-Force full index rebuild:
-
-```bash
-diffdoc embed --rebuild
-```
-
-Search the local Vectra index and print raw matches:
-
-```bash
-diffdoc search "How does this project process changed files?"
-```
-
-Include retrieved code snapshots in search results:
-
-```bash
-diffdoc search "How does embedding work?" --top 3 --code
-```
-
-Ask a question and have the configured chat model answer using retrieved embedded context:
-
-```bash
-diffdoc query "How does this project process changed files?"
-```
-
-Include retrieved code snapshots after the generated answer:
-
-```bash
-diffdoc query "How does embedding work?" --top 3 --code
-```
-
-Use a custom config file:
-
-```bash
-diffdoc query "How does embedding work?" --config ./config/diffdoc.local.json
-```
-
-Override a config value at runtime:
-
-```bash
-diffdoc embed --config ./.diffdocrc --base-dir ./tmp-diffdoc
-```
-
-## Workflow
-
-Typical usage is:
-
-```bash
-diffdoc summarize --path . --mode all
-diffdoc embed
-diffdoc search "What files explain the summarization flow?"
-diffdoc query "What business behavior does this repository implement?"
-```
-
-After the initial run, use delta mode to refresh changed files:
-
-```bash
-diffdoc summarize --path . --mode delta
-diffdoc embed
-```
-
-## GitHub Actions
-
-This repository includes a workflow at `.github/workflows/diffdoc-summarize.yml` that runs on pushes to `main`. It installs the project, builds the CLI, runs delta summarization, and commits `.diffdoc/manifest.json` back to the branch when the manifest changes.
-
-The workflow intentionally ignores `.diffdoc/manifest.json` and `.diffdoc/vectra/**` changes as triggers so the bot commit does not create a loop.
-
-Configure the same values used by the CLI as GitHub Actions variables or secrets, such as `AI_PROVIDER`, `LOCAL_LLM_ENDPOINT`, `LOCAL_CHAT_MODEL`, `CLOUD_LLM_ENDPOINT`, `CLOUD_CHAT_MODEL`, and `OPENAI_API_KEY`. The workflow uses the environment-variable fallback path in DiffDoc, so no `.diffdocrc` file is required in CI.
+The manifest and summary assets are the stable handoff point for consumers. The local Vectra index produced by `diffdoc embed` is optional and can be replaced by any embedding model and storage backend that fits your environment.
 
 ## MCP Server
 
-DiffDoc also ships a local MCP stdio server as `diffdoc-mcp`. This lets MCP-compatible agents search or answer questions against the local Vectra index directly.
+DiffDoc ships an MCP stdio server as `diffdoc-mcp`. Run `summarize` and `embed` before using it so the MCP tools have a local index to query.
 
-Run it manually with the same config style as the CLI:
+Run the server manually:
 
 ```bash
-diffdoc-mcp --config ./.diffdocrc
+npx diffdoc-mcp --config ./.diffdocrc
 ```
 
 Example MCP client configuration:
@@ -287,29 +333,34 @@ Example MCP client configuration:
 }
 ```
 
-If DiffDoc is installed as a project dev dependency, the same `npx diffdoc-mcp` command will resolve the local package binary.
-
 Available MCP tools:
 
-- `diffdoc_search`: searches the local Vectra index and returns raw file matches, summaries, scores, hashes, and optional code snapshots.
-- `diffdoc_answer`: retrieves relevant index context and asks the configured chat model to answer the question.
-- `diffdoc_index_stats`: returns the Vectra index path, whether it exists, and the indexed item count.
+- `diffdoc_search`: search the local index and return matching files, summaries, scores, hashes, and optional code snapshots
+- `diffdoc_answer`: retrieve relevant context and ask the configured chat model to answer a question
+- `diffdoc_index_stats`: return index path, existence status, and indexed item count
 
-Run `diffdoc summarize` and `diffdoc embed` before using the MCP server, otherwise the search and answer tools will not have a local index to query.
+## CI
+
+For CI, prefer environment variables or a generated config file instead of committing local credentials.
+
+Typical CI flow:
+
+```bash
+npm ci
+npx diffdoc summarize --path . --mode delta --json
+npx diffdoc embed
+```
+
+Use `summarize --json` and `status --json` when a workflow needs machine-readable output.
+
+Commit the manifest and summary assets from CI if you want DiffDoc state to advance with the branch. Ignore `.diffdoc/vectra/` unless your workflow intentionally persists the local index.
 
 ## Notes
 
-- Node.js `>=22` is required because Vectra requires it.
-- This repository ignores `.diffdoc/vectra` and `.diffdocrc`; add similar entries to your project's `.gitignore` if you do not want generated indexes or local config committed. The manifest at `.diffdoc/manifest.json` is not ignored by this repository.
-- Summary assets are written to `.diffdoc/summaries/*.json`.
-- Manifest schema is currently `schemaVersion: 2`; older manifest shapes are not auto-migrated.
-- Commit `.diffdoc/manifest.json` when using delta workflows. Delta summarization reads the previous manifest state to decide which changed files need fresh summaries.
 - `summarize` requires a configured chat model.
-- `summarize` prints run progress and final totals (`scanned`, `skipped`, `updated`, `failed`, `pruned`).
-- `summarize --json` prints a single machine-readable run report to stdout for CI parsing.
-- `status` does not require a configured chat or embedding model.
-- `status --json` prints a machine-readable report with summary and index freshness details.
-- `embed` requires a configured embedding model. Use `embedBatchSize` in `.diffdocrc`, `DIFFDOC_EMBED_BATCH_SIZE`, or `--embed-batch-size` to tune how many summary documents are sent per embeddings request.
-- `search` requires a configured embedding model and returns raw retrieval results without calling the chat model.
-- `query` requires both a configured chat model and embedding model.
+- `embed` and `search` require a configured embedding model.
+- `query` requires both chat and embedding configuration.
+- `status` does not require chat or embedding configuration.
+- Delta summarization uses Git changes plus the existing manifest state.
+- Manifest schema is currently `schemaVersion: 2`; older manifest shapes are not auto-migrated.
 - For code-oriented embedding models such as `nomic-embed-code`, DiffDoc prefixes query embeddings with `Represent this query for searching relevant code:`.

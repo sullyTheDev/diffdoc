@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import ignore, { type Ignore } from "ignore";
 import type { RuntimeConfig } from "../config";
 import { MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, type RepoManifest, type SummaryAsset } from "../types/artifacts";
 import { getCurrentCommit, getGitDeltas } from "../utils/git";
@@ -95,8 +96,8 @@ function matchesAny(filePath: string, patterns: RegExp[]): boolean {
   return patterns.some((pattern) => pattern.test(filePath));
 }
 
-function shouldIncludeFile(filePath: string, includeGlobs: RegExp[], excludeGlobs: RegExp[], ignoreGlobs: RegExp[]): boolean {
-  if (includeGlobs.length > 0 && !matchesAny(filePath, includeGlobs)) {
+function shouldIncludeFile(filePath: string, includeGlobs: RegExp[], excludeGlobs: RegExp[], ignoreMatcher: Ignore): boolean {
+  if (ignoreMatcher.ignores(filePath)) {
     return false;
   }
 
@@ -104,11 +105,15 @@ function shouldIncludeFile(filePath: string, includeGlobs: RegExp[], excludeGlob
     return false;
   }
 
-  if (ignoreGlobs.length > 0 && matchesAny(filePath, ignoreGlobs)) {
+  if (includeGlobs.length > 0 && !matchesAny(filePath, includeGlobs)) {
     return false;
   }
 
   return true;
+}
+
+function isIgnoredDirectory(dirPath: string, ignoreMatcher: Ignore): boolean {
+  return ignoreMatcher.ignores(dirPath) || ignoreMatcher.ignores(`${dirPath}/`);
 }
 
 async function fileExists(filePath: string): Promise<boolean> {
@@ -168,21 +173,18 @@ async function readManifest(manifestPath: string): Promise<RepoManifest> {
   }
 }
 
-async function readIgnorePatterns(repoPath: string, ignoreFilePath: string): Promise<string[]> {
+async function readIgnoreMatcher(repoPath: string, ignoreFilePath: string): Promise<Ignore> {
+  const matcher = ignore();
   const absolutePath = path.isAbsolute(ignoreFilePath)
     ? ignoreFilePath
     : path.resolve(repoPath, ignoreFilePath);
   try {
     const raw = await fs.readFile(absolutePath, "utf8");
-    return raw
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0 && !line.startsWith("#"))
-      .map(normalizeGlobPattern);
+    return matcher.add(raw);
   } catch (error) {
     const nodeError = error as NodeJS.ErrnoException;
     if (nodeError.code === "ENOENT") {
-      return [];
+      return matcher;
     }
     throw error;
   }
@@ -192,7 +194,7 @@ async function walkCodeFiles(
   rootPath: string,
   includeGlobs: RegExp[],
   excludeGlobs: RegExp[],
-  ignoreGlobs: RegExp[],
+  ignoreMatcher: Ignore,
   currentPath = rootPath
 ): Promise<string[]> {
   const entries = await fs.readdir(currentPath, { withFileTypes: true });
@@ -201,13 +203,16 @@ async function walkCodeFiles(
   for (const entry of entries) {
     const entryPath = path.join(currentPath, entry.name);
     if (entry.isDirectory()) {
-      files.push(...await walkCodeFiles(rootPath, includeGlobs, excludeGlobs, ignoreGlobs, entryPath));
+      const relativePath = normalizeRelativePath(path.relative(rootPath, entryPath));
+      if (!isIgnoredDirectory(relativePath, ignoreMatcher)) {
+        files.push(...await walkCodeFiles(rootPath, includeGlobs, excludeGlobs, ignoreMatcher, entryPath));
+      }
       continue;
     }
 
     if (entry.isFile()) {
       const relativePath = normalizeRelativePath(path.relative(rootPath, entryPath));
-      if (shouldIncludeFile(relativePath, includeGlobs, excludeGlobs, ignoreGlobs)) {
+      if (shouldIncludeFile(relativePath, includeGlobs, excludeGlobs, ignoreMatcher)) {
         files.push(relativePath);
       }
     }
@@ -354,7 +359,7 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
     ? options.excludeGlobs.map(normalizeGlobPattern)
     : config.summarize.excludeGlobs.map(normalizeGlobPattern));
   const ignoreFile = options.ignoreFile || config.summarize.ignoreFile;
-  const ignorePatterns = compileGlobs(await readIgnorePatterns(repoPath, ignoreFile));
+  const ignoreMatcher = await readIgnoreMatcher(repoPath, ignoreFile);
 
   const totals: SummarizeTotals = { scanned: 0, skipped: 0, updated: 0, failed: 0, pruned: 0 };
   const failures: Array<{ filePath: string; message: string }> = [];
@@ -375,7 +380,7 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
     refs.clear();
     await writeManifest(manifestPath, manifest);
 
-    const files = await walkCodeFiles(repoPath, includePatterns, excludePatterns, ignorePatterns);
+    const files = await walkCodeFiles(repoPath, includePatterns, excludePatterns, ignoreMatcher);
     const totalFiles = files.length;
 
     if (!isJson) {
@@ -435,7 +440,7 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
       totals.scanned += 1;
 
       try {
-        if (!shouldIncludeFile(filePath, includePatterns, excludePatterns, ignorePatterns)) {
+        if (!shouldIncludeFile(filePath, includePatterns, excludePatterns, ignoreMatcher)) {
           const removed = await removeManifestPath(filePath, manifest, manifestPath, summaryDir, refs);
           if (removed) {
             totals.pruned += 1;

@@ -36,6 +36,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "commander": "^12.0.0",
+    "ignore": "^7.0.5",
     "openai": "^4.28.0",
     "simple-git": "^3.24.0",
     "vectra": "^0.14.0",
