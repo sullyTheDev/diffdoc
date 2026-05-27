@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "content_hash": "c787513d3e6d5caf3dd79ecaf70af817",
+  "metadata": {
+    "file_path": "package.json",
+    "file_name": "package.json",
+    "extension": ".json",
+    "line_count": 50,
+    "byte_size": 1203,
+    "content_hash": "c787513d3e6d5caf3dd79ecaf70af817",
+    "generated_at": "2026-05-27T21:49:34.463Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini",
+      "base_url": "https://api.openai.com/v1"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: package.json\n- File name: package.json\n- Extension: .json\n- Inferred language/type: JSON (Node.js package configuration)\n- Content hash: c787513d3e6d5caf3dd79ecaf70af817\n- Line count: 50\n- Byte size: 1203\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: @modelcontextprotocol/sdk, commander, ignore, openai, simple-git, vectra, zod\n- Internal dependencies: None identified.\n- Public API/exports: diffdoc (CLI command), diffdoc-mcp (CLI command)\n\n## Purpose\nThis file serves as the configuration for the Node.js package \"diffdoc,\" which translates repository code shifts into plain-English business context.\n\n## User-Visible Behavior\nUsers can install the package and utilize the CLI commands `diffdoc` and `diffdoc-mcp` to execute the functionality provided by the package. The package can be built and started using defined scripts.\n\n## Business Rules\nThe package requires Node.js version 22 or higher. It includes scripts for building the project, cleaning the output directory, and starting the application.\n\n## Data Inputs And Outputs\nThe package accepts inputs through command-line arguments when executing the CLI commands. It outputs results based on the translation of code shifts into business context.\n\n## Side Effects\nThe `clean` script deletes the `dist` directory, and the `build` script generates compiled output in the `dist` directory.\n\n## Error And Edge Cases\nNone identified.\n\n## Dependencies\nThe package relies on several external libraries, including @modelcontextprotocol/sdk, commander, ignore, openai, simple-git, vectra, and zod for its functionality. It also includes development dependencies like @types/node and typescript.\n\n## Operational Notes\nThe package includes a build process using TypeScript and requires the `dist` directory to be present for execution. The `prepare` script ensures the package is built before publishing."
+}

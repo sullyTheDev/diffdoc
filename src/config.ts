@@ -21,6 +21,10 @@ export interface SummarizeFilterConfig {
   excludeGlobs: string[];
   ignoreFile: string;
   concurrency: number;
+  summaryPrompt?: string;
+  summaryPromptFile?: string;
+  resolvedSummaryPrompt?: string;
+  summaryPromptSource?: string;
 }
 
 export interface RuntimeConfig {
@@ -48,6 +52,8 @@ export interface RuntimeConfigOptions {
   excludeGlobs?: string[] | string;
   ignoreFile?: string;
   summarizeConcurrency?: number | string;
+  summaryPrompt?: string;
+  summaryPromptFile?: string;
 }
 
 export interface RuntimeConfigNeeds {
@@ -94,6 +100,16 @@ function readPositiveIntegerOption(value: number | string | undefined, envName: 
   return parsed;
 }
 
+function readPromptOption(value: string | undefined, envName: string): string | undefined {
+  const option = value ?? process.env[envName];
+  return option && option.trim() ? option : undefined;
+}
+
+function resolvePromptFile(promptFile: string): string {
+  const resolvedPath = path.resolve(process.cwd(), promptFile);
+  return fs.readFileSync(resolvedPath, "utf8");
+}
+
 function loadRcFile(configPath: string | undefined): RuntimeConfigOptions {
   const resolvedPath = path.resolve(process.cwd(), configPath || ".diffdocrc");
   if (!fs.existsSync(resolvedPath)) {
@@ -137,6 +153,15 @@ export function buildRuntimeConfig(options: RuntimeConfigOptions, needs: Runtime
   const excludeGlobs = readListOption(mergedOptions.excludeGlobs, "DIFFDOC_EXCLUDE_GLOBS");
   const ignoreFile = readOption(mergedOptions.ignoreFile, "DIFFDOC_IGNORE_FILE", ".diffdocignore");
   const summarizeConcurrency = readPositiveIntegerOption(mergedOptions.summarizeConcurrency, "DIFFDOC_SUMMARIZE_CONCURRENCY", 2);
+  const summaryPrompt = readPromptOption(mergedOptions.summaryPrompt, "DIFFDOC_SUMMARY_PROMPT");
+  const summaryPromptFile = readPromptOption(mergedOptions.summaryPromptFile, "DIFFDOC_SUMMARY_PROMPT_FILE");
+
+  if (summaryPrompt && summaryPromptFile) {
+    throw new Error("Configure either summaryPrompt or summaryPromptFile, not both.");
+  }
+
+  const resolvedSummaryPrompt = summaryPromptFile ? resolvePromptFile(summaryPromptFile) : summaryPrompt;
+  const summaryPromptSource = summaryPromptFile ? summaryPromptFile : summaryPrompt ? "inline" : undefined;
 
   const chatBaseURL = provider === "cloud"
     ? readOption(mergedOptions.cloudLlmEndpoint, "CLOUD_LLM_ENDPOINT", "https://api.openai.com/v1")
@@ -185,7 +210,11 @@ export function buildRuntimeConfig(options: RuntimeConfigOptions, needs: Runtime
       includeGlobs,
       excludeGlobs,
       ignoreFile,
-      concurrency: summarizeConcurrency
+      concurrency: summarizeConcurrency,
+      summaryPrompt,
+      summaryPromptFile,
+      resolvedSummaryPrompt,
+      summaryPromptSource
     }
   };
 }

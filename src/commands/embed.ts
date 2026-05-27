@@ -47,8 +47,8 @@ async function readManifest(manifestPath: string): Promise<RepoManifest> {
 
 async function readSummaryAsset(summaryPath: string): Promise<SummaryAsset> {
   const parsed = JSON.parse(await fs.readFile(summaryPath, "utf8")) as Partial<SummaryAsset>;
-  if (parsed.schemaVersion !== SUMMARY_ASSET_SCHEMA_VERSION) {
-    throw new Error(`Unsupported summary schema in ${summaryPath}. Expected schemaVersion ${SUMMARY_ASSET_SCHEMA_VERSION}.`);
+  if (typeof parsed.schemaVersion !== "number" || parsed.schemaVersion < 1 || parsed.schemaVersion > SUMMARY_ASSET_SCHEMA_VERSION) {
+    throw new Error(`Unsupported summary schema in ${summaryPath}. Expected schemaVersion 1-${SUMMARY_ASSET_SCHEMA_VERSION}.`);
   }
   if (typeof parsed.content_hash !== "string") {
     throw new Error(`Invalid summary hash in ${summaryPath}.`);
@@ -58,15 +58,16 @@ async function readSummaryAsset(summaryPath: string): Promise<SummaryAsset> {
   }
 
   return {
-    schemaVersion: SUMMARY_ASSET_SCHEMA_VERSION,
+    schemaVersion: parsed.schemaVersion,
     content_hash: parsed.content_hash,
+    metadata: parsed.metadata && typeof parsed.metadata === "object" ? parsed.metadata : undefined,
     summary: parsed.summary,
     raw_code_snapshot: typeof parsed.raw_code_snapshot === "string" ? parsed.raw_code_snapshot : undefined
   };
 }
 
-function buildDocument(filePath: string, summaryText: string): string {
-  return `File: ${filePath}\nSummary: ${summaryText}`;
+function buildDocument(summaryAsset: SummaryAsset): string {
+  return summaryAsset.summary;
 }
 
 export async function runEmbed(options: EmbedOptions, config: RuntimeConfig): Promise<void> {
@@ -124,7 +125,7 @@ export async function runEmbed(options: EmbedOptions, config: RuntimeConfig): Pr
       hash,
       summaryText: summaryAsset.summary,
       rawCodeSnapshot: summaryAsset.raw_code_snapshot,
-      document: buildDocument(filePath, summaryAsset.summary)
+      document: buildDocument(summaryAsset)
     });
   }
 

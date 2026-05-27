@@ -78,6 +78,9 @@ addChatOptions(addBaseOptions(program
   .option("--exclude-glob <pattern>", "exclude glob pattern (repeatable)", collectOption, [])
   .option("--ignore-file <path>", "path to ignore pattern file relative to --path")
   .option("--summarize-concurrency <count>", "number of files to summarize concurrently")
+  .option("--summary-prompt <text>", "additional instructions for summary generation")
+  .option("--summary-prompt-file <path>", "path to additional summary prompt instructions")
+  .option("--refresh", "regenerate summaries even when source and summary metadata are fresh", false)
   .action(async (options: RuntimeConfigOptions & {
     path: string;
     out: string;
@@ -87,6 +90,7 @@ addChatOptions(addBaseOptions(program
     includeGlob: string[];
     excludeGlob: string[];
     ignoreFile?: string;
+    refresh: boolean;
   }) => {
     try {
       const config = buildRuntimeConfig(options, { chat: true });
@@ -98,7 +102,8 @@ addChatOptions(addBaseOptions(program
         json: options.json,
         includeGlobs: options.includeGlob,
         excludeGlobs: options.excludeGlob,
-        ignoreFile: options.ignoreFile
+        ignoreFile: options.ignoreFile,
+        refresh: options.refresh
       }, config);
     } catch (error) {
       console.error(error instanceof Error ? error.message : error);

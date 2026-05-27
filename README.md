@@ -165,6 +165,8 @@ DIFFDOC_SUMMARIZE_CONCURRENCY
 DIFFDOC_INCLUDE_GLOBS
 DIFFDOC_EXCLUDE_GLOBS
 DIFFDOC_IGNORE_FILE
+DIFFDOC_SUMMARY_PROMPT
+DIFFDOC_SUMMARY_PROMPT_FILE
 LOCAL_LLM_ENDPOINT
 LOCAL_CHAT_MODEL
 LOCAL_EMBED_ENDPOINT
@@ -231,15 +233,25 @@ npx diffdoc summarize --path . --mode all
 npx diffdoc summarize --path . --mode delta
 npx diffdoc summarize --path . --mode delta --json
 npx diffdoc summarize --path . --mode all --summarize-concurrency 4
+npx diffdoc summarize --path . --mode all --refresh
 ```
 
 Summarization runs with bounded concurrency. The default is `2`; use `1` for strict rate limits, `2-4` for most providers, and higher values only when your local model server or API quota can handle the request volume.
 
-Store raw code snapshots in summary assets when you want retrieved results to include source text:
+Use `--summary-prompt` or `--summary-prompt-file` to add domain-specific guidance without replacing DiffDoc's default structured prompt:
+
+```bash
+npx diffdoc summarize --summary-prompt "Emphasize billing behavior, permissions, data retention, and operational risk."
+npx diffdoc summarize --summary-prompt-file ./diffdoc-summary-prompt.md
+```
+
+Raw code snapshots are optional. DiffDoc normally stores file path and content hash metadata so tools can look up source files from the repository when needed. Store raw code snapshots only when you need exported, offline, or point-in-time audit artifacts to include source text:
 
 ```bash
 npx diffdoc summarize --path . --mode all --include-code-snapshot
 ```
+
+Snapshots increase artifact size and duplicate source code, which can include sensitive or proprietary content.
 
 Check manifest and index freshness:
 
@@ -247,6 +259,8 @@ Check manifest and index freshness:
 npx diffdoc status
 npx diffdoc status --json
 ```
+
+`status` also recommends the next command to run. It prioritizes refreshing missing or stale summaries before rebuilding the vector index.
 
 Embed summaries into the local Vectra index:
 
@@ -305,12 +319,46 @@ Each summary asset is portable JSON:
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "content_hash": "md5-string",
-  "summary": "Plain-English explanation text here.",
+  "metadata": {
+    "file_path": "src/example.ts",
+    "file_name": "example.ts",
+    "extension": ".ts",
+    "line_count": 42,
+    "byte_size": 1200,
+    "content_hash": "md5-string",
+    "generated_at": "2026-05-27T00:00:00.000Z",
+    "generator": {
+      "provider": "local",
+      "model": "qwen2.5-coder:7b",
+      "base_url": "http://localhost:11434/v1"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/example.ts\n...",
   "raw_code_snapshot": "Optional code text when --include-code-snapshot is enabled"
 }
 ```
+
+The JSON `metadata` contains deterministic source and generation facts. The markdown `summary` begins with `## Metadata`, which is embedded with the rest of the summary so file paths, hashes, inferred language/type, symbols, functions, classes, and dependencies are searchable. Language/type and symbol/dependency details are inferred by the model from the file path, extension, and code content rather than maintained through a static parser.
+
+Structured summaries use these sections in order:
+
+```md
+## Metadata
+## Purpose
+## User-Visible Behavior
+## Business Rules
+## Data Inputs And Outputs
+## Side Effects
+## Error And Edge Cases
+## Dependencies
+## Operational Notes
+```
+
+Summary assets are regenerated when the source hash changes, summary schema changes, prompt version changes, summary format changes, custom prompt hash changes, provider/model changes, or `--refresh` is passed. Regenerate existing schema `1` artifacts with `npx diffdoc summarize --mode all --refresh`. The `embed` command remains tolerant of older summary assets as long as they contain a content hash and summary text; use `status` or `summarize` to identify and refresh stale metadata.
 
 Commit `.diffdoc/manifest.json` and `.diffdoc/summaries/*.json` if you want summaries shared across machines or CI runs. Keep `.diffdoc/vectra/` local unless you have a specific reason to commit the generated vector index.
 

@@ -1,6 +1,21 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "content_hash": "9761e45294e4c3b6c226a3e0a770362c",
-  "summary": "This code manages how the system locates files and folders. It acts as a reliable address-finding tool that ensures the application always knows exactly where to look for documents, regardless of how the path is provided.\n\n**Business Behavior & Rules**\n- The system designates a \"home base\" folder for all operations. This folder location is calculated relative to where the program is launched.\n- When a file location is requested, the system follows two clear rules:\n  1. If the provided location is already a complete, standalone address, it is used exactly as written.\n  2. If the provided location is a short or partial reference, the system automatically attaches it to the \"home base\" folder to create a complete address.\n- This prevents errors caused by missing context or ambiguous file references.\n\n**Data Movement**\n- No files are copied, moved, or altered. The code only calculates and returns the correct location string for existing files or folders.\n\n**User Impact & Visible Outcomes**\n- Users and automated processes can reference files using simple, short names without needing to type full system addresses.\n- The application will consistently open, read, or process the correct documents, reducing failed operations, missing file errors, and manual troubleshooting.\n- Configuration changes to the \"home base\" folder automatically update where all related files are found, making system setup and maintenance straightforward.",
-  "raw_code_snapshot": "import path from \"node:path\";\n\nexport function getDiffdocBaseDir(baseDir: string): string {\n  return path.resolve(process.cwd(), baseDir);\n}\n\nexport function resolveDiffdocArtifactPath(filePath: string, baseDir: string): string {\n  if (path.isAbsolute(filePath)) {\n    return filePath;\n  }\n\n  return path.resolve(getDiffdocBaseDir(baseDir), filePath);\n}\n"
+  "metadata": {
+    "file_path": "src/utils/paths.ts",
+    "file_name": "paths.ts",
+    "extension": ".ts",
+    "line_count": 14,
+    "byte_size": 354,
+    "content_hash": "9761e45294e4c3b6c226a3e0a770362c",
+    "generated_at": "2026-05-27T21:50:57.236Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini",
+      "base_url": "https://api.openai.com/v1"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/utils/paths.ts\n- File name: paths.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 9761e45294e4c3b6c226a3e0a770362c\n- Line count: 14\n- Byte size: 354\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: getDiffdocBaseDir, resolveDiffdocArtifactPath\n- External dependencies: node:path\n- Internal dependencies: None identified.\n- Public API/exports: getDiffdocBaseDir, resolveDiffdocArtifactPath\n\n## Purpose\nThis file provides utility functions for resolving file paths related to the DiffDoc application, specifically for obtaining base directories and resolving artifact paths.\n\n## User-Visible Behavior\nUsers or developers will observe that they can call the functions `getDiffdocBaseDir` and `resolveDiffdocArtifactPath` to obtain resolved paths based on the current working directory and specified base directories.\n\n## Business Rules\n- The `getDiffdocBaseDir` function requires a base directory string and resolves it relative to the current working directory.\n- The `resolveDiffdocArtifactPath` function checks if the provided file path is absolute; if it is, it returns the path as is. If not, it resolves the path using the base directory.\n\n## Data Inputs And Outputs\n- Inputs: \n  - `getDiffdocBaseDir` takes a string representing the base directory.\n  - `resolveDiffdocArtifactPath` takes a string for the file path and a string for the base directory.\n- Outputs: \n  - Both functions return a string representing the resolved file path.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\n- If the base directory provided to `getDiffdocBaseDir` is invalid or does not exist, the resolved path may not point to a valid location.\n- If the file path in `resolveDiffdocArtifactPath` is malformed or leads to a non-existent file, the function will still return a resolved path, but it may not be valid.\n\n## Dependencies\n- External dependencies: The file imports the `path` module from Node.js for path resolution.\n\n## Operational Notes\nThe functions are synchronous and do not involve any asynchronous operations. They rely on the current working directory and the provided base directory to resolve paths, which may affect their behavior if the working directory changes during execution."
 }

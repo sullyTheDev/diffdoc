@@ -1,6 +1,21 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "content_hash": "b3e0161a57d466f626e79a2314e53061",
-  "summary": "This file activates and configures a document comparison and documentation tool within the AI platform.\n\n**Business Behavior**\nThe system is set up to automatically connect to a local document analysis tool whenever users request document comparisons, change tracking, or documentation generation. The connection is currently turned on and ready to use.\n\n**User Impact**\nUsers can interact with the AI to compare files, identify differences, or extract documentation. The tool runs directly on the user's computer, keeping data local and reducing reliance on external cloud services. If the tool takes too long to respond, the system safely stops waiting after 10 seconds to prevent workflow delays.\n\n**Rules & Limits**\n- The tool is enabled and active.\n- It operates locally, not through a remote server.\n- It uses a dedicated settings file to control its behavior.\n- It enforces a 10-second response limit to maintain system responsiveness.\n\n**Data Movement**\nAll document processing happens on the user's local machine. No files are uploaded to external servers, ensuring data stays within the organization's environment.\n\n**Visible Outcomes**\nWhen a user requests document analysis, the AI will quickly return a summary of differences or generated documentation. If the tool fails to respond within 10 seconds, the system will gracefully skip the request rather than freezing the interface.",
-  "raw_code_snapshot": "{\n  \"$schema\": \"https://opencode.ai/config.json\",\n  \"mcp\": {\n    \"diffdoc\": {\n      \"type\": \"local\",\n      \"command\": [\"npx\", \"diffdoc-mcp\", \"--config\", \"./.diffdocrc\"],\n      \"enabled\": true,\n      \"timeout\": 10000\n    }\n  }\n}\n"
+  "metadata": {
+    "file_path": "opencode.json",
+    "file_name": "opencode.json",
+    "extension": ".json",
+    "line_count": 12,
+    "byte_size": 228,
+    "content_hash": "b3e0161a57d466f626e79a2314e53061",
+    "generated_at": "2026-05-27T21:49:30.435Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini",
+      "base_url": "https://api.openai.com/v1"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: opencode.json\n- File name: opencode.json\n- Extension: .json\n- Inferred language/type: JSON configuration file\n- Content hash: b3e0161a57d466f626e79a2314e53061\n- Line count: 12\n- Byte size: 228\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file serves as a configuration for the DiffDoc tool, specifying how it should operate in a local environment.\n\n## User-Visible Behavior\nUsers will observe that the DiffDoc tool is configured to run with specific parameters, including a command to execute and a timeout setting.\n\n## Business Rules\nThe configuration enables the DiffDoc tool and sets a timeout of 10 seconds for its operations. The command to be executed is defined as an array.\n\n## Data Inputs And Outputs\nThe input is the configuration settings defined in the JSON structure, and the output is the behavior of the DiffDoc tool when executed with these settings.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nNone identified.\n\n## Dependencies\nNone identified.\n\n## Operational Notes\nThe configuration specifies a command that uses `npx` to run the DiffDoc tool with a configuration file located at `./.diffdocrc`. The tool is set to operate locally."
 }

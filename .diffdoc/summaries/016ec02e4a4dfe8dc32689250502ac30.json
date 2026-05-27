@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "content_hash": "016ec02e4a4dfe8dc32689250502ac30",
+  "metadata": {
+    "file_path": "src/types/artifacts.ts",
+    "file_name": "artifacts.ts",
+    "extension": ".ts",
+    "line_count": 36,
+    "byte_size": 789,
+    "content_hash": "016ec02e4a4dfe8dc32689250502ac30",
+    "generated_at": "2026-05-27T21:50:38.837Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini",
+      "base_url": "https://api.openai.com/v1"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/types/artifacts.ts\n- File name: artifacts.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 016ec02e4a4dfe8dc32689250502ac30\n- Line count: 36\n- Byte size: 789\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, RepoManifest, SummaryMetadata, SummaryAsset\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, RepoManifest, SummaryMetadata, SummaryAsset\n\n## Purpose\nThis file defines TypeScript types and constants related to artifacts, including schema versions and interfaces for repository manifests and summary assets.\n\n## User-Visible Behavior\nUsers interacting with this file will observe the defined constants and interfaces, which can be used to enforce structure and type safety when handling repository manifests and summary assets in TypeScript.\n\n## Business Rules\nThe file enforces schema versioning for manifests and summary assets, ensuring that any implementation adheres to the specified structure and types defined in the interfaces.\n\n## Data Inputs And Outputs\nData entering this file includes the schema versions and the structure of repository manifests and summary assets. Outputs consist of the defined interfaces and constants that can be used throughout the application.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nNone identified.\n\n## Dependencies\nNone identified.\n\n## Operational Notes\nNone identified."
+}

@@ -2,10 +2,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import ignore, { type Ignore } from "ignore";
 import type { RuntimeConfig } from "../config";
-import { MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, type RepoManifest, type SummaryAsset } from "../types/artifacts";
+import { MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, type RepoManifest, type SummaryAsset, type SummaryMetadata } from "../types/artifacts";
 import { getCurrentCommit, getGitDeltas } from "../utils/git";
-import { hashFileContent } from "../utils/hashing";
-import { generateFunctionalSummary } from "../utils/llm";
+import { hashFileContent, hashTextContent } from "../utils/hashing";
+import { generateFunctionalSummary, SUMMARY_FORMAT, SUMMARY_PROMPT_VERSION } from "../utils/llm";
 import { resolveDiffdocArtifactPath } from "../utils/paths";
 
 export interface SummarizeOptions {
@@ -17,14 +17,26 @@ export interface SummarizeOptions {
   includeGlobs?: string[];
   excludeGlobs?: string[];
   ignoreFile?: string;
+  refresh: boolean;
 }
 
 interface SummarizeTotals {
   scanned: number;
   skipped: number;
   updated: number;
+  refreshed: number;
   failed: number;
   pruned: number;
+}
+
+interface SummaryFreshnessExpected {
+  hash: string;
+  promptVersion: number;
+  summaryFormat: string;
+  customPromptHash?: string;
+  provider: string;
+  model: string;
+  includeCodeSnapshot: boolean;
 }
 
 interface SummarizeReport {
@@ -118,15 +130,6 @@ function isIgnoredDirectory(dirPath: string, ignoreMatcher: Ignore): boolean {
   return ignoreMatcher.ignores(dirPath) || ignoreMatcher.ignores(`${dirPath}/`);
 }
 
-async function fileExists(filePath: string): Promise<boolean> {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 async function atomicWriteUtf8(targetPath: string, content: string): Promise<void> {
   await fs.mkdir(path.dirname(targetPath), { recursive: true });
   const tempPath = `${targetPath}.${process.pid}.${Date.now()}.tmp`;
@@ -147,6 +150,90 @@ async function writeManifest(manifestPath: string, manifest: RepoManifest): Prom
 
 async function writeSummaryAsset(summaryPath: string, summary: SummaryAsset): Promise<void> {
   await atomicWriteUtf8(summaryPath, `${JSON.stringify(summary, null, 2)}\n`);
+}
+
+function getPromptHash(config: RuntimeConfig): string | undefined {
+  return config.summarize.resolvedSummaryPrompt
+    ? hashTextContent(config.summarize.resolvedSummaryPrompt)
+    : undefined;
+}
+
+function buildSummaryMetadata(params: {
+  filePath: string;
+  hash: string;
+  rawCodeSnapshot: string;
+  config: RuntimeConfig;
+  generatedAt: string;
+  customPromptHash?: string;
+  customPromptSource?: string;
+}): SummaryMetadata {
+  return {
+    file_path: params.filePath,
+    file_name: path.basename(params.filePath),
+    extension: path.extname(params.filePath),
+    line_count: params.rawCodeSnapshot.length === 0 ? 0 : params.rawCodeSnapshot.split(/\r\n|\r|\n/).length,
+    byte_size: Buffer.byteLength(params.rawCodeSnapshot, "utf8"),
+    content_hash: params.hash,
+    generated_at: params.generatedAt,
+    generator: {
+      provider: params.config.provider,
+      model: params.config.chat.model,
+      base_url: params.config.chat.baseURL || undefined
+    },
+    prompt_version: SUMMARY_PROMPT_VERSION,
+    summary_format: SUMMARY_FORMAT,
+    custom_prompt_hash: params.customPromptHash,
+    custom_prompt_source: params.customPromptSource
+  };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function hasExpectedCustomPromptHash(metadata: Record<string, unknown>, customPromptHash: string | undefined): boolean {
+  const actual = typeof metadata.custom_prompt_hash === "string" ? metadata.custom_prompt_hash : undefined;
+  return actual === customPromptHash;
+}
+
+async function isSummaryAssetFresh(summaryPath: string, expected: SummaryFreshnessExpected): Promise<boolean> {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(await fs.readFile(summaryPath, "utf8"));
+  } catch {
+    return false;
+  }
+
+  if (!isRecord(parsed)) {
+    return false;
+  }
+
+  if (parsed.schemaVersion !== SUMMARY_ASSET_SCHEMA_VERSION || parsed.content_hash !== expected.hash) {
+    return false;
+  }
+  if (expected.includeCodeSnapshot !== (typeof parsed.raw_code_snapshot === "string")) {
+    return false;
+  }
+
+  if (!isRecord(parsed.metadata)) {
+    return false;
+  }
+
+  const metadata = parsed.metadata;
+  if (metadata.content_hash !== expected.hash) {
+    return false;
+  }
+  if (metadata.prompt_version !== expected.promptVersion || metadata.summary_format !== expected.summaryFormat) {
+    return false;
+  }
+  if (!hasExpectedCustomPromptHash(metadata, expected.customPromptHash)) {
+    return false;
+  }
+  if (!isRecord(metadata.generator)) {
+    return false;
+  }
+
+  return metadata.generator.provider === expected.provider && metadata.generator.model === expected.model;
 }
 
 async function readManifest(manifestPath: string): Promise<RepoManifest> {
@@ -295,18 +382,16 @@ async function removeManifestPath(
 async function ensureSummaryAsset(
   summaryDir: string,
   hash: string,
+  metadata: SummaryMetadata,
   summaryText: string,
   rawCodeSnapshot: string,
   includeCodeSnapshot: boolean
 ): Promise<void> {
   const summaryPath = getSummaryPath(summaryDir, hash);
-  if (await fileExists(summaryPath)) {
-    return;
-  }
-
   const summary: SummaryAsset = {
     schemaVersion: SUMMARY_ASSET_SCHEMA_VERSION,
     content_hash: hash,
+    metadata,
     summary: summaryText,
     raw_code_snapshot: includeCodeSnapshot ? rawCodeSnapshot : undefined
   };
@@ -386,32 +471,55 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
   const ignoreFile = options.ignoreFile || config.summarize.ignoreFile;
   const ignoreMatcher = await readIgnoreMatcher(repoPath, ignoreFile);
 
-  const totals: SummarizeTotals = { scanned: 0, skipped: 0, updated: 0, failed: 0, pruned: 0 };
+  const customPromptHash = getPromptHash(config);
+  const customPromptSource = customPromptHash ? config.summarize.summaryPromptSource : undefined;
+  const summaryFreshnessExpected = (hash: string): SummaryFreshnessExpected => ({
+    hash,
+    promptVersion: SUMMARY_PROMPT_VERSION,
+    summaryFormat: SUMMARY_FORMAT,
+    customPromptHash,
+    provider: config.provider,
+    model: config.chat.model,
+    includeCodeSnapshot: options.includeCodeSnapshot
+  });
+
+  const totals: SummarizeTotals = { scanned: 0, skipped: 0, updated: 0, refreshed: 0, failed: 0, pruned: 0 };
   const failures: Array<{ filePath: string; message: string }> = [];
 
   const isJson = options.json;
   const concurrency = config.summarize.concurrency;
   const withManifestLock = createManifestLock();
-  const summaryAssetTasks = new Map<string, Promise<void>>();
+  const summaryAssetTasks = new Map<string, Promise<boolean>>();
 
-  async function ensureSummaryAssetForFile(filePath: string, hash: string, rawCodeSnapshot: string): Promise<void> {
+  async function ensureSummaryAssetForFile(filePath: string, hash: string, rawCodeSnapshot: string): Promise<boolean> {
     const summaryPath = getSummaryPath(summaryDir, hash);
-    if (await fileExists(summaryPath)) {
-      return;
+    if (!options.refresh && await isSummaryAssetFresh(summaryPath, summaryFreshnessExpected(hash))) {
+      return false;
     }
 
     let task = summaryAssetTasks.get(hash);
     if (!task) {
       task = (async () => {
-        const summaryText = await generateFunctionalSummary(filePath, rawCodeSnapshot, config.chat);
-        await ensureSummaryAsset(summaryDir, hash, summaryText, rawCodeSnapshot, options.includeCodeSnapshot);
+        const generatedAt = new Date().toISOString();
+        const metadata = buildSummaryMetadata({
+          filePath,
+          hash,
+          rawCodeSnapshot,
+          config,
+          generatedAt,
+          customPromptHash,
+          customPromptSource
+        });
+        const summaryText = await generateFunctionalSummary(filePath, rawCodeSnapshot, metadata, config.chat, config.summarize.resolvedSummaryPrompt);
+        await ensureSummaryAsset(summaryDir, hash, metadata, summaryText, rawCodeSnapshot, options.includeCodeSnapshot);
+        return true;
       })().finally(() => {
         summaryAssetTasks.delete(hash);
       });
       summaryAssetTasks.set(hash, task);
     }
 
-    await task;
+    return task;
   }
 
   if (!isJson) {
@@ -514,11 +622,16 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
         const rawCodeSnapshot = await fs.readFile(absolutePath, "utf8");
         const hash = hashFileContent(rawCodeSnapshot);
         if (previousHash === hash) {
+          const regenerated = await ensureSummaryAssetForFile(filePath, hash, rawCodeSnapshot);
           await withManifestLock(async () => {
-            totals.skipped += 1;
+            if (regenerated) {
+              totals.refreshed += 1;
+            } else {
+              totals.skipped += 1;
+            }
             completedModified += 1;
             if (!isJson) {
-              console.log(`[${completedModified}/${deltas.modifiedOrAdded.length}] unchanged ${filePath}`);
+              console.log(`[${completedModified}/${deltas.modifiedOrAdded.length}] ${regenerated ? "refreshed" : "unchanged"} ${filePath}`);
             }
           });
           return;
@@ -595,6 +708,7 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
     console.log(`Summarize complete`);
     console.log(`Scanned: ${totals.scanned}`);
     console.log(`Updated: ${totals.updated}`);
+    console.log(`Refreshed: ${totals.refreshed}`);
     console.log(`Skipped: ${totals.skipped}`);
     console.log(`Pruned: ${totals.pruned}`);
     console.log(`Failed: ${totals.failed}`);

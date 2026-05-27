@@ -3,8 +3,9 @@ import path from "node:path";
 import { LocalIndex } from "vectra";
 import type { RuntimeConfig } from "../config";
 import { type DiffdocVectorMetadata, getVectraIndexPath } from "./embed";
-import { MANIFEST_SCHEMA_VERSION, type RepoManifest } from "../types/artifacts";
+import { MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, type RepoManifest } from "../types/artifacts";
 import { resolveDiffdocArtifactPath } from "../utils/paths";
+import { SUMMARY_FORMAT, SUMMARY_PROMPT_VERSION } from "../utils/llm";
 
 export interface StatusOptions {
   manifest: string;
@@ -15,6 +16,7 @@ interface SummaryStats {
   summaryFileCount: number;
   orphanCount: number;
   missingFromManifestCount: number;
+  staleCount: number;
 }
 
 interface IndexFreshness {
@@ -32,8 +34,11 @@ interface StatusReport {
   summaryFreshness: {
     status: "fresh" | "stale";
     missing: number;
+    stale: number;
   };
   indexFreshness: IndexFreshness;
+  nextCommand: string | null;
+  nextCommandReason: string;
 }
 
 function getSummaryDir(manifestPath: string): string {
@@ -98,10 +103,40 @@ async function getSummaryStats(manifestPath: string, manifest: RepoManifest): Pr
     }
   }
 
+  let staleCount = 0;
+  for (const hash of manifestHashes) {
+    if (!summaryHashes.has(hash)) {
+      continue;
+    }
+
+    try {
+      const parsed = JSON.parse(await fs.readFile(path.resolve(summaryDir, `${hash}.json`), "utf8")) as Record<string, unknown>;
+      const metadata = parsed.metadata && typeof parsed.metadata === "object" && !Array.isArray(parsed.metadata)
+        ? parsed.metadata as Record<string, unknown>
+        : undefined;
+      if (
+        parsed.schemaVersion !== SUMMARY_ASSET_SCHEMA_VERSION ||
+        parsed.content_hash !== hash ||
+        !metadata ||
+        typeof metadata.file_path !== "string" ||
+        typeof metadata.file_name !== "string" ||
+        typeof metadata.extension !== "string" ||
+        metadata.content_hash !== hash ||
+        metadata.prompt_version !== SUMMARY_PROMPT_VERSION ||
+        metadata.summary_format !== SUMMARY_FORMAT
+      ) {
+        staleCount += 1;
+      }
+    } catch {
+      staleCount += 1;
+    }
+  }
+
   return {
     summaryFileCount: summaryHashes.size,
     orphanCount,
-    missingFromManifestCount
+    missingFromManifestCount,
+    staleCount
   };
 }
 
@@ -163,24 +198,66 @@ async function getIndexFreshness(manifest: RepoManifest, config: RuntimeConfig):
 }
 
 function formatSummaryFreshness(stats: SummaryStats): string {
-  if (stats.missingFromManifestCount === 0) {
+  if (stats.missingFromManifestCount === 0 && stats.staleCount === 0) {
     return "fresh";
   }
 
-  return `stale (missing: ${stats.missingFromManifestCount})`;
+  return `stale (missing: ${stats.missingFromManifestCount}, stale: ${stats.staleCount})`;
 }
 
-function buildStatusReport(manifest: RepoManifest, summaryStats: SummaryStats, indexFreshness: IndexFreshness): StatusReport {
+function buildSummarizeCommand(manifestOption: string): string {
+  const command = "diffdoc summarize --mode all --refresh";
+  return manifestOption === "manifest.json" ? command : `${command} --out ${manifestOption}`;
+}
+
+function buildEmbedCommand(manifestOption: string): string {
+  const command = "diffdoc embed";
+  return manifestOption === "manifest.json" ? command : `${command} --manifest ${manifestOption}`;
+}
+
+function getNextCommand(manifestOption: string, summaryStats: SummaryStats, indexFreshness: IndexFreshness): { command: string | null; reason: string } {
+  if (summaryStats.missingFromManifestCount > 0 || summaryStats.staleCount > 0) {
+    return {
+      command: buildSummarizeCommand(manifestOption),
+      reason: "summary artifacts are missing or stale"
+    };
+  }
+
+  if (indexFreshness.status === "missing") {
+    return {
+      command: buildEmbedCommand(manifestOption),
+      reason: "vector index is missing"
+    };
+  }
+
+  if (indexFreshness.status === "stale") {
+    return {
+      command: buildEmbedCommand(manifestOption),
+      reason: "vector index is stale"
+    };
+  }
+
+  return {
+    command: null,
+    reason: "summaries and index are fresh"
+  };
+}
+
+function buildStatusReport(manifest: RepoManifest, summaryStats: SummaryStats, indexFreshness: IndexFreshness, manifestOption: string): StatusReport {
+  const nextCommand = getNextCommand(manifestOption, summaryStats, indexFreshness);
   return {
     manifestSchema: manifest.schemaVersion,
     trackedFileCount: Object.keys(manifest.files).length,
     summaryFileCount: summaryStats.summaryFileCount,
     orphanCount: summaryStats.orphanCount,
     summaryFreshness: {
-      status: summaryStats.missingFromManifestCount === 0 ? "fresh" : "stale",
-      missing: summaryStats.missingFromManifestCount
+      status: summaryStats.missingFromManifestCount === 0 && summaryStats.staleCount === 0 ? "fresh" : "stale",
+      missing: summaryStats.missingFromManifestCount,
+      stale: summaryStats.staleCount
     },
-    indexFreshness
+    indexFreshness,
+    nextCommand: nextCommand.command,
+    nextCommandReason: nextCommand.reason
   };
 }
 
@@ -201,7 +278,7 @@ export async function runStatus(options: StatusOptions, config: RuntimeConfig): 
 
   const summaryStats = await getSummaryStats(manifestPath, manifest);
   const indexFreshness = await getIndexFreshness(manifest, config);
-  const report = buildStatusReport(manifest, summaryStats, indexFreshness);
+  const report = buildStatusReport(manifest, summaryStats, indexFreshness, options.manifest);
 
   if (options.json) {
     console.log(JSON.stringify(report, null, 2));
@@ -212,6 +289,10 @@ export async function runStatus(options: StatusOptions, config: RuntimeConfig): 
   console.log(`tracked files: ${report.trackedFileCount}`);
   console.log(`summary files: ${report.summaryFileCount}`);
   console.log(`orphans: ${report.orphanCount}`);
+  console.log(`stale summaries: ${report.summaryFreshness.stale}`);
   console.log(`summary freshness: ${formatSummaryFreshness(summaryStats)}`);
   console.log(`index freshness: ${formatIndexFreshness(indexFreshness)}`);
+  console.log("");
+  console.log(`next command: ${report.nextCommand || "none"}`);
+  console.log(`reason: ${report.nextCommandReason}`);
 }

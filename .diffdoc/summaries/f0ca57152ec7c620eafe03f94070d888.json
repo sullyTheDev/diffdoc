@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "content_hash": "f0ca57152ec7c620eafe03f94070d888",
+  "metadata": {
+    "file_path": "README.md",
+    "file_name": "README.md",
+    "extension": ".md",
+    "line_count": 421,
+    "byte_size": 12999,
+    "content_hash": "f0ca57152ec7c620eafe03f94070d888",
+    "generated_at": "2026-05-27T21:49:20.302Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini",
+      "base_url": "https://api.openai.com/v1"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: README.md\n- File name: README.md\n- Extension: .md\n- Inferred language/type: Markdown\n- Content hash: f0ca57152ec7c620eafe03f94070d888\n- Line count: 421\n- Byte size: 12999\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: Node.js, OpenAI-compatible chat and embedding models, local model servers (Ollama, LM Studio, vLLM).\n- Internal dependencies: None identified.\n- Public API/exports: DiffDoc commands (e.g., init, summarize, embed, search, query).\n\n## Purpose\nThis file serves as documentation for the DiffDoc tool, which generates summaries from source files to create a searchable knowledgebase for developers, agents, and stakeholders.\n\n## User-Visible Behavior\nUsers can initialize DiffDoc, create summaries, search for information, and query the knowledgebase through command-line interface (CLI) commands. The output includes generated summaries, configuration files, and indexed search results.\n\n## Business Rules\nDiffDoc operates under several rules, such as maintaining the codebase as the source of truth, ensuring summaries reflect implemented behavior, and allowing for configuration through various methods (CLI flags, config files, environment variables).\n\n## Data Inputs And Outputs\nData inputs include source files, configuration settings, and command-line arguments. Outputs consist of generated summaries, manifest files, and indexed search data stored in a specified directory.\n\n## Side Effects\nDiffDoc modifies the local file system by creating or updating configuration files, generating summaries, and embedding data into a local index. It may also interact with external services for model inference.\n\n## Error And Edge Cases\nPotential errors include missing configuration files, invalid commands, or unsupported models. Edge cases may arise from empty results during searches or queries, and handling of files excluded by `.diffdocignore`.\n\n## Dependencies\nDiffDoc relies on Node.js, OpenAI-compatible models for summarization and querying, and local model servers for embedding. It does not have internal dependencies on other project files.\n\n## Operational Notes\nDiffDoc supports concurrent summarization and embedding, with configurable batch sizes. It is designed to evolve with the codebase, refreshing summaries as files change. Users should manage sensitive information through environment variables and avoid committing local configuration files."
+}

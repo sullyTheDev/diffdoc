@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "content_hash": "002101e2d418e517b27f35b9f5ad76cd",
+  "metadata": {
+    "file_path": "src/commands/init.ts",
+    "file_name": "init.ts",
+    "extension": ".ts",
+    "line_count": 275,
+    "byte_size": 9974,
+    "content_hash": "002101e2d418e517b27f35b9f5ad76cd",
+    "generated_at": "2026-05-27T21:49:48.669Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini",
+      "base_url": "https://api.openai.com/v1"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/commands/init.ts\n- File name: init.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 002101e2d418e517b27f35b9f5ad76cd\n- Line count: 275\n- Byte size: 9974\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: runInit, buildInteractiveConfig, buildYesConfig, writeJsonFile, createIgnoreFile, updateGitignore\n- External dependencies: fs (node:fs/promises), path (node:path), readline (node:readline/promises), process (node:process)\n- Internal dependencies: None identified.\n- Public API/exports: runInit\n\n## Purpose\nThis file is responsible for initializing the DiffDoc configuration, including setting up necessary files and directories based on user input or default values.\n\n## User-Visible Behavior\nUsers will observe console output indicating the completion of the initialization process, including lists of created, updated, skipped files, and any warnings. They will also receive instructions for the next commands to run.\n\n## Business Rules\n- The configuration must specify either a \"local\" or \"cloud\" AI provider.\n- Existing files will not be overwritten unless the `--force` option is provided.\n- The user can provide configuration options via command-line arguments or interactively through prompts.\n\n## Data Inputs And Outputs\n- Inputs: Command-line options (yes, provider, config, baseDir, force), existing configuration file.\n- Outputs: JSON configuration file, ignore file, updates to .gitignore, console output summarizing changes.\n\n## Side Effects\n- Creates or updates configuration files and directories.\n- Modifies the .gitignore file to include paths relevant to the DiffDoc setup.\n- Writes an ignore file for the DiffDoc project.\n\n## Error And Edge Cases\n- If the specified configuration file does not exist, it will be created.\n- Invalid provider values will throw an error.\n- If the user does not provide necessary inputs, prompts will be used to gather the required information.\n\n## Dependencies\n- External: Node.js built-in modules (fs, path, readline, process).\n- Internal: None identified.\n\n## Operational Notes\n- The script uses asynchronous file operations, which may affect performance if many files are processed.\n- It is designed to be run in a command-line environment where user interaction is possible.\n- The configuration process can be automated with the `--yes` flag to skip prompts."
+}

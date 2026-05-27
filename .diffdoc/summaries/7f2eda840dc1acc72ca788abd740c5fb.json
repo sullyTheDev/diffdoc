@@ -1,6 +1,21 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "content_hash": "7f2eda840dc1acc72ca788abd740c5fb",
-  "summary": "This file acts as a rulebook for how the application's code is prepared and packaged for production. It does not run the application itself, but it controls the behind-the-scenes process that turns developer-written code into a stable, deployable product.\n\n**Business Behavior & Rules**\n- Enforces strict quality standards by catching errors early, reducing the chance of bugs reaching users.\n- Standardizes how files are named and organized, preventing mismatches that could break the app on different servers or operating systems.\n- Allows the system to safely read and use configuration files stored as plain data, streamlining how settings are applied.\n\n**Data Movement & Structure**\n- Keeps raw development code separate from the final, optimized version. Source files stay in one folder, while the compiled, ready-to-run version is placed in a dedicated output folder.\n- Limits processing to only the actual application code, ignoring unrelated files to keep builds fast and efficient.\n- Ensures all external tools and libraries are loaded in a consistent, predictable way, preventing integration failures.\n\n**User Impact & Visible Outcomes**\n- Delivers a more reliable application with fewer crashes or unexpected behavior.\n- Enables faster updates and smoother deployments because the build process is streamlined and error-resistant.\n- Supports modern web standards, ensuring the app performs well and loads quickly on current browsers and devices.\n- Reduces maintenance costs by enforcing consistent, high-quality code practices that are easier to review and update over time.",
-  "raw_code_snapshot": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"CommonJS\",\n    \"outDir\": \"./dist\",\n    \"rootDir\": \"./src\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true,\n    \"forceConsistentCasingInFileNames\": true,\n    \"resolveJsonModule\": true,\n    \"types\": [\"node\"]\n  },\n  \"include\": [\"src/**/*\"]\n}\n"
+  "metadata": {
+    "file_path": "tsconfig.json",
+    "file_name": "tsconfig.json",
+    "extension": ".json",
+    "line_count": 16,
+    "byte_size": 330,
+    "content_hash": "7f2eda840dc1acc72ca788abd740c5fb",
+    "generated_at": "2026-05-27T21:51:11.986Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini",
+      "base_url": "https://api.openai.com/v1"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: tsconfig.json\n- File name: tsconfig.json\n- Extension: .json\n- Inferred language/type: TypeScript configuration\n- Content hash: 7f2eda840dc1acc72ca788abd740c5fb\n- Line count: 16\n- Byte size: 330\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file serves as a configuration for the TypeScript compiler, specifying how TypeScript files should be compiled and what options to use during the compilation process.\n\n## User-Visible Behavior\nUsers will observe that when they run the TypeScript compiler, it will compile TypeScript files located in the `src` directory according to the specified options, producing output in the `dist` directory.\n\n## Business Rules\nThe configuration enforces strict type checking, enables ES module interoperability, and ensures consistent casing in file names. It also specifies that JSON modules can be resolved and that type definitions for Node.js are included.\n\n## Data Inputs And Outputs\nThe input to this configuration includes TypeScript files located in the `src` directory. The output is the compiled JavaScript files generated in the `dist` directory.\n\n## Side Effects\nThe compilation process will generate JavaScript files in the specified output directory, which may overwrite existing files.\n\n## Error And Edge Cases\nIf the TypeScript files contain errors, the compiler will report these errors, preventing successful compilation. Additionally, if the `src` directory is empty or contains no valid TypeScript files, no output will be generated.\n\n## Dependencies\nThis configuration relies on the TypeScript compiler and assumes the presence of Node.js type definitions.\n\n## Operational Notes\nThe configuration is set to skip type checking for library files, which can improve compilation speed. It is also designed to work with ES2022 features, so the runtime environment must support these features for the compiled code to function correctly."
 }

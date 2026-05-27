@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "content_hash": "028c5e92e8f88bd8346b7c3534831943",
+  "metadata": {
+    "file_path": ".diffdocrc.example",
+    "file_name": ".diffdocrc.example",
+    "extension": ".example",
+    "line_count": 18,
+    "byte_size": 537,
+    "content_hash": "028c5e92e8f88bd8346b7c3534831943",
+    "generated_at": "2026-05-27T21:48:59.018Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini",
+      "base_url": "https://api.openai.com/v1"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: .diffdocrc.example\n- File name: .diffdocrc.example\n- Extension: .example\n- Inferred language/type: JSON configuration file\n- Content hash: 028c5e92e8f88bd8346b7c3534831943\n- Line count: 18\n- Byte size: 537\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: OpenAI API\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file serves as a configuration example for the DiffDoc tool, specifying various settings related to local and cloud AI model endpoints, directories, and processing parameters.\n\n## User-Visible Behavior\nUsers can reference this configuration to understand how to set up their own `.diffdocrc` file, including specifying local and cloud AI model endpoints, batch sizes, and concurrency settings.\n\n## Business Rules\nThe configuration includes rules for specifying local and cloud AI model endpoints, batch sizes for embedding, and concurrency limits for summarization. It also allows for the inclusion and exclusion of specific file patterns.\n\n## Data Inputs And Outputs\nInputs include the base directory for DiffDoc, AI provider settings, model endpoints, API keys, and glob patterns for file inclusion/exclusion. Outputs are not directly specified but would relate to how the DiffDoc tool utilizes these configurations during its operation.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nPotential issues could arise from missing or incorrect API keys, invalid model names, or misconfigured endpoints, which may lead to failures in connecting to the AI services.\n\n## Dependencies\nThe configuration relies on the OpenAI API for cloud-based AI model interactions. Local endpoints are also specified for local AI model usage.\n\n## Operational Notes\nUsers should ensure that the specified local endpoints are running and accessible. The configuration allows for customization of embedding batch sizes and concurrency settings, which can impact performance based on the user's environment and resource availability."
+}

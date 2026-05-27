@@ -1,5 +1,21 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "content_hash": "55136b821677e85b29ac10e30126ae30",
-  "summary": "This file tells the system which files to ignore when collecting or comparing project content.\n\nWhat it does:\n- Excludes version control files and DiffDoc’s own working files.\n- Skips installed dependencies and package caches.\n- Ignores build outputs, test coverage, and other generated files.\n- Leaves out logs, lockfiles, and local environment settings.\n- Omits common binary and media files like images, videos, fonts, and archives.\n\nBusiness impact:\n- Keeps reviews focused on meaningful source files instead of clutter.\n- Reduces noise from generated or machine-specific files.\n- Helps avoid exposing local secrets or environment settings.\n- Makes comparisons faster and more reliable by skipping large, unimportant files.\n\nVisible outcome:\n- When the project is scanned, these files will not be included in the results or diffs."
+  "metadata": {
+    "file_path": ".diffdocignore",
+    "file_name": ".diffdocignore",
+    "extension": "",
+    "line_count": 53,
+    "byte_size": 579,
+    "content_hash": "55136b821677e85b29ac10e30126ae30",
+    "generated_at": "2026-05-27T21:48:59.005Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini",
+      "base_url": "https://api.openai.com/v1"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: .diffdocignore\n- File name: .diffdocignore\n- Extension: None\n- Inferred language/type: Configuration file\n- Content hash: 55136b821677e85b29ac10e30126ae30\n- Line count: 53\n- Byte size: 579\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file specifies patterns for files and directories that should be ignored by version control systems and the DiffDoc tool, ensuring that unnecessary artifacts are not tracked.\n\n## User-Visible Behavior\nUsers will observe that files and directories matching the specified patterns are excluded from version control operations and DiffDoc processing, leading to a cleaner repository and reduced clutter in generated documentation.\n\n## Business Rules\nFiles and directories that match the defined patterns will not be included in version control or DiffDoc outputs. This includes version control artifacts, dependency caches, build outputs, logs, environment files, and various binary assets.\n\n## Data Inputs And Outputs\nNo direct data inputs or outputs are specified; the file serves as a configuration for ignoring certain files and directories in version control and documentation generation.\n\n## Side Effects\nThe presence of this file will prevent the specified files and directories from being tracked by version control systems and included in DiffDoc outputs, which may affect the completeness of the repository and documentation.\n\n## Error And Edge Cases\nNone identified.\n\n## Dependencies\nNone identified.\n\n## Operational Notes\nThis file should be maintained to reflect any changes in project structure or dependencies to ensure that irrelevant files continue to be ignored. Regular updates may be necessary as new tools or file types are introduced into the project."
 }

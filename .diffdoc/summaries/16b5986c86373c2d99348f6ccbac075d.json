@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "content_hash": "16b5986c86373c2d99348f6ccbac075d",
+  "metadata": {
+    "file_path": "src/utils/llm.ts",
+    "file_name": "llm.ts",
+    "extension": ".ts",
+    "line_count": 157,
+    "byte_size": 6503,
+    "content_hash": "16b5986c86373c2d99348f6ccbac075d",
+    "generated_at": "2026-05-27T21:50:55.812Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini",
+      "base_url": "https://api.openai.com/v1"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/utils/llm.ts\n- File name: llm.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 16b5986c86373c2d99348f6ccbac075d\n- Line count: 157\n- Byte size: 6503\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: createClient, formatMetadataForPrompt, generateFunctionalSummary, generateAnswer, generateEmbeddings\n- External dependencies: OpenAI\n- Internal dependencies: ChatConfig, EmbeddingConfig, SummaryMetadata\n- Public API/exports: generateFunctionalSummary, generateAnswer, generateEmbeddings\n\n## Purpose\nThis file provides utility functions for interacting with the OpenAI API to generate functional summaries, answers to prompts, and embeddings from text inputs.\n\n## User-Visible Behavior\nUsers can call the exported functions to generate summaries of code files, obtain answers to specific prompts, and create embeddings from text. The responses are derived from the OpenAI API and are formatted based on the provided metadata and prompts.\n\n## Business Rules\nThe file enforces the use of specific configurations for the OpenAI client, including required API keys and model specifications. It also defines a structured format for generating summaries, ensuring that all required metadata is included.\n\n## Data Inputs And Outputs\nInputs include the file name, code content, metadata, and configuration for the OpenAI client. Outputs consist of generated summaries, answers, and embeddings, which are returned as strings or arrays of numbers.\n\n## Side Effects\nThe functions make network requests to the OpenAI API, which may result in data being sent over the internet. They also handle the creation of OpenAI client instances based on the provided configuration.\n\n## Error And Edge Cases\nThe functions handle cases where no response is returned from the OpenAI API by providing default messages. They assume valid configurations are provided but do not explicitly handle invalid configurations or network errors.\n\n## Dependencies\nThe file depends on the OpenAI package for API interactions and imports types from local configuration and types files.\n\n## Operational Notes\nThe functions are designed to be asynchronous and may involve network latency due to API calls. The temperature setting for the API requests is fixed at 0.2, which influences the randomness of the responses."
+}
