@@ -1,11 +1,11 @@
 {
   "schemaVersion": 2,
-  "lastSyncedCommit": "aea5fae2a8ce3d0e4b95b9a9ae8b4e677c690e79",
+  "lastSyncedCommit": "505942c966f659535dfd4d0dbe6e0ca4ebf408e2",
   "files": {
     ".diffdocignore": "55136b821677e85b29ac10e30126ae30",
     ".diffdocrc.example": "028c5e92e8f88bd8346b7c3534831943",
     ".gitignore": "3bdd003eec1efc26f7ccad438f9a7978",
-    ".github/workflows/diffdoc-summarize.yml": "20868a449d460e028f0dd093cc3c0986",
+    ".github/workflows/diffdoc-summarize.yml": "6f883bd5ead30f4099154e2bdd439a37",
     "LICENSE": "11af7ad818b0d8f9a44f46a939c2936b",
     "README.md": "f0ca57152ec7c620eafe03f94070d888",
     "opencode.json": "b3e0161a57d466f626e79a2314e53061",
