@@ -65,13 +65,8 @@ async function readSummaryAsset(summaryPath: string): Promise<SummaryAsset> {
   };
 }
 
-function buildDocument(filePath: string, summaryText: string, rawCodeSnapshot?: string): string {
-  let output = `File: ${filePath}\nSummary: ${summaryText}`;
-  if (rawCodeSnapshot) {
-    output += `\n\nCode Snapshot:\n\`\`\`\n${rawCodeSnapshot}\n\`\`\``;
-  }
-
-  return output;
+function buildDocument(filePath: string, summaryText: string): string {
+  return `File: ${filePath}\nSummary: ${summaryText}`;
 }
 
 export async function runEmbed(options: EmbedOptions, config: RuntimeConfig): Promise<void> {
@@ -129,7 +124,7 @@ export async function runEmbed(options: EmbedOptions, config: RuntimeConfig): Pr
       hash,
       summaryText: summaryAsset.summary,
       rawCodeSnapshot: summaryAsset.raw_code_snapshot,
-      document: buildDocument(filePath, summaryAsset.summary, summaryAsset.raw_code_snapshot)
+      document: buildDocument(filePath, summaryAsset.summary)
     });
   }
 
