@@ -190,6 +190,12 @@ Embed the manifest into a local Vectra index at `./.diffdoc/vectra`:
 diffdoc embed
 ```
 
+Limit how many summary documents are sent per embeddings request:
+
+```bash
+diffdoc embed --embed-batch-size 20
+```
+
 Force full index rebuild:
 
 ```bash
@@ -303,7 +309,7 @@ Run `diffdoc summarize` and `diffdoc embed` before using the MCP server, otherwi
 - `summarize --json` prints a single machine-readable run report to stdout for CI parsing.
 - `status` does not require a configured chat or embedding model.
 - `status --json` prints a machine-readable report with summary and index freshness details.
-- `embed` requires a configured embedding model.
+- `embed` requires a configured embedding model. Use `embedBatchSize` in `.diffdocrc`, `DIFFDOC_EMBED_BATCH_SIZE`, or `--embed-batch-size` to tune how many summary documents are sent per embeddings request.
 - `search` requires a configured embedding model and returns raw retrieval results without calling the chat model.
 - `query` requires both a configured chat model and embedding model.
 - For code-oriented embedding models such as `nomic-embed-code`, DiffDoc prefixes query embeddings with `Represent this query for searching relevant code:`.

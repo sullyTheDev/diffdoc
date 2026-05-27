@@ -13,6 +13,7 @@ export interface EmbeddingConfig {
   apiKey: string;
   baseURL: string;
   model: string;
+  batchSize: number;
 }
 
 export interface SummarizeFilterConfig {
@@ -40,6 +41,7 @@ export interface RuntimeConfigOptions {
   cloudLlmEndpoint?: string;
   cloudChatModel?: string;
   cloudEmbedModel?: string;
+  embedBatchSize?: number | string;
   openaiApiKey?: string;
   includeGlobs?: string[] | string;
   excludeGlobs?: string[] | string;
@@ -74,6 +76,20 @@ function readListOption(value: string[] | string | undefined, envName: string, f
   }
 
   return fallback;
+}
+
+function readPositiveIntegerOption(value: number | string | undefined, envName: string, fallback: number): number {
+  const rawValue = value ?? process.env[envName];
+  if (rawValue === undefined || rawValue === "") {
+    return fallback;
+  }
+
+  const parsed = typeof rawValue === "number" ? rawValue : Number.parseInt(rawValue, 10);
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    throw new Error(`Invalid ${envName}. Expected a positive integer.`);
+  }
+
+  return parsed;
 }
 
 function loadRcFile(configPath: string | undefined): RuntimeConfigOptions {
@@ -114,6 +130,7 @@ export function buildRuntimeConfig(options: RuntimeConfigOptions, needs: Runtime
   const mergedOptions = mergeConfigOptions(options);
   const provider = readProvider(mergedOptions.aiProvider);
   const apiKey = readOption(mergedOptions.openaiApiKey, "OPENAI_API_KEY", provider === "local" ? "local-key" : "");
+  const embedBatchSize = readPositiveIntegerOption(mergedOptions.embedBatchSize, "DIFFDOC_EMBED_BATCH_SIZE", 25);
   const includeGlobs = readListOption(mergedOptions.includeGlobs, "DIFFDOC_INCLUDE_GLOBS");
   const excludeGlobs = readListOption(mergedOptions.excludeGlobs, "DIFFDOC_EXCLUDE_GLOBS");
   const ignoreFile = readOption(mergedOptions.ignoreFile, "DIFFDOC_IGNORE_FILE", ".diffdocignore");
@@ -158,7 +175,8 @@ export function buildRuntimeConfig(options: RuntimeConfigOptions, needs: Runtime
     embeddings: {
       apiKey,
       baseURL: embedBaseURL,
-      model: embedModel
+      model: embedModel,
+      batchSize: embedBatchSize
     },
     summarize: {
       includeGlobs,

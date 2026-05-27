@@ -8,6 +8,7 @@
   "cloudLlmEndpoint": "https://api.openai.com/v1",
   "cloudChatModel": "gpt-4o-mini",
   "cloudEmbedModel": "text-embedding-3-small",
+  "embedBatchSize": 25,
   "openaiApiKey": "",
   "includeGlobs": [],
   "excludeGlobs": [],

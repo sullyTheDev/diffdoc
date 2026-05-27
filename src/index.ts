@@ -34,7 +34,8 @@ function addEmbeddingOptions(command: Command): Command {
   return command
     .option("--local-embed-endpoint <url>", "local OpenAI-compatible embeddings endpoint")
     .option("--local-embed-model <model>", "local embedding model name")
-    .option("--cloud-embed-model <model>", "cloud embedding model name");
+    .option("--cloud-embed-model <model>", "cloud embedding model name")
+    .option("--embed-batch-size <count>", "number of summary documents to send per embeddings request");
 }
 
 function addCloudEndpointAndKeyOptions(command: Command): Command {

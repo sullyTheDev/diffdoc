@@ -143,31 +143,32 @@ export async function runEmbed(options: EmbedOptions, config: RuntimeConfig): Pr
     return;
   }
 
-  const embeddings = toUpsert.length > 0
-    ? await generateEmbeddings(toUpsert.map((item) => item.document), config.embeddings)
-    : [];
-
   await index.beginUpdate();
   try {
-    for (let i = 0; i < toUpsert.length; i += 1) {
-      const item = toUpsert[i];
-      const metadata: DiffdocVectorMetadata = item.rawCodeSnapshot
-        ? {
-          filePath: item.filePath,
-          hash: item.hash,
-          summaryText: item.summaryText,
-          rawCodeSnapshot: item.rawCodeSnapshot
-        }
-        : {
-          filePath: item.filePath,
-          hash: item.hash,
-          summaryText: item.summaryText
-        };
-      await index.upsertItem({
-        id: item.filePath,
-        vector: embeddings[i],
-        metadata
-      });
+    for (let start = 0; start < toUpsert.length; start += config.embeddings.batchSize) {
+      const batch = toUpsert.slice(start, start + config.embeddings.batchSize);
+      const embeddings = await generateEmbeddings(batch.map((item) => item.document), config.embeddings);
+
+      for (let i = 0; i < batch.length; i += 1) {
+        const item = batch[i];
+        const metadata: DiffdocVectorMetadata = item.rawCodeSnapshot
+          ? {
+            filePath: item.filePath,
+            hash: item.hash,
+            summaryText: item.summaryText,
+            rawCodeSnapshot: item.rawCodeSnapshot
+          }
+          : {
+            filePath: item.filePath,
+            hash: item.hash,
+            summaryText: item.summaryText
+          };
+        await index.upsertItem({
+          id: item.filePath,
+          vector: embeddings[i],
+          metadata
+        });
+      }
     }
 
     for (const itemId of toDelete) {
