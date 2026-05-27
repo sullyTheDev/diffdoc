@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 2,
+  "content_hash": "cf6cd165963324070bbbc7b297bec564",
+  "metadata": {
+    "file_path": "src/types/artifacts.ts",
+    "file_name": "artifacts.ts",
+    "extension": ".ts",
+    "line_count": 35,
+    "byte_size": 766,
+    "content_hash": "cf6cd165963324070bbbc7b297bec564",
+    "generated_at": "2026-05-27T22:03:50.381Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/types/artifacts.ts\n- File name: artifacts.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: cf6cd165963324070bbbc7b297bec564\n- Line count: 35\n- Byte size: 766\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, RepoManifest, SummaryMetadata, SummaryAsset\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, RepoManifest, SummaryMetadata, SummaryAsset\n\n## Purpose\nThis file defines TypeScript types and constants related to the structure of repository manifests and summary assets, facilitating type safety and consistency in handling these data structures.\n\n## User-Visible Behavior\nUsers of this file will observe the availability of constants for schema versions and interfaces that define the structure of repository manifests and summary assets, which can be utilized in other parts of the application for type-checking and data validation.\n\n## Business Rules\nThe file enforces specific schema versions for manifests and summary assets, ensuring that any data adhering to these interfaces conforms to the defined structure and types.\n\n## Data Inputs And Outputs\nData entering this file includes the schema version constants and the structure definitions for repository manifests and summary assets. Outputs consist of the defined interfaces that can be used to create or validate objects representing these data structures.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nNone identified.\n\n## Dependencies\nNone identified.\n\n## Operational Notes\nNone identified."
+}

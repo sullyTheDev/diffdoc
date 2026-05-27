@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 2,
+  "content_hash": "b745d3576c08b8d362fef8f59988b832",
+  "metadata": {
+    "file_path": "src/commands/summarize.ts",
+    "file_name": "summarize.ts",
+    "extension": ".ts",
+    "line_count": 728,
+    "byte_size": 23305,
+    "content_hash": "b745d3576c08b8d362fef8f59988b832",
+    "generated_at": "2026-05-27T22:03:33.246Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/commands/summarize.ts\n- File name: summarize.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: b745d3576c08b8d362fef8f59988b832\n- Line count: 728\n- Byte size: 23305\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: runSummarize, ensureSummaryAssetForFile, readManifest, writeManifest\n- External dependencies: fs/promises, path, ignore\n- Internal dependencies: RuntimeConfig, RepoManifest, SummaryAsset, SummaryMetadata, getCurrentCommit, getGitDeltas, hashFileContent, hashTextContent, generateFunctionalSummary, resolveDiffdocArtifactPath\n- Public API/exports: runSummarize\n\n## Purpose\nThis file implements the `runSummarize` function, which processes code files in a repository to generate summaries based on their content, updating a manifest and managing summary assets.\n\n## User-Visible Behavior\nUsers can invoke the `runSummarize` function with specific options to summarize code files. The function outputs a report detailing the summarization process, including scanned files, updates, failures, and duration. It can operate in two modes: \"all\" (summarizing all files) or \"delta\" (only summarizing modified or added files since the last commit).\n\n## Business Rules\n- The summarization mode must be either \"all\" or \"delta\".\n- Files are included or excluded based on specified glob patterns and an ignore file.\n- Summary assets are only refreshed if the `refresh` option is set to true or if the existing summary is not fresh.\n- The manifest is updated with new file hashes, and orphaned summaries are pruned if they are no longer referenced.\n\n## Data Inputs And Outputs\n- Inputs: \n  - Options including path, output directory, mode, and glob patterns.\n  - Configuration settings from `RuntimeConfig`.\n- Outputs:\n  - Summary assets stored as JSON files.\n  - A report detailing the summarization results, printed to the console or returned as JSON.\n\n## Side Effects\n- Creates or updates summary files in the specified output directory.\n- Modifies the manifest file to reflect changes in file hashes.\n- Deletes orphaned summary files that are no longer referenced by the manifest.\n\n## Error And Edge Cases\n- Handles missing files gracefully, returning defaults or skipping as necessary.\n- Reports failures for files that cannot be processed, including logging error messages.\n- Validates schema versions for manifest and summary assets, throwing errors for mismatches.\n\n## Dependencies\n- External: `fs/promises` for file operations, `path` for path manipulations, `ignore` for handling ignore patterns.\n- Internal: Various utility functions for hashing, generating summaries, and managing paths.\n\n## Operational Notes\n- The function supports concurrency for processing files, improving performance.\n- It maintains a lock mechanism to ensure that manifest updates are thread-safe.\n- The summarization process can be configured to include or exclude code snapshots based on user options."
+}
