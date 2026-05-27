@@ -47,7 +47,7 @@ function addCloudEndpointAndKeyOptions(command: Command): Command {
 program
   .name("diffdoc")
   .description("Translate repository code shifts into plain-English business context")
-  .version("0.4.1");
+  .version("0.4.2");
 
 program
   .command("init")
