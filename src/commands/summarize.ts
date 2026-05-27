@@ -177,8 +177,7 @@ function buildSummaryMetadata(params: {
     generated_at: params.generatedAt,
     generator: {
       provider: params.config.provider,
-      model: params.config.chat.model,
-      base_url: params.config.chat.baseURL || undefined
+      model: params.config.chat.model
     },
     prompt_version: SUMMARY_PROMPT_VERSION,
     summary_format: SUMMARY_FORMAT,

@@ -18,7 +18,6 @@ export interface SummaryMetadata {
   generator: {
     provider: string;
     model: string;
-    base_url?: string;
   };
   prompt_version: number;
   summary_format: string;

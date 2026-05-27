@@ -11,8 +11,7 @@
     "generated_at": "2026-05-27T21:49:08.894Z",
     "generator": {
       "provider": "cloud",
-      "model": "gpt-4o-mini",
-      "base_url": "https://api.openai.com/v1"
+      "model": "gpt-4o-mini"
     },
     "prompt_version": 1,
     "summary_format": "structured-functional-v1"
