@@ -3,15 +3,14 @@ import path from "node:path";
 import ignore, { type Ignore } from "ignore";
 import type { RuntimeConfig } from "../config";
 import { MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, RepoManifestSchema, type RepoManifest, type SummaryAsset, type SummaryMetadata } from "../types/artifacts";
+import { SCHEMA_BASE_URL } from "../schemas";
 import { getCurrentCommit, getGitDeltas } from "../utils/git";
 import { hashFileContent, hashTextContent } from "../utils/hashing";
 import { generateFunctionalSummary, SUMMARY_FORMAT, SUMMARY_PROMPT_VERSION } from "../utils/llm";
 import { resolveDiffdocArtifactPath } from "../utils/paths";
 
-const SCHEMA_BASE_URL = "https://raw.githubusercontent.com/sullyTheDev/diffdoc";
-const PKG_VERSION: string = require("../../package.json").version;
-const MANIFEST_SCHEMA_URL = `${SCHEMA_BASE_URL}/v${PKG_VERSION}/schemas/manifest.schema.json`;
-const SUMMARY_ASSET_SCHEMA_URL = `${SCHEMA_BASE_URL}/v${PKG_VERSION}/schemas/summary-asset.schema.json`;
+const MANIFEST_SCHEMA_URL = `${SCHEMA_BASE_URL}/manifest.schema.json`;
+const SUMMARY_ASSET_SCHEMA_URL = `${SCHEMA_BASE_URL}/summary-asset.schema.json`;
 
 export interface SummarizeOptions {
   path: string;

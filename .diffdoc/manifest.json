@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/v0.6.0/schemas/manifest.schema.json",
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/manifest.schema.json",
   "schemaVersion": 2,
   "lastSyncedCommit": "505942c966f659535dfd4d0dbe6e0ca4ebf408e2",
   "files": {

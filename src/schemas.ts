@@ -6,12 +6,16 @@ import { z } from "zod";
 
 export const MANIFEST_SCHEMA_VERSION = 2;
 export const SUMMARY_ASSET_SCHEMA_VERSION = 2;
+export const SCHEMA_DIR_VERSION = 2;
+
+export const SCHEMA_BASE_URL = `https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v${SCHEMA_DIR_VERSION}`;
 
 // ---------------------------------------------------------------------------
 // Configuration schema (.diffdocrc)
 // ---------------------------------------------------------------------------
 
 export const DiffdocConfigSchema = z.object({
+  $schema: z.string().optional(),
   baseDir: z.string().optional(),
   aiProvider: z.enum(["local", "cloud"]).optional(),
   localLlmEndpoint: z.string().optional(),

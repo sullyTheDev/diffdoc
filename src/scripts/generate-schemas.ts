@@ -1,10 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import { DiffdocConfigSchema, RepoManifestSchema, SummaryAssetSchema } from "../schemas";
-
-const SCHEMA_BASE_URL = "https://raw.githubusercontent.com/sullyTheDev/diffdoc";
-const VERSION = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../package.json"), "utf8")).version as string;
+import { DiffdocConfigSchema, RepoManifestSchema, SummaryAssetSchema, SCHEMA_BASE_URL, SCHEMA_DIR_VERSION } from "../schemas";
 
 interface SchemaEntry {
   name: string;
@@ -18,7 +15,7 @@ const schemas: SchemaEntry[] = [
   { name: "summary-asset.schema.json", zodSchema: SummaryAssetSchema }
 ];
 
-const outDir = path.resolve(__dirname, "../../schemas");
+const outDir = path.resolve(__dirname, `../../schemas/v${SCHEMA_DIR_VERSION}`);
 fs.mkdirSync(outDir, { recursive: true });
 
 for (const entry of schemas) {
@@ -28,7 +25,7 @@ for (const entry of schemas) {
   }) as Record<string, unknown>;
   const schemaWithId = {
     ...jsonSchema,
-    $id: `${SCHEMA_BASE_URL}/v${VERSION}/schemas/${entry.name}`
+    $id: `${SCHEMA_BASE_URL}/${entry.name}`
   };
   const outPath = path.resolve(outDir, entry.name);
   fs.writeFileSync(outPath, `${JSON.stringify(schemaWithId, null, 2)}\n`);

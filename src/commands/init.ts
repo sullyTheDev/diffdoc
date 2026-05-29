@@ -2,9 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
-
-const SCHEMA_BASE_URL = "https://raw.githubusercontent.com/sullyTheDev/diffdoc";
-const PKG_VERSION: string = require("../../package.json").version;
+import { SCHEMA_BASE_URL } from "../schemas";
 
 type InitProvider = "local" | "cloud";
 
@@ -42,7 +40,7 @@ interface InitSummary {
 }
 
 const DEFAULT_CONFIG: DiffdocRc = {
-  $schema: `${SCHEMA_BASE_URL}/v${PKG_VERSION}/schemas/diffdocrc.schema.json`,
+  $schema: `${SCHEMA_BASE_URL}/diffdocrc.schema.json`,
   baseDir: "./.diffdoc",
   aiProvider: "local",
   localLlmEndpoint: "http://localhost:11434/v1",

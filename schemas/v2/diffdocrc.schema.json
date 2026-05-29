@@ -4,6 +4,9 @@
     "diffdocrc": {
       "type": "object",
       "properties": {
+        "$schema": {
+          "type": "string"
+        },
         "baseDir": {
           "type": "string"
         },
@@ -100,5 +103,5 @@
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/v0.6.0/schemas/diffdocrc.schema.json"
+  "$id": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/diffdocrc.schema.json"
 }

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/v0.6.0/schemas/summary-asset.schema.json",
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
   "schemaVersion": 2,
   "content_hash": "f1a59de3664542a9e3660a9c3d752a2d",
   "metadata": {

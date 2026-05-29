@@ -4,6 +4,8 @@
 export {
   MANIFEST_SCHEMA_VERSION,
   SUMMARY_ASSET_SCHEMA_VERSION,
+  SCHEMA_DIR_VERSION,
+  SCHEMA_BASE_URL,
   RepoManifestSchema,
   SummaryMetadataSchema,
   SummaryAssetSchema,
