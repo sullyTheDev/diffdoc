@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "bdd6bc3b100bbb5a34314967f5aa465f",
+  "metadata": {
+    "file_path": "src/commands/summarize.ts",
+    "file_name": "summarize.ts",
+    "extension": ".ts",
+    "line_count": 615,
+    "byte_size": 20363,
+    "content_hash": "bdd6bc3b100bbb5a34314967f5aa465f",
+    "generated_at": "2026-05-29T16:40:48.178Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/commands/summarize.ts\n- File name: summarize.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: bdd6bc3b100bbb5a34314967f5aa465f\n- Line count: 615\n- Byte size: 20363\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: runSummarize, ensureSummaryAssetForFile, readManifest, writeManifest, isSummaryAssetFresh\n- External dependencies: fs (node:fs/promises), path (node:path), RuntimeConfig, RepoManifestSchema, SummaryAsset, SummaryMetadata, various utility functions from \"../utils/*\"\n- Internal dependencies: None identified.\n- Public API/exports: runSummarize\n\n## Purpose\nThis file implements the functionality for summarizing code files in a repository, generating summaries based on the current state of the code, and managing metadata related to these summaries.\n\n## User-Visible Behavior\nUsers can invoke the `runSummarize` function, which processes files in a specified repository, generates summaries, and outputs a report detailing the operation's results. The output can be in JSON format or a human-readable summary printed to the console.\n\n## Business Rules\n- The summarization can be performed in two modes: \"all\" (process all files) or \"delta\" (process only modified or added files since the last sync).\n- Summaries are only refreshed if the `refresh` option is set to true or if the existing summary is deemed stale based on its metadata.\n- Files can be included or excluded from processing based on glob patterns specified in the options or configuration.\n\n## Data Inputs And Outputs\n- Inputs: Options for summarization (path, output directory, mode, globs for inclusion/exclusion, etc.), runtime configuration, and the current state of the repository.\n- Outputs: Generated summary files stored in a specified directory, a report detailing the summarization process, and console logs indicating progress and results.\n\n## Side Effects\nThe function writes summary files and manifests to the filesystem, updates the state of the repository's metadata, and may delete orphaned summary files that are no longer referenced.\n\n## Error And Edge Cases\nThe code handles various error scenarios, including missing files, invalid JSON in manifests, and issues with file reading/writing. It logs failures and includes them in the final report, throwing an error if any failures occur during the summarization process.\n\n## Dependencies\n- External: Node.js file system and path modules, various utility functions for hashing, git operations, and schema validation.\n- Internal: Types and schemas for runtime configuration and summary assets.\n\n## Operational Notes\nThe summarization process can be run concurrently based on a specified concurrency level in the configuration. The function is designed to handle large repositories efficiently by processing files in parallel and managing locks to avoid race conditions on the manifest."
+}

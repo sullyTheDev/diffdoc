@@ -10,6 +10,9 @@
         "baseDir": {
           "type": "string"
         },
+        "repoPath": {
+          "type": "string"
+        },
         "aiProvider": {
           "type": "string",
           "enum": [

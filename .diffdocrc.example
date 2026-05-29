@@ -1,5 +1,7 @@
 {
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/diffdocrc.schema.json",
   "baseDir": "./.diffdoc",
+  "repoPath": ".",
   "aiProvider": "local",
   "localLlmEndpoint": "http://localhost:11434/v1",
   "localEmbedEndpoint": "http://localhost:11434/v1/embeddings",

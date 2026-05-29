@@ -1,6 +1,5 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import ignore, { type Ignore } from "ignore";
 import type { RuntimeConfig } from "../config";
 import { MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, RepoManifestSchema, type RepoManifest, type SummaryAsset, type SummaryMetadata } from "../types/artifacts";
 import { SCHEMA_BASE_URL } from "../schemas";
@@ -8,6 +7,7 @@ import { getCurrentCommit, getGitDeltas } from "../utils/git";
 import { hashFileContent, hashTextContent } from "../utils/hashing";
 import { generateFunctionalSummary, SUMMARY_FORMAT, SUMMARY_PROMPT_VERSION } from "../utils/llm";
 import { resolveDiffdocArtifactPath } from "../utils/paths";
+import { normalizeGlobPattern, compileGlobs, shouldIncludeFile, readIgnoreMatcher, walkCodeFiles } from "../utils/scan";
 
 const MANIFEST_SCHEMA_URL = `${SCHEMA_BASE_URL}/manifest.schema.json`;
 const SUMMARY_ASSET_SCHEMA_URL = `${SCHEMA_BASE_URL}/summary-asset.schema.json`;
@@ -57,81 +57,12 @@ interface SummarizeReport {
 
 type ManifestTask<T> = () => Promise<T>;
 
-function normalizeRelativePath(filePath: string): string {
-  return filePath.split(path.sep).join("/");
-}
-
 function getSummaryDir(manifestPath: string): string {
   return path.resolve(path.dirname(manifestPath), "summaries");
 }
 
 function getSummaryPath(summaryDir: string, hash: string): string {
   return path.resolve(summaryDir, `${hash}.json`);
-}
-
-function normalizeGlobPattern(pattern: string): string {
-  return pattern.split(path.sep).join("/");
-}
-
-function escapeRegex(value: string): string {
-  return value.replace(/[|\\{}()[\]^$+?.]/g, "\\$&");
-}
-
-function globToRegExp(pattern: string): RegExp {
-  const normalized = normalizeGlobPattern(pattern);
-  let regexBody = "";
-
-  for (let i = 0; i < normalized.length; i += 1) {
-    const char = normalized[i];
-    const next = normalized[i + 1];
-    if (char === "*" && next === "*") {
-      regexBody += ".*";
-      i += 1;
-      continue;
-    }
-
-    if (char === "*") {
-      regexBody += "[^/]*";
-      continue;
-    }
-
-    if (char === "?") {
-      regexBody += "[^/]";
-      continue;
-    }
-
-    regexBody += escapeRegex(char);
-  }
-
-  return new RegExp(`^${regexBody}$`);
-}
-
-function compileGlobs(patterns: string[]): RegExp[] {
-  return patterns.filter(Boolean).map(globToRegExp);
-}
-
-function matchesAny(filePath: string, patterns: RegExp[]): boolean {
-  return patterns.some((pattern) => pattern.test(filePath));
-}
-
-function shouldIncludeFile(filePath: string, includeGlobs: RegExp[], excludeGlobs: RegExp[], ignoreMatcher: Ignore): boolean {
-  if (ignoreMatcher.ignores(filePath)) {
-    return false;
-  }
-
-  if (excludeGlobs.length > 0 && matchesAny(filePath, excludeGlobs)) {
-    return false;
-  }
-
-  if (includeGlobs.length > 0 && !matchesAny(filePath, includeGlobs)) {
-    return false;
-  }
-
-  return true;
-}
-
-function isIgnoredDirectory(dirPath: string, ignoreMatcher: Ignore): boolean {
-  return ignoreMatcher.ignores(dirPath) || ignoreMatcher.ignores(`${dirPath}/`);
 }
 
 async function atomicWriteUtf8(targetPath: string, content: string): Promise<void> {
@@ -262,54 +193,6 @@ async function readManifest(manifestPath: string): Promise<RepoManifest> {
 
     throw error;
   }
-}
-
-async function readIgnoreMatcher(repoPath: string, ignoreFilePath: string): Promise<Ignore> {
-  const matcher = ignore();
-  const absolutePath = path.isAbsolute(ignoreFilePath)
-    ? ignoreFilePath
-    : path.resolve(repoPath, ignoreFilePath);
-  try {
-    const raw = await fs.readFile(absolutePath, "utf8");
-    return matcher.add(raw);
-  } catch (error) {
-    const nodeError = error as NodeJS.ErrnoException;
-    if (nodeError.code === "ENOENT") {
-      return matcher;
-    }
-    throw error;
-  }
-}
-
-async function walkCodeFiles(
-  rootPath: string,
-  includeGlobs: RegExp[],
-  excludeGlobs: RegExp[],
-  ignoreMatcher: Ignore,
-  currentPath = rootPath
-): Promise<string[]> {
-  const entries = await fs.readdir(currentPath, { withFileTypes: true });
-  const files: string[] = [];
-
-  for (const entry of entries) {
-    const entryPath = path.join(currentPath, entry.name);
-    if (entry.isDirectory()) {
-      const relativePath = normalizeRelativePath(path.relative(rootPath, entryPath));
-      if (!isIgnoredDirectory(relativePath, ignoreMatcher)) {
-        files.push(...await walkCodeFiles(rootPath, includeGlobs, excludeGlobs, ignoreMatcher, entryPath));
-      }
-      continue;
-    }
-
-    if (entry.isFile()) {
-      const relativePath = normalizeRelativePath(path.relative(rootPath, entryPath));
-      if (shouldIncludeFile(relativePath, includeGlobs, excludeGlobs, ignoreMatcher)) {
-        files.push(relativePath);
-      }
-    }
-  }
-
-  return files.sort();
 }
 
 function countHashRefs(files: Record<string, string>): Map<string, number> {
@@ -459,7 +342,7 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
 
   const startedAt = new Date();
   const commandCwd = process.cwd();
-  const repoPath = path.resolve(commandCwd, options.path);
+  const repoPath = path.resolve(commandCwd, options.path || config.repoPath);
   const manifestPath = resolveDiffdocArtifactPath(options.out, config.baseDir);
   const summaryDir = getSummaryDir(manifestPath);
   const manifest = await readManifest(manifestPath);

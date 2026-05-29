@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "2979afbd26333c7dd18d635fc7000ea8",
+  "metadata": {
+    "file_path": "src/utils/scan.ts",
+    "file_name": "scan.ts",
+    "extension": ".ts",
+    "line_count": 121,
+    "byte_size": 3319,
+    "content_hash": "2979afbd26333c7dd18d635fc7000ea8",
+    "generated_at": "2026-05-29T16:41:08.749Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/utils/scan.ts\n- File name: scan.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 2979afbd26333c7dd18d635fc7000ea8\n- Line count: 121\n- Byte size: 3319\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: normalizeRelativePath, normalizeGlobPattern, compileGlobs, shouldIncludeFile, readIgnoreMatcher, walkCodeFiles\n- External dependencies: fs (node:fs/promises), path (node:path), ignore\n- Internal dependencies: None identified.\n- Public API/exports: normalizeRelativePath, normalizeGlobPattern, compileGlobs, shouldIncludeFile, readIgnoreMatcher, walkCodeFiles\n\n## Purpose\nThis file provides utility functions for file path normalization, glob pattern compilation, and directory traversal, specifically for scanning code files while respecting inclusion and exclusion patterns.\n\n## User-Visible Behavior\nUsers can utilize the exported functions to normalize file paths, compile glob patterns into regular expressions, determine if files should be included based on specified patterns, read ignore files, and recursively walk through directories to gather a list of files that match the inclusion criteria.\n\n## Business Rules\n- Files are included only if they match the specified include glob patterns and do not match the exclude glob patterns.\n- Files and directories can be ignored based on patterns defined in an ignore file.\n- If an ignore file does not exist, it defaults to allowing all files.\n\n## Data Inputs And Outputs\n- Inputs: \n  - `filePath`: a string representing the path of a file.\n  - `patterns`: an array of glob patterns as strings.\n  - `ignoreFilePath`: a string representing the path to an ignore file.\n  - `rootPath`: the root directory path to start scanning.\n- Outputs:\n  - Returns normalized paths as strings.\n  - Returns compiled regular expressions from glob patterns.\n  - Returns an array of file paths that match the inclusion criteria.\n\n## Side Effects\n- Reads files from the filesystem, specifically the ignore file.\n- Performs directory traversal, which may involve reading multiple file and directory entries.\n\n## Error And Edge Cases\n- If the specified ignore file does not exist, it returns a default ignore matcher that allows all files.\n- If there are issues reading the ignore file (e.g., permission errors), the error is thrown.\n- The function handles empty or invalid glob patterns gracefully by filtering them out.\n\n## Dependencies\n- Relies on the `fs/promises` module for asynchronous file system operations.\n- Uses the `path` module for path manipulations.\n- Utilizes the `ignore` package for handling ignore patterns.\n\n## Operational Notes\n- The `walkCodeFiles` function is asynchronous and should be awaited.\n- The functions are designed to handle large directory structures efficiently by using recursion.\n- The implementation assumes that the ignore patterns are correctly formatted and valid."
+}

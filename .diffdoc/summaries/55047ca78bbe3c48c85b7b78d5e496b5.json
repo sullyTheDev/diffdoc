@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "55047ca78bbe3c48c85b7b78d5e496b5",
+  "metadata": {
+    "file_path": "src/index.ts",
+    "file_name": "index.ts",
+    "extension": ".ts",
+    "line_count": 217,
+    "byte_size": 9538,
+    "content_hash": "55047ca78bbe3c48c85b7b78d5e496b5",
+    "generated_at": "2026-05-29T16:40:59.092Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/index.ts\n- File name: index.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 55047ca78bbe3c48c85b7b78d5e496b5\n- Line count: 217\n- Byte size: 9538\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: Command, buildRuntimeConfig, runEmbed, runInit, runPrune, runQuery, runSearch, runStatus, runSummarize, runValidate\n- External dependencies: commander\n- Internal dependencies: ./config, ./commands/embed, ./commands/init, ./commands/prune, ./commands/query, ./commands/status, ./commands/summarize, ./commands/validate\n- Public API/exports: None identified.\n\n## Purpose\nThis file serves as the main entry point for the DiffDoc CLI application, which translates repository code shifts into plain-English business context. It initializes commands for configuration, summarization, querying, searching, embedding, status checking, pruning, and validation.\n\n## User-Visible Behavior\nUsers can interact with the CLI to execute various commands such as initializing configuration, summarizing code, querying for information, searching through indexed data, embedding summaries, checking status, pruning entries, and validating manifests. Each command provides options for customization and outputs results or reports based on user input.\n\n## Business Rules\n- Commands can be executed with various options, including paths, output formats, and AI provider specifications.\n- The `--yes` option allows users to skip prompts and use default settings.\n- The `--force` option allows overwriting existing configuration files.\n- Summarization can be performed in different modes (all or delta).\n- Users can specify inclusion/exclusion patterns for files during summarization and querying.\n\n## Data Inputs And Outputs\n- Inputs include command-line arguments, configuration file paths, and options for each command.\n- Outputs consist of JSON reports, console messages, and manifest files generated or modified during command execution.\n\n## Side Effects\nThe application may create, modify, or delete files such as configuration files, manifest files, and summary reports. It may also interact with external AI services for processing queries and embeddings.\n\n## Error And Edge Cases\nErrors are handled by catching exceptions during command execution and logging error messages to the console. Edge cases include missing configuration files, invalid paths, and unsupported command options.\n\n## Dependencies\n- External: The application relies on the `commander` package for command-line interface functionality.\n- Internal: It imports various modules for configuration and command execution, including `./config` and several command modules.\n\n## Operational Notes\nThe application is designed to run in a Node.js environment and can be executed from the command line. It supports asynchronous operations and handles errors gracefully by logging them and exiting the process with a non-zero status code. The CLI is intended for use in environments where users need to manage code documentation and summaries efficiently."
+}
