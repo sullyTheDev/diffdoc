@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/v0.6.0/schemas/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "c7c817a5a20bde270539d0c59dbd0ce8",
+  "metadata": {
+    "file_path": "src/scripts/generate-schemas.ts",
+    "file_name": "generate-schemas.ts",
+    "extension": ".ts",
+    "line_count": 39,
+    "byte_size": 1394,
+    "content_hash": "c7c817a5a20bde270539d0c59dbd0ce8",
+    "generated_at": "2026-05-29T15:49:00.034Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-5.4-mini-2026-03-17"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/scripts/generate-schemas.ts\n- File name: generate-schemas.ts\n- Extension: .ts\n- Inferred language/type: TypeScript script\n- Content hash: c7c817a5a20bde270539d0c59dbd0ce8\n- Line count: 39\n- Byte size: 1394\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: SCHEMA_BASE_URL, VERSION, SchemaEntry, schemas, DiffdocConfigSchema, RepoManifestSchema, SummaryAssetSchema, zodToJsonSchema\n- External dependencies: node:fs, node:path, zod-to-json-schema, package.json\n- Internal dependencies: ../schemas\n- Public API/exports: None identified.\n\n## Purpose\nGenerates JSON Schema files from internal Zod schemas and writes them to the repository’s `schemas` directory. It also stamps each generated schema with a versioned `$id` URL based on the package version.\n\n## User-Visible Behavior\nWhen run, the script:\n- Reads the project version from `package.json`.\n- Generates three schema files:\n  - `diffdocrc.schema.json`\n  - `manifest.schema.json`\n  - `summary-asset.schema.json`\n- Writes each file into `schemas/`.\n- Prints a `Generated: ...` line for each file.\n- Prints `Schema generation complete.` at the end.\n\n## Business Rules\n- Only the three listed schemas are generated.\n- Each schema’s JSON Schema `name` is derived from the filename without the `.schema.json` suffix.\n- `$refStrategy` is forced to `\"none\"` when converting Zod schemas.\n- Each generated schema receives an `$id` of the form:\n  `https://raw.githubusercontent.com/sullyTheDev/diffdoc/v{VERSION}/schemas/{filename}`\n- The output directory is always `../../schemas` relative to this script and is created if missing.\n\n## Data Inputs And Outputs\nInputs:\n- Zod schemas imported from `../schemas`\n- `package.json` version field\n- Script location via `__dirname`\n\nOutputs:\n- JSON schema files written to `schemas/`\n- Console log messages indicating progress and completion\n\n## Side Effects\n- Reads `../../package.json`\n- Creates the `schemas` directory if it does not exist\n- Overwrites existing schema files with newly generated content\n- Writes files to disk\n- Logs to standard output\n\n## Error And Edge Cases\n- If `package.json` is missing, unreadable, or contains invalid JSON, the script fails while parsing the version.\n- If any imported schema is invalid for `zodToJsonSchema`, generation may fail.\n- If the output directory cannot be created or written to, file system errors will occur.\n- Existing files are not checked for changes; they are always rewritten.\n- The script does not handle partial failure across schemas, so an error during one iteration may leave earlier files already written.\n\n## Dependencies\n- Node.js `fs` and `path` modules\n- `zod-to-json-schema` for converting Zod schemas to JSON Schema\n- Internal schema definitions from `../schemas`\n- `package.json` for version metadata\n\n## Operational Notes\n- Intended as a build/release utility rather than a runtime module.\n- Safe to rerun; it is effectively regenerating artifacts from source schemas.\n- Because `$id` includes the package version, schema URLs change across releases.\n- The script uses synchronous file operations, which is simple and deterministic but blocks the event loop while running."
+}

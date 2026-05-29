@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/v0.6.0/schemas/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "771adcfce72e54a5a66fce85d5cf6104",
+  "metadata": {
+    "file_path": "schemas/manifest.schema.json",
+    "file_name": "manifest.schema.json",
+    "extension": ".json",
+    "line_count": 35,
+    "byte_size": 782,
+    "content_hash": "771adcfce72e54a5a66fce85d5cf6104",
+    "generated_at": "2026-05-29T15:48:21.600Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-5.4-mini-2026-03-17"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: schemas/manifest.schema.json\n- File name: manifest.schema.json\n- Extension: .json\n- Inferred language/type: JSON Schema (Draft-07)\n- Content hash: 771adcfce72e54a5a66fce85d5cf6104\n- Line count: 35\n- Byte size: 782\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: manifest, schemaVersion, lastSyncedCommit, files\n- External dependencies: JSON Schema Draft-07 validation\n- Internal dependencies: None identified.\n- Public API/exports: Root JSON Schema document; `#/definitions/manifest`\n\n## Purpose\nDefines the validation schema for a manifest JSON document. The schema describes the expected structure and required fields for a manifest object used by the system.\n\n## User-Visible Behavior\nConsumers validating data against this schema must provide:\n- a `schemaVersion` field equal to `2`\n- a `lastSyncedCommit` string\n- a `files` object whose values are strings\n\nValidation fails if:\n- required fields are missing\n- `schemaVersion` is not exactly `2`\n- extra top-level properties are present\n\n## Business Rules\n- The manifest must be an object.\n- `schemaVersion` is required and must be the numeric constant `2`.\n- `lastSyncedCommit` is required and must be a string.\n- `files` is required and must be an object.\n- Every property inside `files` must have a string value.\n- No additional top-level properties are allowed beyond the defined ones.\n- `$schema` is permitted as an optional string property.\n- The schema document itself references `#/definitions/manifest` as the root shape.\n\n## Data Inputs And Outputs\nInputs:\n- JSON manifest documents supplied for validation\n- Top-level properties: `$schema`, `schemaVersion`, `lastSyncedCommit`, `files`\n- `files` object entries with arbitrary keys and string values\n\nOutputs:\n- Validation pass/fail result from a JSON Schema validator\n- Schema metadata via `$id` and `$schema`\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\n- Missing `schemaVersion`, `lastSyncedCommit`, or `files` causes validation failure.\n- Any `schemaVersion` other than `2` causes validation failure.\n- Non-string `lastSyncedCommit` values cause validation failure.\n- Non-object `files` values cause validation failure.\n- Any non-string value inside `files` causes validation failure.\n- Any extra top-level property causes validation failure because `additionalProperties` is `false`.\n- An empty `files` object is allowed, since no minimum property count is specified.\n\n## Dependencies\n- JSON Schema Draft-07 validator/runtime\n- The schema’s own `definitions.manifest` reference\n- No internal code modules or runtime services identified\n\n## Operational Notes\n- This schema is suitable for strict validation of manifest documents and is intentionally closed at the top level.\n- Because `schemaVersion` is fixed to `2`, future format changes will require schema updates.\n- The `files` map is flexible in key names but strict about string values, which simplifies downstream processing.\n- `$schema` is optional and does not affect validation beyond being a string if present."
+}

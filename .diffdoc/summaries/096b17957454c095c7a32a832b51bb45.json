@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/v0.6.0/schemas/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "096b17957454c095c7a32a832b51bb45",
+  "metadata": {
+    "file_path": "schemas/diffdocrc.schema.json",
+    "file_name": "diffdocrc.schema.json",
+    "extension": ".json",
+    "line_count": 105,
+    "byte_size": 2255,
+    "content_hash": "096b17957454c095c7a32a832b51bb45",
+    "generated_at": "2026-05-29T15:48:20.029Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-5.4-mini-2026-03-17"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: schemas/diffdocrc.schema.json\n- File name: diffdocrc.schema.json\n- Extension: .json\n- Inferred language/type: JSON Schema (Draft-07)\n- Content hash: 096b17957454c095c7a32a832b51bb45\n- Line count: 105\n- Byte size: 2255\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: diffdocrc, baseDir, aiProvider, localLlmEndpoint, localEmbedEndpoint, localChatModel, localEmbedModel, cloudLlmEndpoint, cloudChatModel, cloudEmbedModel, embedBatchSize, summarizeConcurrency, openaiApiKey, includeGlobs, excludeGlobs, ignoreFile, summaryPrompt, summaryPromptFile\n- External dependencies: JSON Schema Draft-07 validation tooling\n- Internal dependencies: None identified.\n- Public API/exports: diffdocrc schema definition via $ref and definitions.diffdocrc\n\n## Purpose\nDefines the validation schema for a `diffdocrc` configuration file. It specifies the allowed configuration keys, their types, and the limited set of accepted values for certain options.\n\n## User-Visible Behavior\nWhen a `diffdocrc` config is validated against this schema:\n- Only the declared properties are accepted.\n- `aiProvider` must be either `local` or `cloud`.\n- `embedBatchSize` and `summarizeConcurrency` may be positive integers or strings.\n- `includeGlobs` and `excludeGlobs` may be either a string or an array of strings.\n- Invalid property names or invalid value types cause schema validation failure.\n\n## Business Rules\n- Configuration objects must match the `diffdocrc` object shape.\n- No additional properties are allowed beyond those explicitly listed.\n- `aiProvider` is constrained to two modes: `local` and `cloud`.\n- Batch size and concurrency settings must be positive when numeric.\n- File selection patterns can be provided as a single string or a list of strings.\n- Prompt content may be supplied inline or via a file path.\n- The schema itself does not require any property to be present; it only constrains allowed fields and types.\n\n## Data Inputs And Outputs\nInputs:\n- A JSON configuration object intended to represent `diffdocrc`.\n- Fields such as `baseDir`, provider endpoints, model names, API key, glob patterns, ignore file path, and summary prompt settings.\n\nOutputs:\n- Validation success or failure from a JSON Schema validator.\n- A validated configuration object conforming to the declared structure.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\n- Unknown properties are rejected because `additionalProperties` is `false`.\n- `aiProvider` values outside `local` and `cloud` fail validation.\n- `embedBatchSize` and `summarizeConcurrency` fail if numeric values are non-positive.\n- `includeGlobs` and `excludeGlobs` fail if provided as values other than a string or an array of strings.\n- Missing properties are allowed, since none are marked required.\n- Validation behavior depends on the consuming JSON Schema validator.\n\n## Dependencies\n- External JSON Schema Draft-07 validator support.\n- No internal module dependencies are defined in this file.\n\n## Operational Notes\n- This schema is intended for config validation, not runtime execution.\n- Because no fields are required, consumers should handle absent settings with defaults elsewhere in the application.\n- The schema is strict about unknown keys, which helps catch typos in configuration files.\n- The `$id` points to the versioned upstream schema location, which may be useful for tooling and reference resolution."
+}

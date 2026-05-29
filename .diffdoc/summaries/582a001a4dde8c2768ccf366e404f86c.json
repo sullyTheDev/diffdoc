@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/v0.6.0/schemas/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "582a001a4dde8c2768ccf366e404f86c",
+  "metadata": {
+    "file_path": "src/types/artifacts.ts",
+    "file_name": "artifacts.ts",
+    "extension": ".ts",
+    "line_count": 19,
+    "byte_size": 416,
+    "content_hash": "582a001a4dde8c2768ccf366e404f86c",
+    "generated_at": "2026-05-29T15:49:03.156Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-5.4-mini-2026-03-17"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/types/artifacts.ts\n- File name: artifacts.ts\n- Extension: .ts\n- Inferred language/type: TypeScript module re-export file\n- Content hash: 582a001a4dde8c2768ccf366e404f86c\n- Line count: 19\n- Byte size: 416\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, RepoManifestSchema, SummaryMetadataSchema, SummaryAssetSchema, DiffdocConfigSchema, RepoManifest, SummaryMetadata, SummaryAsset, DiffdocConfig\n- External dependencies: ../schemas\n- Internal dependencies: None identified.\n- Public API/exports: MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, RepoManifestSchema, SummaryMetadataSchema, SummaryAssetSchema, DiffdocConfigSchema, RepoManifest, SummaryMetadata, SummaryAsset, DiffdocConfig\n\n## Purpose\nThis file exists to provide a backwards-compatible import path for schema definitions and related TypeScript types. It acts as a thin re-export layer over the canonical `../schemas` module.\n\n## User-Visible Behavior\nConsumers importing from `src/types/artifacts.ts` receive the same schema constants, schema objects, and TypeScript types that are defined in `../schemas`. No runtime logic is performed beyond module re-exports.\n\n## Business Rules\nThe file enforces a compatibility rule: legacy imports should continue to work without changing the underlying source of truth. It does not define its own schemas or types; it always forwards the canonical versions from `../schemas`.\n\n## Data Inputs And Outputs\nInputs:\n- Module exports from `../schemas`\n\nOutputs:\n- Re-exported runtime values:\n  - `MANIFEST_SCHEMA_VERSION`\n  - `SUMMARY_ASSET_SCHEMA_VERSION`\n  - `RepoManifestSchema`\n  - `SummaryMetadataSchema`\n  - `SummaryAssetSchema`\n  - `DiffdocConfigSchema`\n- Re-exported TypeScript types:\n  - `RepoManifest`\n  - `SummaryMetadata`\n  - `SummaryAsset`\n  - `DiffdocConfig`\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nIf `../schemas` is missing, renamed, or fails to compile, this module will fail to resolve or build. There is no local error handling, fallback behavior, or validation logic.\n\n## Dependencies\nExternal dependencies:\n- `../schemas` module, which supplies the canonical schema constants, schema objects, and types\n\nInternal dependencies:\n- None identified.\n\n## Operational Notes\nThis file is intentionally minimal and should stay synchronized with `../schemas` through re-exporting rather than duplication. Because it is a compatibility shim, changes here should preserve existing import paths and avoid introducing independent schema definitions."
+}
