@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "69062056d8b1fbe614ecf952348f6ef4",
+  "metadata": {
+    "file_path": "src/index.ts",
+    "file_name": "index.ts",
+    "extension": ".ts",
+    "line_count": 197,
+    "byte_size": 8431,
+    "content_hash": "69062056d8b1fbe614ecf952348f6ef4",
+    "generated_at": "2026-05-29T16:12:32.426Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/index.ts\n- File name: index.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 69062056d8b1fbe614ecf952348f6ef4\n- Line count: 197\n- Byte size: 8431\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: Command, buildRuntimeConfig, runEmbed, runInit, runQuery, runSearch, runStatus, runSummarize, runValidate\n- External dependencies: commander\n- Internal dependencies: ./config, ./commands/embed, ./commands/init, ./commands/query, ./commands/status, ./commands/summarize, ./commands/validate\n- Public API/exports: None identified.\n\n## Purpose\nThis file serves as the entry point for the DiffDoc CLI application, which translates repository code changes into plain-English business context. It initializes commands for configuration, summarization, querying, searching, embedding, status checking, and validation.\n\n## User-Visible Behavior\nUsers can interact with the CLI to execute various commands such as initializing configuration, summarizing code, querying for information, searching through a local index, embedding summaries, checking status, and validating manifests. Each command provides options for customization and outputs results or error messages to the console.\n\n## Business Rules\n- Users can initialize configuration with options to use defaults or specify a provider.\n- Summarization can be done in different modes (all or delta) and can include or exclude code snapshots.\n- Query and search commands return a specified number of matches and can include code snapshots in results.\n- Embedding commands can rebuild the local index from scratch.\n- Validation checks manifests against JSON schemas and can output results in JSON format.\n\n## Data Inputs And Outputs\n- Inputs include command-line arguments for configuration paths, AI provider options, repository paths, output paths, and various flags for command behavior.\n- Outputs include console messages for success or error states, JSON manifests, and validation reports.\n\n## Side Effects\nThe application may create or overwrite configuration files, generate JSON manifests, update local indexes, and log output to the console. It may also make network requests to AI providers if specified.\n\n## Error And Edge Cases\nThe application handles errors by catching exceptions during command execution and logging error messages to the console. It exits with a non-zero status code in case of errors. Edge cases include missing configuration files, invalid paths, and unsupported command options.\n\n## Dependencies\n- External: The application depends on the \"commander\" package for command-line interface functionality.\n- Internal: It relies on local modules for configuration and command execution, including \"./config\" and various command modules under \"./commands\".\n\n## Operational Notes\nThe application is designed to be run as a CLI tool and can handle asynchronous operations. It is important to ensure that the necessary configuration files and paths are correctly set up before executing commands. The application is idempotent in nature, meaning repeated executions with the same parameters should yield the same results."
+}

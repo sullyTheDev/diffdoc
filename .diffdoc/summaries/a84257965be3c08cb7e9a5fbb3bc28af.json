@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "a84257965be3c08cb7e9a5fbb3bc28af",
+  "metadata": {
+    "file_path": "src/config.ts",
+    "file_name": "config.ts",
+    "extension": ".ts",
+    "line_count": 228,
+    "byte_size": 8245,
+    "content_hash": "a84257965be3c08cb7e9a5fbb3bc28af",
+    "generated_at": "2026-05-29T16:12:29.039Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/config.ts\n- File name: config.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: a84257965be3c08cb7e9a5fbb3bc28af\n- Line count: 228\n- Byte size: 8245\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: AiProvider, ChatConfig, EmbeddingConfig, SummarizeFilterConfig, RuntimeConfig, RuntimeConfigOptions, RuntimeConfigNeeds, buildRuntimeConfig\n- External dependencies: fs, path\n- Internal dependencies: DiffdocConfigSchema\n- Public API/exports: buildRuntimeConfig\n\n## Purpose\nThis file serves to define and manage configuration settings for a runtime environment, including options for AI providers, chat configurations, embedding settings, and summarization filters.\n\n## User-Visible Behavior\nUsers can configure their runtime settings through a configuration file or environment variables. The `buildRuntimeConfig` function constructs a runtime configuration object that includes API keys, model specifications, and file handling options based on user-defined or default values.\n\n## Business Rules\n- The configuration must include either a summary prompt or a summary prompt file, but not both.\n- The AI provider must be either \"local\" or \"cloud\".\n- Required fields must be validated, such as ensuring positive integers for batch sizes and concurrency settings.\n- If using cloud services, an OpenAI API key must be provided.\n\n## Data Inputs And Outputs\n- Inputs: Configuration options from a JSON file, environment variables, and function arguments.\n- Outputs: A `RuntimeConfig` object containing structured configuration data for chat, embeddings, and summarization.\n\n## Side Effects\n- Reads configuration files from the filesystem.\n- Throws errors if configuration files are missing or invalid.\n- Resolves prompt files from the filesystem.\n\n## Error And Edge Cases\n- Throws errors for missing or invalid configuration files.\n- Validates that required fields are present and correctly formatted, throwing errors for invalid inputs.\n- Handles cases where both summary prompt and summary prompt file are provided.\n\n## Dependencies\n- External: Node.js built-in modules `fs` and `path`.\n- Internal: `DiffdocConfigSchema` for validating configuration data.\n\n## Operational Notes\n- The configuration loading process is sensitive to the presence of environment variables and the structure of the configuration file.\n- The implementation assumes that the working directory is set correctly to resolve file paths.\n- The configuration can be extended or overridden by providing additional options when calling `buildRuntimeConfig`."
+}

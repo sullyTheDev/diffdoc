@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "d9ae806b53c6ff45ba416f2c077514b2",
+  "metadata": {
+    "file_path": "src/scripts/generate-schemas.ts",
+    "file_name": "generate-schemas.ts",
+    "extension": ".ts",
+    "line_count": 36,
+    "byte_size": 1234,
+    "content_hash": "d9ae806b53c6ff45ba416f2c077514b2",
+    "generated_at": "2026-05-29T16:12:46.332Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/scripts/generate-schemas.ts\n- File name: generate-schemas.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: d9ae806b53c6ff45ba416f2c077514b2\n- Line count: 36\n- Byte size: 1234\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: SchemaEntry, zodToJsonSchema\n- External dependencies: fs, path, zod-to-json-schema\n- Internal dependencies: DiffdocConfigSchema, RepoManifestSchema, SummaryAssetSchema, SCHEMA_BASE_URL, SCHEMA_DIR_VERSION\n- Public API/exports: None identified.\n\n## Purpose\nThis file is responsible for generating JSON schema files from Zod schemas and saving them to a specified directory.\n\n## User-Visible Behavior\nUsers will observe the creation of JSON schema files in the specified output directory, along with console logs indicating the generation of each schema and a completion message.\n\n## Business Rules\nThe generated schemas must adhere to the structure defined by the Zod schemas. Each schema file is named according to its corresponding Zod schema and includes an `$id` field that references a base URL.\n\n## Data Inputs And Outputs\nInput data includes Zod schemas defined in the internal schemas module. The output consists of JSON schema files written to the filesystem in the specified output directory.\n\n## Side Effects\nThe script creates a directory for the schemas if it does not exist, writes JSON schema files to the filesystem, and logs messages to the console.\n\n## Error And Edge Cases\nIf the output directory cannot be created or if there are issues writing the schema files, errors will be thrown. The script does not handle these errors explicitly.\n\n## Dependencies\nImportant external dependencies include the Node.js `fs` and `path` modules, as well as the `zod-to-json-schema` package. Internal dependencies include various Zod schemas and constants related to schema generation.\n\n## Operational Notes\nThe script uses synchronous file operations, which may block the event loop. It is designed to run in a Node.js environment and requires the specified schemas to be defined in the internal schemas module."
+}

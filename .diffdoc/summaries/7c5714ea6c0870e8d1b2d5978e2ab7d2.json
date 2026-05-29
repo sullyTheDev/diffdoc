@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "7c5714ea6c0870e8d1b2d5978e2ab7d2",
+  "metadata": {
+    "file_path": "src/commands/embed.ts",
+    "file_name": "embed.ts",
+    "extension": ".ts",
+    "line_count": 168,
+    "byte_size": 5361,
+    "content_hash": "7c5714ea6c0870e8d1b2d5978e2ab7d2",
+    "generated_at": "2026-05-29T16:12:02.961Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/commands/embed.ts\n- File name: embed.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 7c5714ea6c0870e8d1b2d5978e2ab7d2\n- Line count: 168\n- Byte size: 5361\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: getVectraIndexPath, runEmbed, readManifest, readSummaryAsset, buildDocument\n- External dependencies: fs (node:fs/promises), path (node:path), vectra (LocalIndex, MetadataTypes), ../types/artifacts (RepoManifestSchema, SummaryAssetSchema, RepoManifest, SummaryAsset), ../utils/llm (generateEmbeddings), ../utils/paths (getDiffdocBaseDir, resolveDiffdocArtifactPath)\n- Internal dependencies: None identified.\n- Public API/exports: runEmbed, getVectraIndexPath\n\n## Purpose\nThis file is responsible for embedding summaries into a vector index, managing the creation and updating of the index based on provided manifest and summary asset files.\n\n## User-Visible Behavior\nUsers will observe console output indicating the status of the embedding process, including messages about the number of summaries embedded and items pruned from the index. If the index is already up to date, a message will indicate that as well.\n\n## Business Rules\nThe embedding process follows rules such as:\n- If the `rebuild` option is true, the index will be deleted and recreated.\n- If the index does not exist and `rebuild` is false, it will be created without deletion.\n- Summaries are only upserted if their hashes differ from existing entries.\n- Items not present in the current manifest will be deleted from the index.\n\n## Data Inputs And Outputs\n- Inputs: \n  - `options` (EmbedOptions) containing the manifest path and rebuild flag.\n  - `config` (RuntimeConfig) for base directory and embedding configurations.\n- Outputs:\n  - Updates to the vector index, including embedded summaries and deleted items.\n\n## Side Effects\nThe function modifies the state of the vector index by adding new embeddings, deleting outdated items, and potentially creating a new index. It also reads from the filesystem to access manifest and summary asset files.\n\n## Error And Edge Cases\nErrors may occur if:\n- The manifest or summary asset files are invalid, leading to parsing errors.\n- There is a hash mismatch between the summary asset and the expected hash.\n- File read operations fail due to missing files or permission issues.\n\n## Dependencies\n- External: Node.js fs and path modules, vectra library for indexing, and various utility functions for path resolution and embedding generation.\n- Internal: None identified.\n\n## Operational Notes\nThe embedding process is designed to handle batches of summaries based on the configured batch size. It includes error handling to cancel updates if any part of the process fails, ensuring the integrity of the index. Performance may vary based on the size of the input data and the efficiency of the embedding generation process."
+}
