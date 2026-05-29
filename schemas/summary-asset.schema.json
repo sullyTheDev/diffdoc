@@ -1,0 +1,103 @@
+{
+  "$ref": "#/definitions/summary-asset",
+  "definitions": {
+    "summary-asset": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "schemaVersion": {
+          "type": "number",
+          "const": 2
+        },
+        "content_hash": {
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "file_path": {
+              "type": "string"
+            },
+            "file_name": {
+              "type": "string"
+            },
+            "extension": {
+              "type": "string"
+            },
+            "line_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "byte_size": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "content_hash": {
+              "type": "string"
+            },
+            "generated_at": {
+              "type": "string"
+            },
+            "generator": {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "type": "string"
+                },
+                "model": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "provider",
+                "model"
+              ],
+              "additionalProperties": false
+            },
+            "prompt_version": {
+              "type": "integer"
+            },
+            "summary_format": {
+              "type": "string"
+            },
+            "custom_prompt_hash": {
+              "type": "string"
+            },
+            "custom_prompt_source": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "file_path",
+            "file_name",
+            "extension",
+            "line_count",
+            "byte_size",
+            "content_hash",
+            "generated_at",
+            "generator",
+            "prompt_version",
+            "summary_format"
+          ],
+          "additionalProperties": false
+        },
+        "summary": {
+          "type": "string"
+        },
+        "raw_code_snapshot": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "content_hash",
+        "summary"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/v0.6.0/schemas/summary-asset.schema.json"
+}

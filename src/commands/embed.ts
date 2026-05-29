@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { RuntimeConfig } from "../config";
 import { LocalIndex, type MetadataTypes } from "vectra";
-import { MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, type RepoManifest, type SummaryAsset } from "../types/artifacts";
+import { RepoManifestSchema, SummaryAssetSchema, type RepoManifest, type SummaryAsset } from "../types/artifacts";
 import { generateEmbeddings } from "../utils/llm";
 import { getDiffdocBaseDir, resolveDiffdocArtifactPath } from "../utils/paths";
 
@@ -33,37 +33,23 @@ function getSummaryPath(summaryDir: string, hash: string): string {
 }
 
 async function readManifest(manifestPath: string): Promise<RepoManifest> {
-  const parsed = JSON.parse(await fs.readFile(manifestPath, "utf8")) as Partial<RepoManifest>;
-  if (parsed.schemaVersion !== MANIFEST_SCHEMA_VERSION) {
-    throw new Error(`Unsupported manifest schema in ${manifestPath}. Expected schemaVersion ${MANIFEST_SCHEMA_VERSION}.`);
+  const raw = JSON.parse(await fs.readFile(manifestPath, "utf8")) as unknown;
+  const result = RepoManifestSchema.safeParse(raw);
+  if (!result.success) {
+    const issues = result.error.issues.map((i) => `  - ${i.path.join(".")}: ${i.message}`).join("\n");
+    throw new Error(`Invalid manifest in ${manifestPath}:\n${issues}`);
   }
-
-  return {
-    schemaVersion: MANIFEST_SCHEMA_VERSION,
-    lastSyncedCommit: typeof parsed.lastSyncedCommit === "string" ? parsed.lastSyncedCommit : "",
-    files: parsed.files && typeof parsed.files === "object" ? parsed.files : {}
-  };
+  return result.data;
 }
 
 async function readSummaryAsset(summaryPath: string): Promise<SummaryAsset> {
-  const parsed = JSON.parse(await fs.readFile(summaryPath, "utf8")) as Partial<SummaryAsset>;
-  if (typeof parsed.schemaVersion !== "number" || parsed.schemaVersion < 1 || parsed.schemaVersion > SUMMARY_ASSET_SCHEMA_VERSION) {
-    throw new Error(`Unsupported summary schema in ${summaryPath}. Expected schemaVersion 1-${SUMMARY_ASSET_SCHEMA_VERSION}.`);
+  const raw = JSON.parse(await fs.readFile(summaryPath, "utf8")) as unknown;
+  const result = SummaryAssetSchema.safeParse(raw);
+  if (!result.success) {
+    const issues = result.error.issues.map((i) => `  - ${i.path.join(".")}: ${i.message}`).join("\n");
+    throw new Error(`Invalid summary asset in ${summaryPath}:\n${issues}`);
   }
-  if (typeof parsed.content_hash !== "string") {
-    throw new Error(`Invalid summary hash in ${summaryPath}.`);
-  }
-  if (typeof parsed.summary !== "string") {
-    throw new Error(`Invalid summary text in ${summaryPath}.`);
-  }
-
-  return {
-    schemaVersion: parsed.schemaVersion,
-    content_hash: parsed.content_hash,
-    metadata: parsed.metadata && typeof parsed.metadata === "object" ? parsed.metadata : undefined,
-    summary: parsed.summary,
-    raw_code_snapshot: typeof parsed.raw_code_snapshot === "string" ? parsed.raw_code_snapshot : undefined
-  };
+  return result.data;
 }
 
 function buildDocument(summaryAsset: SummaryAsset): string {

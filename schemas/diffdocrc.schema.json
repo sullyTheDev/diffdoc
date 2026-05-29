@@ -1,0 +1,104 @@
+{
+  "$ref": "#/definitions/diffdocrc",
+  "definitions": {
+    "diffdocrc": {
+      "type": "object",
+      "properties": {
+        "baseDir": {
+          "type": "string"
+        },
+        "aiProvider": {
+          "type": "string",
+          "enum": [
+            "local",
+            "cloud"
+          ]
+        },
+        "localLlmEndpoint": {
+          "type": "string"
+        },
+        "localEmbedEndpoint": {
+          "type": "string"
+        },
+        "localChatModel": {
+          "type": "string"
+        },
+        "localEmbedModel": {
+          "type": "string"
+        },
+        "cloudLlmEndpoint": {
+          "type": "string"
+        },
+        "cloudChatModel": {
+          "type": "string"
+        },
+        "cloudEmbedModel": {
+          "type": "string"
+        },
+        "embedBatchSize": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "summarizeConcurrency": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "openaiApiKey": {
+          "type": "string"
+        },
+        "includeGlobs": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "excludeGlobs": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "ignoreFile": {
+          "type": "string"
+        },
+        "summaryPrompt": {
+          "type": "string"
+        },
+        "summaryPromptFile": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/v0.6.0/schemas/diffdocrc.schema.json"
+}

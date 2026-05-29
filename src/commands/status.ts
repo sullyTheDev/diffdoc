@@ -3,7 +3,7 @@ import path from "node:path";
 import { LocalIndex } from "vectra";
 import type { RuntimeConfig } from "../config";
 import { type DiffdocVectorMetadata, getVectraIndexPath } from "./embed";
-import { MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, type RepoManifest } from "../types/artifacts";
+import { RepoManifestSchema, SummaryAssetSchema, type RepoManifest } from "../types/artifacts";
 import { resolveDiffdocArtifactPath } from "../utils/paths";
 import { SUMMARY_FORMAT, SUMMARY_PROMPT_VERSION } from "../utils/llm";
 
@@ -57,20 +57,13 @@ async function readManifest(manifestPath: string): Promise<RepoManifest> {
     throw error;
   }
 
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-    throw new Error(`Invalid manifest JSON in ${manifestPath}. Expected an object.`);
+  const result = RepoManifestSchema.safeParse(parsed);
+  if (!result.success) {
+    const issues = result.error.issues.map((i) => `  - ${i.path.join(".")}: ${i.message}`).join("\n");
+    throw new Error(`Invalid manifest in ${manifestPath}:\n${issues}`);
   }
 
-  const manifest = parsed as Partial<RepoManifest>;
-  if (manifest.schemaVersion !== MANIFEST_SCHEMA_VERSION) {
-    throw new Error(`Unsupported manifest schema in ${manifestPath}. Expected schemaVersion ${MANIFEST_SCHEMA_VERSION}.`);
-  }
-
-  return {
-    schemaVersion: MANIFEST_SCHEMA_VERSION,
-    lastSyncedCommit: typeof manifest.lastSyncedCommit === "string" ? manifest.lastSyncedCommit : "",
-    files: manifest.files && typeof manifest.files === "object" ? manifest.files : {}
-  };
+  return result.data;
 }
 
 async function getSummaryStats(manifestPath: string, manifest: RepoManifest): Promise<SummaryStats> {
@@ -110,20 +103,19 @@ async function getSummaryStats(manifestPath: string, manifest: RepoManifest): Pr
     }
 
     try {
-      const parsed = JSON.parse(await fs.readFile(path.resolve(summaryDir, `${hash}.json`), "utf8")) as Record<string, unknown>;
-      const metadata = parsed.metadata && typeof parsed.metadata === "object" && !Array.isArray(parsed.metadata)
-        ? parsed.metadata as Record<string, unknown>
-        : undefined;
+      const raw = JSON.parse(await fs.readFile(path.resolve(summaryDir, `${hash}.json`), "utf8")) as unknown;
+      const result = SummaryAssetSchema.safeParse(raw);
+      if (!result.success) {
+        staleCount += 1;
+        continue;
+      }
+      const asset = result.data;
       if (
-        parsed.schemaVersion !== SUMMARY_ASSET_SCHEMA_VERSION ||
-        parsed.content_hash !== hash ||
-        !metadata ||
-        typeof metadata.file_path !== "string" ||
-        typeof metadata.file_name !== "string" ||
-        typeof metadata.extension !== "string" ||
-        metadata.content_hash !== hash ||
-        metadata.prompt_version !== SUMMARY_PROMPT_VERSION ||
-        metadata.summary_format !== SUMMARY_FORMAT
+        asset.content_hash !== hash ||
+        !asset.metadata ||
+        asset.metadata.content_hash !== hash ||
+        asset.metadata.prompt_version !== SUMMARY_PROMPT_VERSION ||
+        asset.metadata.summary_format !== SUMMARY_FORMAT
       ) {
         staleCount += 1;
       }

@@ -6,6 +6,7 @@ import { runInit, type InitOptions } from "./commands/init";
 import { runQuery, runSearch } from "./commands/query";
 import { runStatus } from "./commands/status";
 import { runSummarize } from "./commands/summarize";
+import { runValidate } from "./commands/validate";
 
 const program = new Command();
 
@@ -168,6 +169,21 @@ addBaseOptions(program
     try {
       const config = buildRuntimeConfig(options, { embeddings: false, chat: false });
       await runStatus({ manifest: options.manifest, json: options.json }, config);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+addBaseOptions(program
+  .command("validate"))
+  .description("Validate manifest and summary assets against JSON schemas")
+  .option("--manifest <path>", "manifest input path under --base-dir", "manifest.json")
+  .option("--json", "print validation report as JSON for CI", false)
+  .action(async (options: RuntimeConfigOptions & { manifest: string; json: boolean }) => {
+    try {
+      const config = buildRuntimeConfig(options, { embeddings: false, chat: false });
+      await runValidate({ manifest: options.manifest, json: options.json }, config);
     } catch (error) {
       console.error(error instanceof Error ? error.message : error);
       process.exit(1);

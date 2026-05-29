@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { DiffdocConfigSchema } from "./schemas";
 
 export type AiProvider = "local" | "cloud";
 
@@ -124,7 +125,13 @@ function loadRcFile(configPath: string | undefined): RuntimeConfigOptions {
     throw new Error(`Config file must contain a JSON object: ${resolvedPath}`);
   }
 
-  return parsed as RuntimeConfigOptions;
+  const result = DiffdocConfigSchema.safeParse(parsed);
+  if (!result.success) {
+    const issues = result.error.issues.map((i) => `  - ${i.path.join(".")}: ${i.message}`).join("\n");
+    throw new Error(`Invalid config file ${resolvedPath}:\n${issues}`);
+  }
+
+  return result.data as RuntimeConfigOptions;
 }
 
 function mergeConfigOptions(options: RuntimeConfigOptions): RuntimeConfigOptions {

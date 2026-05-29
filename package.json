@@ -20,6 +20,7 @@
   },
   "files": [
     "dist",
+    "schemas",
     "README.md",
     "LICENSE",
     ".diffdocrc.example"
@@ -28,7 +29,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node dist/scripts/generate-schemas.js",
+    "generate:schemas": "node dist/scripts/generate-schemas.js",
     "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
     "start": "tsc && node ./dist/index.js",
     "prepare": "npm run build"
@@ -44,6 +46,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.19.41",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "zod-to-json-schema": "^3.25.2"
   }
 }

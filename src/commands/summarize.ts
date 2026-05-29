@@ -2,11 +2,16 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import ignore, { type Ignore } from "ignore";
 import type { RuntimeConfig } from "../config";
-import { MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, type RepoManifest, type SummaryAsset, type SummaryMetadata } from "../types/artifacts";
+import { MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, RepoManifestSchema, type RepoManifest, type SummaryAsset, type SummaryMetadata } from "../types/artifacts";
 import { getCurrentCommit, getGitDeltas } from "../utils/git";
 import { hashFileContent, hashTextContent } from "../utils/hashing";
 import { generateFunctionalSummary, SUMMARY_FORMAT, SUMMARY_PROMPT_VERSION } from "../utils/llm";
 import { resolveDiffdocArtifactPath } from "../utils/paths";
+
+const SCHEMA_BASE_URL = "https://raw.githubusercontent.com/sullyTheDev/diffdoc";
+const PKG_VERSION: string = require("../../package.json").version;
+const MANIFEST_SCHEMA_URL = `${SCHEMA_BASE_URL}/v${PKG_VERSION}/schemas/manifest.schema.json`;
+const SUMMARY_ASSET_SCHEMA_URL = `${SCHEMA_BASE_URL}/v${PKG_VERSION}/schemas/summary-asset.schema.json`;
 
 export interface SummarizeOptions {
   path: string;
@@ -237,20 +242,19 @@ async function isSummaryAssetFresh(summaryPath: string, expected: SummaryFreshne
 
 async function readManifest(manifestPath: string): Promise<RepoManifest> {
   try {
-    const parsed = JSON.parse(await fs.readFile(manifestPath, "utf8")) as Partial<RepoManifest>;
-    if (parsed.schemaVersion !== MANIFEST_SCHEMA_VERSION) {
-      throw new Error(`Unsupported manifest schema in ${manifestPath}. Expected schemaVersion ${MANIFEST_SCHEMA_VERSION}.`);
+    const raw = JSON.parse(await fs.readFile(manifestPath, "utf8")) as unknown;
+    const result = RepoManifestSchema.safeParse(raw);
+    if (!result.success) {
+      const issues = result.error.issues.map((i) => `  - ${i.path.join(".")}: ${i.message}`).join("\n");
+      throw new Error(`Invalid manifest in ${manifestPath}:\n${issues}`);
     }
 
-    return {
-      schemaVersion: MANIFEST_SCHEMA_VERSION,
-      lastSyncedCommit: typeof parsed.lastSyncedCommit === "string" ? parsed.lastSyncedCommit : "",
-      files: parsed.files && typeof parsed.files === "object" ? parsed.files : {}
-    };
+    return result.data;
   } catch (error) {
     const nodeError = error as NodeJS.ErrnoException;
     if (nodeError.code === "ENOENT") {
       return {
+        $schema: MANIFEST_SCHEMA_URL,
         schemaVersion: MANIFEST_SCHEMA_VERSION,
         lastSyncedCommit: "",
         files: {}
@@ -388,6 +392,7 @@ async function ensureSummaryAsset(
 ): Promise<void> {
   const summaryPath = getSummaryPath(summaryDir, hash);
   const summary: SummaryAsset = {
+    $schema: SUMMARY_ASSET_SCHEMA_URL,
     schemaVersion: SUMMARY_ASSET_SCHEMA_VERSION,
     content_hash: hash,
     metadata,

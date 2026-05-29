@@ -51,6 +51,10 @@ jobs:
       - name: Build DiffDoc
         run: npm run build
 
+      - name: Validate existing artifacts
+        run: node dist/index.js validate --json
+        continue-on-error: false
+
       - name: Update summary manifest
         run: node dist/index.js summarize --path . --mode delta --summarize-concurrency 2
 
