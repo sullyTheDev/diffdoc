@@ -32,8 +32,7 @@
     "build": "tsc && node dist/scripts/generate-schemas.js",
     "generate:schemas": "node dist/scripts/generate-schemas.js",
     "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
-    "start": "tsc && node ./dist/index.js",
-    "prepare": "npm run build"
+    "start": "tsc && node ./dist/index.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
