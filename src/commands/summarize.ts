@@ -77,6 +77,7 @@ async function atomicWriteUtf8(targetPath: string, content: string): Promise<voi
   }
 
   await fs.rename(tempPath, targetPath);
+  
 }
 
 async function writeManifest(manifestPath: string, manifest: RepoManifest): Promise<void> {
