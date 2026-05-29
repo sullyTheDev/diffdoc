@@ -17,6 +17,7 @@ export const SCHEMA_BASE_URL = `https://raw.githubusercontent.com/sullyTheDev/di
 export const DiffdocConfigSchema = z.object({
   $schema: z.string().optional(),
   baseDir: z.string().optional(),
+  repoPath: z.string().optional(),
   aiProvider: z.enum(["local", "cloud"]).optional(),
   localLlmEndpoint: z.string().optional(),
   localEmbedEndpoint: z.string().optional(),

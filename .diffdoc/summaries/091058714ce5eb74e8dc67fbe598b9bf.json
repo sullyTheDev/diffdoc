@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "091058714ce5eb74e8dc67fbe598b9bf",
+  "metadata": {
+    "file_path": "src/commands/status.ts",
+    "file_name": "status.ts",
+    "extension": ".ts",
+    "line_count": 343,
+    "byte_size": 10837,
+    "content_hash": "091058714ce5eb74e8dc67fbe598b9bf",
+    "generated_at": "2026-05-29T16:40:39.312Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/commands/status.ts\n- File name: status.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 091058714ce5eb74e8dc67fbe598b9bf\n- Line count: 343\n- Byte size: 10837\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: runStatus, getSummaryStats, getIndexFreshness, buildStatusReport\n- External dependencies: fs (node:fs/promises), path (node:path), LocalIndex (vectra), RepoManifestSchema, SummaryAssetSchema (../types/artifacts), resolveDiffdocArtifactPath (../utils/paths), SUMMARY_FORMAT, SUMMARY_PROMPT_VERSION (../utils/llm), normalizeGlobPattern, compileGlobs, readIgnoreMatcher, walkCodeFiles (../utils/scan)\n- Internal dependencies: RuntimeConfig (../config)\n- Public API/exports: runStatus\n\n## Purpose\nThis file implements the `runStatus` function, which checks the status of a repository's summary files and vector index, providing insights into their freshness and any discrepancies with the manifest.\n\n## User-Visible Behavior\nWhen executed, the `runStatus` function outputs a status report detailing the manifest schema version, counts of scanned and tracked files, orphaned files, summary freshness, index freshness, and any recommended next commands based on the current state.\n\n## Business Rules\n- The manifest must exist and be valid according to the `RepoManifestSchema`.\n- Summary files are considered orphaned if they are present but not listed in the manifest.\n- Missing or stale summary files trigger specific next command recommendations.\n- The index is deemed fresh if all files in the manifest match the indexed files; otherwise, it is considered stale or missing.\n\n## Data Inputs And Outputs\n- Inputs: \n  - `options`: includes the manifest path, optional repository path, and a flag for JSON output.\n  - `config`: runtime configuration for the repository.\n- Outputs: \n  - A console output of the status report or a JSON string representation of the report if specified.\n\n## Side Effects\nThe function reads from the filesystem to access the manifest and summary files, and it may log output to the console or throw errors based on the state of the files.\n\n## Error And Edge Cases\n- If the manifest file is missing, an error is thrown prompting the user to run a summarization command.\n- Invalid manifest files result in detailed error messages indicating the validation issues.\n- If summary files are stale or missing, appropriate next commands are suggested.\n\n## Dependencies\n- External: `fs/promises` for file operations, `path` for path manipulations, `vectra` for local indexing, and various utility functions for handling paths and patterns.\n- Internal: Types and schemas from local modules for validation and configuration.\n\n## Operational Notes\nThe function is designed to be run in a command-line environment and can handle both JSON and human-readable outputs. It is important to ensure that the manifest and summary files are properly maintained to avoid errors and ensure accurate reporting."
+}

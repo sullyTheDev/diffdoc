@@ -6,9 +6,11 @@ import { type DiffdocVectorMetadata, getVectraIndexPath } from "./embed";
 import { RepoManifestSchema, SummaryAssetSchema, type RepoManifest } from "../types/artifacts";
 import { resolveDiffdocArtifactPath } from "../utils/paths";
 import { SUMMARY_FORMAT, SUMMARY_PROMPT_VERSION } from "../utils/llm";
+import { normalizeGlobPattern, compileGlobs, readIgnoreMatcher, walkCodeFiles } from "../utils/scan";
 
 export interface StatusOptions {
   manifest: string;
+  path?: string;
   json: boolean;
 }
 
@@ -28,7 +30,10 @@ interface IndexFreshness {
 
 interface StatusReport {
   manifestSchema: number;
+  scannedFileCount: number;
   trackedFileCount: number;
+  untrackedCount: number;
+  newlyExcludedCount: number;
   summaryFileCount: number;
   orphanCount: number;
   summaryFreshness: {
@@ -189,6 +194,13 @@ async function getIndexFreshness(manifest: RepoManifest, config: RuntimeConfig):
   };
 }
 
+async function scanEligibleFiles(repoPath: string, config: RuntimeConfig): Promise<string[]> {
+  const includePatterns = compileGlobs(config.summarize.includeGlobs.map(normalizeGlobPattern));
+  const excludePatterns = compileGlobs(config.summarize.excludeGlobs.map(normalizeGlobPattern));
+  const ignoreMatcher = await readIgnoreMatcher(repoPath, config.summarize.ignoreFile);
+  return walkCodeFiles(repoPath, includePatterns, excludePatterns, ignoreMatcher);
+}
+
 function formatSummaryFreshness(stats: SummaryStats): string {
   if (stats.missingFromManifestCount === 0 && stats.staleCount === 0) {
     return "fresh";
@@ -198,6 +210,11 @@ function formatSummaryFreshness(stats: SummaryStats): string {
 }
 
 function buildSummarizeCommand(manifestOption: string): string {
+  const command = "diffdoc summarize --mode delta";
+  return manifestOption === "manifest.json" ? command : `${command} --out ${manifestOption}`;
+}
+
+function buildSummarizeRefreshCommand(manifestOption: string): string {
   const command = "diffdoc summarize --mode all --refresh";
   return manifestOption === "manifest.json" ? command : `${command} --out ${manifestOption}`;
 }
@@ -207,10 +224,24 @@ function buildEmbedCommand(manifestOption: string): string {
   return manifestOption === "manifest.json" ? command : `${command} --manifest ${manifestOption}`;
 }
 
-function getNextCommand(manifestOption: string, summaryStats: SummaryStats, indexFreshness: IndexFreshness): { command: string | null; reason: string } {
-  if (summaryStats.missingFromManifestCount > 0 || summaryStats.staleCount > 0) {
+function getNextCommand(manifestOption: string, summaryStats: SummaryStats, indexFreshness: IndexFreshness, untrackedCount: number, newlyExcludedCount: number): { command: string | null; reason: string } {
+  if (newlyExcludedCount > 0) {
+    return {
+      command: "diffdoc prune",
+      reason: `${newlyExcludedCount} file(s) in manifest are no longer eligible`
+    };
+  }
+
+  if (untrackedCount > 0) {
     return {
       command: buildSummarizeCommand(manifestOption),
+      reason: `${untrackedCount} eligible file(s) not yet summarized`
+    };
+  }
+
+  if (summaryStats.missingFromManifestCount > 0 || summaryStats.staleCount > 0) {
+    return {
+      command: buildSummarizeRefreshCommand(manifestOption),
       reason: "summary artifacts are missing or stale"
     };
   }
@@ -235,11 +266,26 @@ function getNextCommand(manifestOption: string, summaryStats: SummaryStats, inde
   };
 }
 
-function buildStatusReport(manifest: RepoManifest, summaryStats: SummaryStats, indexFreshness: IndexFreshness, manifestOption: string): StatusReport {
-  const nextCommand = getNextCommand(manifestOption, summaryStats, indexFreshness);
+function buildStatusReport(
+  manifest: RepoManifest,
+  scannedFiles: string[],
+  summaryStats: SummaryStats,
+  indexFreshness: IndexFreshness,
+  manifestOption: string
+): StatusReport {
+  const manifestFilePaths = new Set(Object.keys(manifest.files));
+  const scannedFileSet = new Set(scannedFiles);
+
+  const untrackedCount = scannedFiles.filter((f) => !manifestFilePaths.has(f)).length;
+  const newlyExcludedCount = [...manifestFilePaths].filter((f) => !scannedFileSet.has(f)).length;
+
+  const nextCommand = getNextCommand(manifestOption, summaryStats, indexFreshness, untrackedCount, newlyExcludedCount);
   return {
     manifestSchema: manifest.schemaVersion,
-    trackedFileCount: Object.keys(manifest.files).length,
+    scannedFileCount: scannedFiles.length,
+    trackedFileCount: manifestFilePaths.size,
+    untrackedCount,
+    newlyExcludedCount,
     summaryFileCount: summaryStats.summaryFileCount,
     orphanCount: summaryStats.orphanCount,
     summaryFreshness: {
@@ -268,9 +314,13 @@ export async function runStatus(options: StatusOptions, config: RuntimeConfig): 
   const manifestPath = resolveDiffdocArtifactPath(options.manifest, config.baseDir);
   const manifest = await readManifest(manifestPath);
 
+  const commandCwd = process.cwd();
+  const repoPath = path.resolve(commandCwd, options.path || config.repoPath);
+  const scannedFiles = await scanEligibleFiles(repoPath, config);
+
   const summaryStats = await getSummaryStats(manifestPath, manifest);
   const indexFreshness = await getIndexFreshness(manifest, config);
-  const report = buildStatusReport(manifest, summaryStats, indexFreshness, options.manifest);
+  const report = buildStatusReport(manifest, scannedFiles, summaryStats, indexFreshness, options.manifest);
 
   if (options.json) {
     console.log(JSON.stringify(report, null, 2));
@@ -278,10 +328,12 @@ export async function runStatus(options: StatusOptions, config: RuntimeConfig): 
   }
 
   console.log(`manifest schema: ${report.manifestSchema}`);
-  console.log(`tracked files: ${report.trackedFileCount}`);
+  console.log(`scanned files: ${report.scannedFileCount}`);
+  console.log(`manifest files: ${report.trackedFileCount}`);
+  console.log(`untracked: ${report.untrackedCount}`);
+  console.log(`newly excluded: ${report.newlyExcludedCount}`);
   console.log(`summary files: ${report.summaryFileCount}`);
   console.log(`orphans: ${report.orphanCount}`);
-  console.log(`stale summaries: ${report.summaryFreshness.stale}`);
   console.log(`summary freshness: ${formatSummaryFreshness(summaryStats)}`);
   console.log(`index freshness: ${formatIndexFreshness(indexFreshness)}`);
   console.log("");

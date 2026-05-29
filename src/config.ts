@@ -30,6 +30,7 @@ export interface SummarizeFilterConfig {
 
 export interface RuntimeConfig {
   baseDir: string;
+  repoPath: string;
   provider: AiProvider;
   chat: ChatConfig;
   embeddings: EmbeddingConfig;
@@ -39,6 +40,7 @@ export interface RuntimeConfig {
 export interface RuntimeConfigOptions {
   config?: string;
   baseDir?: string;
+  repoPath?: string;
   aiProvider?: string;
   localLlmEndpoint?: string;
   localEmbedEndpoint?: string;
@@ -201,6 +203,7 @@ export function buildRuntimeConfig(options: RuntimeConfigOptions, needs: Runtime
 
   return {
     baseDir: readOption(mergedOptions.baseDir, "DIFFDOC_BASE_DIR", "./.diffdoc"),
+    repoPath: readOption(mergedOptions.repoPath, "DIFFDOC_REPO_PATH", "."),
     provider,
     chat: {
       apiKey,

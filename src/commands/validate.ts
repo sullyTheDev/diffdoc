@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { RuntimeConfig } from "../config";
 import { RepoManifestSchema, SummaryAssetSchema } from "../types/artifacts";
+import { SCHEMA_DIR_VERSION, SCHEMA_BASE_URL } from "../schemas";
 import { resolveDiffdocArtifactPath } from "../utils/paths";
 
 export interface ValidateOptions {
@@ -16,6 +17,8 @@ interface ValidationIssue {
 }
 
 interface ValidationReport {
+  schemaVersion: number;
+  schemaBaseUri: string;
   valid: boolean;
   manifestPath: string;
   manifestValid: boolean;
@@ -97,6 +100,8 @@ export async function runValidate(options: ValidateOptions, config: RuntimeConfi
   }
 
   const report: ValidationReport = {
+    schemaVersion: SCHEMA_DIR_VERSION,
+    schemaBaseUri: SCHEMA_BASE_URL,
     valid: manifestValid && issues.length === 0,
     manifestPath,
     manifestValid,
@@ -108,6 +113,8 @@ export async function runValidate(options: ValidateOptions, config: RuntimeConfi
   if (options.json) {
     console.log(JSON.stringify(report, null, 2));
   } else {
+    console.log(`Schema version: v${SCHEMA_DIR_VERSION}`);
+    console.log(`Schema URI: ${SCHEMA_BASE_URL}`);
     console.log(`Manifest: ${manifestPath}`);
     console.log(`Manifest valid: ${manifestValid ? "yes" : "NO"}`);
     console.log(`Summary assets checked: ${summaryAssetsChecked}`);

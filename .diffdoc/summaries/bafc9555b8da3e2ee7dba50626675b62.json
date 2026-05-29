@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "bafc9555b8da3e2ee7dba50626675b62",
+  "metadata": {
+    "file_path": "schemas/v2/diffdocrc.schema.json",
+    "file_name": "diffdocrc.schema.json",
+    "extension": ".json",
+    "line_count": 111,
+    "byte_size": 2375,
+    "content_hash": "bafc9555b8da3e2ee7dba50626675b62",
+    "generated_at": "2026-05-29T16:40:32.062Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: schemas/v2/diffdocrc.schema.json\n- File name: diffdocrc.schema.json\n- Extension: .json\n- Inferred language/type: JSON Schema\n- Content hash: bafc9555b8da3e2ee7dba50626675b62\n- Line count: 111\n- Byte size: 2375\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file defines a JSON schema for the configuration of the DiffDoc tool, specifying the structure and validation rules for its configuration object.\n\n## User-Visible Behavior\nUsers will interact with this schema when validating their configuration files for the DiffDoc tool. If the configuration does not conform to the schema, users will receive validation errors indicating which properties are incorrect or missing.\n\n## Business Rules\nThe schema enforces rules such as:\n- The `aiProvider` must be either \"local\" or \"cloud\".\n- Properties like `embedBatchSize` and `summarizeConcurrency` can either be positive integers or strings.\n- The configuration object cannot contain additional properties beyond those defined in the schema.\n\n## Data Inputs And Outputs\nInputs to this schema include configuration values such as:\n- `baseDir`, `repoPath`, `aiProvider`, and various model endpoints.\nOutputs include validation results, which indicate whether the provided configuration is valid or not.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nValidation errors will occur if:\n- Required fields are missing.\n- Fields contain invalid values (e.g., an integer less than or equal to zero for `embedBatchSize`).\n- Additional properties are included that are not defined in the schema.\n\n## Dependencies\nNone identified.\n\n## Operational Notes\nThe schema follows the JSON Schema Draft 7 specification, which may affect compatibility with tools that support different versions of JSON Schema. Proper validation tools should be used to ensure compliance with this schema."
+}

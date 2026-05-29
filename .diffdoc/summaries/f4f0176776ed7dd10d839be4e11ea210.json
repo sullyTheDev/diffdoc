@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "f4f0176776ed7dd10d839be4e11ea210",
+  "metadata": {
+    "file_path": ".diffdocrc.example",
+    "file_name": ".diffdocrc.example",
+    "extension": ".example",
+    "line_count": 20,
+    "byte_size": 664,
+    "content_hash": "f4f0176776ed7dd10d839be4e11ea210",
+    "generated_at": "2026-05-29T16:40:31.817Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: .diffdocrc.example\n- File name: .diffdocrc.example\n- Extension: .example\n- Inferred language/type: JSON configuration file\n- Content hash: f4f0176776ed7dd10d839be4e11ea210\n- Line count: 20\n- Byte size: 664\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file serves as an example configuration for the DiffDoc tool, outlining the settings and parameters necessary for its operation.\n\n## User-Visible Behavior\nUsers would observe the structure of a configuration file that specifies various endpoints, models, and settings for local and cloud-based AI processing.\n\n## Business Rules\nThe configuration includes rules for specifying local and cloud AI providers, model types, and batch sizes for embedding operations. It also allows for the inclusion and exclusion of specific file patterns.\n\n## Data Inputs And Outputs\nThe file accepts configuration parameters such as schema URL, base directory, repository path, AI provider settings, and model specifications. It outputs a structured configuration that the DiffDoc tool can utilize.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nThe configuration does not handle errors directly; however, missing or incorrect values (like an empty API key) may lead to failures in connecting to the specified AI services.\n\n## Dependencies\nNone identified.\n\n## Operational Notes\nThe configuration is designed to be flexible, allowing users to specify local or cloud AI endpoints and models. Users should ensure that the specified endpoints are accessible and that the API key is provided for cloud services."
+}

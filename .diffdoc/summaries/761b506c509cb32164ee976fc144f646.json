@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "761b506c509cb32164ee976fc144f646",
+  "metadata": {
+    "file_path": "src/config.ts",
+    "file_name": "config.ts",
+    "extension": ".ts",
+    "line_count": 231,
+    "byte_size": 8362,
+    "content_hash": "761b506c509cb32164ee976fc144f646",
+    "generated_at": "2026-05-29T16:40:58.608Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 1,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- File path: src/config.ts\n- File name: config.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 761b506c509cb32164ee976fc144f646\n- Line count: 231\n- Byte size: 8362\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: AiProvider, ChatConfig, EmbeddingConfig, SummarizeFilterConfig, RuntimeConfig, RuntimeConfigOptions, RuntimeConfigNeeds, buildRuntimeConfig\n- External dependencies: fs, path\n- Internal dependencies: DiffdocConfigSchema\n- Public API/exports: buildRuntimeConfig\n\n## Purpose\nThis file defines configuration types and functions for managing runtime configuration settings in a system that utilizes AI services, specifically for chat and embedding functionalities.\n\n## User-Visible Behavior\nUsers can configure AI provider settings, including API keys, model types, and endpoint URLs. The configuration can be loaded from a specified file or environment variables, and errors will be thrown for invalid configurations or missing required fields.\n\n## Business Rules\n- The AI provider must be either \"local\" or \"cloud\".\n- Required fields include API keys, model names, and endpoint URLs, depending on the selected provider.\n- Configuration options can be merged from a file and environment variables, with fallback values provided.\n- Only one of `summaryPrompt` or `summaryPromptFile` can be set at a time.\n\n## Data Inputs And Outputs\nInputs include configuration options passed to the `buildRuntimeConfig` function, which can be specified via a configuration file, environment variables, or directly as function arguments. Outputs consist of a structured `RuntimeConfig` object containing all necessary settings for the application.\n\n## Side Effects\nThe file reads from the filesystem to load configuration files and may throw errors if the files do not exist or contain invalid data. It also resolves prompt files from the filesystem.\n\n## Error And Edge Cases\nErrors are thrown for missing or invalid configuration files, invalid values for required fields, and when both `summaryPrompt` and `summaryPromptFile` are provided. Edge cases include handling of empty or undefined environment variables.\n\n## Dependencies\n- External: `fs` and `path` from Node.js for file system operations and path resolution.\n- Internal: `DiffdocConfigSchema` for validating configuration data.\n\n## Operational Notes\nThe configuration loading functions are designed to handle various input types (strings, arrays) and provide defaults where necessary. Care should be taken to ensure that environment variables are set correctly for cloud configurations, as missing keys will result in runtime errors."
+}

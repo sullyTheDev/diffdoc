@@ -3,6 +3,7 @@ import { Command } from "commander";
 import { buildRuntimeConfig, type RuntimeConfigOptions } from "./config";
 import { runEmbed } from "./commands/embed";
 import { runInit, type InitOptions } from "./commands/init";
+import { runPrune } from "./commands/prune";
 import { runQuery, runSearch } from "./commands/query";
 import { runStatus } from "./commands/status";
 import { runSummarize } from "./commands/summarize";
@@ -163,12 +164,31 @@ addCloudEndpointAndKeyOptions(addEmbeddingOptions(addBaseOptions(program
 addBaseOptions(program
   .command("status"))
   .description("Show manifest and index sync status")
+  .option("--path <path>", "repository or code path to scan")
   .option("--manifest <path>", "manifest input path under --base-dir", "manifest.json")
   .option("--json", "print status as JSON for CI", false)
-  .action(async (options: RuntimeConfigOptions & { manifest: string; json: boolean }) => {
+  .action(async (options: RuntimeConfigOptions & { path?: string; manifest: string; json: boolean }) => {
     try {
       const config = buildRuntimeConfig(options, { embeddings: false, chat: false });
-      await runStatus({ manifest: options.manifest, json: options.json }, config);
+      await runStatus({ path: options.path, manifest: options.manifest, json: options.json }, config);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+addBaseOptions(program
+  .command("prune"))
+  .description("Remove manifest entries for deleted or excluded files")
+  .option("--path <path>", "repository or code path to scan")
+  .option("--manifest <path>", "manifest input path under --base-dir", "manifest.json")
+  .option("--dry-run", "show what would be pruned without executing", false)
+  .option("--yes", "skip confirmation prompt", false)
+  .option("--json", "print prune report as JSON for CI", false)
+  .action(async (options: RuntimeConfigOptions & { path?: string; manifest: string; dryRun: boolean; yes: boolean; json: boolean }) => {
+    try {
+      const config = buildRuntimeConfig(options, { embeddings: false, chat: false });
+      await runPrune({ path: options.path, manifest: options.manifest, dryRun: options.dryRun, yes: options.yes, json: options.json }, config);
     } catch (error) {
       console.error(error instanceof Error ? error.message : error);
       process.exit(1);
