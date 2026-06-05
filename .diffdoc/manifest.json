@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/manifest.schema.json",
   "schemaVersion": 2,
-  "lastSyncedCommit": "84cbdae9aad8e82ca677afebb7045acc24e194d2",
+  "lastSyncedCommit": "17eadd91abb72056ee85d238f42fa3c45eb0027b",
   "files": {
     ".diffdocignore": "55136b821677e85b29ac10e30126ae30",
     "LICENSE": "11af7ad818b0d8f9a44f46a939c2936b",
