@@ -56,6 +56,7 @@ export type RepoManifest = z.infer<typeof RepoManifestSchema>;
 // ---------------------------------------------------------------------------
 
 export const SummaryMetadataSchema = z.object({
+  repo: z.string(),
   file_path: z.string(),
   file_name: z.string(),
   extension: z.string(),

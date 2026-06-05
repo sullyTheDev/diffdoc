@@ -3,7 +3,7 @@ import path from "node:path";
 import type { RuntimeConfig } from "../config";
 import { MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, RepoManifestSchema, type RepoManifest, type SummaryAsset, type SummaryMetadata } from "../types/artifacts";
 import { SCHEMA_BASE_URL } from "../schemas";
-import { getCurrentCommit, getGitDeltas } from "../utils/git";
+import { getCurrentCommit, getGitDeltas, getRepoName } from "../utils/git";
 import { hashFileContent, hashTextContent } from "../utils/hashing";
 import { generateFunctionalSummary, SUMMARY_FORMAT, SUMMARY_PROMPT_VERSION } from "../utils/llm";
 import { resolveDiffdocArtifactPath } from "../utils/paths";
@@ -100,10 +100,12 @@ function buildSummaryMetadata(params: {
   rawCodeSnapshot: string;
   config: RuntimeConfig;
   generatedAt: string;
+  repoName: string;
   customPromptHash?: string;
   customPromptSource?: string;
 }): SummaryMetadata {
   return {
+    repo: params.repoName,
     file_path: params.filePath,
     file_name: path.basename(params.filePath),
     extension: path.extname(params.filePath),
@@ -360,6 +362,7 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
 
   const customPromptHash = getPromptHash(config);
   const customPromptSource = customPromptHash ? config.summarize.summaryPromptSource : undefined;
+  const repoName = await getRepoName(repoPath);
   const summaryFreshnessExpected = (hash: string): SummaryFreshnessExpected => ({
     hash,
     promptVersion: SUMMARY_PROMPT_VERSION,
@@ -394,6 +397,7 @@ export async function runSummarize(options: SummarizeOptions, config: RuntimeCon
           rawCodeSnapshot,
           config,
           generatedAt,
+          repoName,
           customPromptHash,
           customPromptSource
         });

@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import type { ChatConfig, EmbeddingConfig } from "../config";
 import type { SummaryMetadata } from "../types/artifacts";
 
-export const SUMMARY_PROMPT_VERSION = 1;
+export const SUMMARY_PROMPT_VERSION = 2;
 export const SUMMARY_FORMAT = "structured-functional-v1";
 
 const SUMMARY_SYSTEM_PROMPT = `Generate a structured DiffDoc functional summary for the provided source file.
@@ -22,6 +22,7 @@ Section guidance:
 
 ## Metadata
 Include file-level context useful for search and retrieval. This section is mandatory and must contain every bullet below exactly once, in this order:
+- Repo: {copy the provided repo exactly}
 - File path: {copy the provided file path exactly}
 - File name: {copy the provided file name exactly}
 - Extension: {copy the provided extension exactly}
@@ -92,6 +93,7 @@ function createClient(config: ChatConfig): { client: OpenAI; model: string } {
 
 function formatMetadataForPrompt(metadata: SummaryMetadata): string {
   return [
+    `- Repo: ${metadata.repo}`,
     `- File path: ${metadata.file_path}`,
     `- File name: ${metadata.file_name}`,
     `- Extension: ${metadata.extension || "None"}`,

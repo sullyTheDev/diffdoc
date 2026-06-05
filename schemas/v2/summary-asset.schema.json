@@ -17,6 +17,9 @@
         "metadata": {
           "type": "object",
           "properties": {
+            "repo": {
+              "type": "string"
+            },
             "file_path": {
               "type": "string"
             },
@@ -70,6 +73,7 @@
             }
           },
           "required": [
+            "repo",
             "file_path",
             "file_name",
             "extension",

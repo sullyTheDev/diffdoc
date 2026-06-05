@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander";
+import pkg from "../package.json";
 import { buildRuntimeConfig, type RuntimeConfigOptions } from "./config";
 import { runEmbed } from "./commands/embed";
 import { runInit, type InitOptions } from "./commands/init";
@@ -49,7 +50,7 @@ function addCloudEndpointAndKeyOptions(command: Command): Command {
 program
   .name("diffdoc")
   .description("Translate repository code shifts into plain-English business context")
-  .version("0.6.5");
+  .version(pkg.version);
 
 program
   .command("init")

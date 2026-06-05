@@ -58,3 +58,20 @@ export async function getCurrentCommit(repoPath: string): Promise<string> {
     return "uncommitted";
   }
 }
+
+export async function getRepoName(repoPath: string): Promise<string> {
+  const git = simpleGit(repoPath);
+  try {
+    const remotes = await git.getRemotes(true);
+    const origin = remotes.find((r) => r.name === "origin");
+    if (origin?.refs?.fetch) {
+      const url = origin.refs.fetch;
+      // Extract repo name from URL (handles HTTPS and SSH formats)
+      const match = url.match(/\/([^/]+?)(?:\.git)?$/) || url.match(/:([^/]+?)(?:\.git)?$/);
+      if (match) return match[1];
+    }
+  } catch {
+    // Fall through to directory name
+  }
+  return path.basename(repoPath);
+}
