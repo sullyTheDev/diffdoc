@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "4a2222625c5d27363f770de420459be8",
+  "metadata": {
+    "repo": "diffdoc",
+    "file_path": "src/config.ts",
+    "file_name": "config.ts",
+    "extension": ".ts",
+    "line_count": 231,
+    "byte_size": 8592,
+    "content_hash": "4a2222625c5d27363f770de420459be8",
+    "generated_at": "2026-06-05T04:14:10.385Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 2,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: src/config.ts\n- File name: config.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 4a2222625c5d27363f770de420459be8\n- Line count: 231\n- Byte size: 8592\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: buildRuntimeConfig, mergeConfigOptions, loadRcFile, readOption, readListOption, readPositiveIntegerOption, readProvider, resolvePromptFile\n- External dependencies: fs, path\n- Internal dependencies: DiffdocConfigSchema\n- Public API/exports: buildRuntimeConfig\n\n## Purpose\nThis file defines the configuration schema and functions for managing runtime configuration settings for the Diffdoc application, including reading options from environment variables and configuration files.\n\n## User-Visible Behavior\nUsers can configure the application through a configuration file or environment variables. The `buildRuntimeConfig` function constructs a runtime configuration object that includes settings for chat and embedding services, which can be used throughout the application.\n\n## Business Rules\n- The configuration must include valid API keys and endpoints based on the selected AI provider (local or cloud).\n- Certain fields are required, such as `baseDir`, `repoPath`, and model configurations.\n- The configuration file must be a valid JSON object and conform to the `DiffdocConfigSchema`.\n- Users can specify either a summary prompt or a summary prompt file, but not both.\n\n## Data Inputs And Outputs\n- Inputs: Configuration options from a file, environment variables, and function arguments.\n- Outputs: A `RuntimeConfig` object that contains structured configuration data for the application.\n\n## Side Effects\n- Reads configuration data from a file and environment variables.\n- Throws errors if the configuration file is invalid or if required fields are missing.\n\n## Error And Edge Cases\n- Throws errors for missing or invalid configuration files.\n- Throws errors for invalid values in configuration options, such as non-positive integers or unsupported AI provider types.\n- Handles cases where both summary prompt and summary prompt file are provided.\n\n## Dependencies\n- External: `fs` for file system operations, `path` for path resolution.\n- Internal: `DiffdocConfigSchema` for validating the configuration schema.\n\n## Operational Notes\n- The configuration loading functions are designed to handle both default values and user-specified options.\n- The application expects certain environment variables to be set for cloud-based configurations.\n- The configuration is merged from multiple sources, allowing for flexible setups and overrides."
+}

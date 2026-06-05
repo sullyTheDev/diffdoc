@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "cc3498b23fbf04a09890faf99f554801",
+  "metadata": {
+    "repo": "diffdoc",
+    "file_path": "src/commands/status.ts",
+    "file_name": "status.ts",
+    "extension": ".ts",
+    "line_count": 343,
+    "byte_size": 11179,
+    "content_hash": "cc3498b23fbf04a09890faf99f554801",
+    "generated_at": "2026-06-05T04:14:08.340Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 2,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: src/commands/status.ts\n- File name: status.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: cc3498b23fbf04a09890faf99f554801\n- Line count: 343\n- Byte size: 11179\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: runStatus, readManifest, getSummaryStats, getIndexFreshness, buildStatusReport\n- External dependencies: fs (node:fs/promises), path (node:path), LocalIndex (vectra)\n- Internal dependencies: RuntimeConfig, DiffdocVectorMetadata, RepoManifestSchema, SummaryAssetSchema, resolveDiffdocArtifactPath, SUMMARY_FORMAT, SUMMARY_PROMPT_VERSION, normalizeGlobPattern, compileGlobs, readIgnoreMatcher, walkCodeFiles\n- Public API/exports: runStatus\n\n## Purpose\nThis file implements the `runStatus` function, which checks the status of a repository's summary files and vector index, providing insights into their freshness and any discrepancies with the manifest.\n\n## User-Visible Behavior\nWhen executed, the `runStatus` function outputs a status report detailing the manifest schema version, counts of scanned and tracked files, untracked files, newly excluded files, summary files, orphaned files, and the freshness of both summaries and the index. It can output this information in JSON format if specified.\n\n## Business Rules\n- The manifest must be valid according to the `RepoManifestSchema`.\n- Summary files must match the content hash and metadata requirements to be considered fresh.\n- The function determines the next command to execute based on the state of the repository, including the presence of untracked files, missing summaries, or a stale index.\n\n## Data Inputs And Outputs\n- Inputs: \n  - `StatusOptions` containing the path to the manifest, an optional path for the repository, and a flag for JSON output.\n  - `RuntimeConfig` for configuration settings.\n- Outputs: \n  - A console output of the status report or a JSON string representation of the report.\n\n## Side Effects\nThe function reads from the filesystem to access the manifest and summary files, and it may log output to the console. It may also throw errors if the manifest is missing or invalid.\n\n## Error And Edge Cases\n- If the manifest file is not found, an error is thrown prompting the user to run a summarization command first.\n- If the manifest is invalid, detailed error messages are provided indicating the specific validation issues.\n- The function handles cases where summary files are missing or stale, and it reports these conditions accordingly.\n\n## Dependencies\n- External: `fs/promises` for file operations, `path` for path manipulations, `LocalIndex` from the `vectra` library for managing vector indices.\n- Internal: Various utility functions and types from local modules for handling paths, configuration, and validation.\n\n## Operational Notes\nThe function is designed to be run in a command-line environment and expects a valid configuration. It handles both synchronous and asynchronous operations, ensuring that file reads and writes are performed without blocking the main thread. The performance may vary based on the number of files scanned and the size of the manifest."
+}

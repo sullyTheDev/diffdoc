@@ -3,19 +3,20 @@
   "schemaVersion": 2,
   "content_hash": "2b68ff6e8243f09ee893339c1269cb57",
   "metadata": {
+    "repo": "diffdoc",
     "file_path": "schemas/v2/manifest.schema.json",
     "file_name": "manifest.schema.json",
     "extension": ".json",
     "line_count": 35,
     "byte_size": 783,
     "content_hash": "2b68ff6e8243f09ee893339c1269cb57",
-    "generated_at": "2026-05-29T16:11:55.948Z",
+    "generated_at": "2026-06-05T04:14:05.719Z",
     "generator": {
       "provider": "cloud",
       "model": "gpt-4o-mini"
     },
-    "prompt_version": 1,
+    "prompt_version": 2,
     "summary_format": "structured-functional-v1"
   },
-  "summary": "## Metadata\n- File path: schemas/v2/manifest.schema.json\n- File name: manifest.schema.json\n- Extension: .json\n- Inferred language/type: JSON Schema\n- Content hash: 2b68ff6e8243f09ee893339c1269cb57\n- Line count: 35\n- Byte size: 783\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file defines a JSON schema for a manifest object, specifying its structure and validation rules.\n\n## User-Visible Behavior\nUsers or developers validating a manifest against this schema will receive feedback on whether the manifest conforms to the defined structure, including required fields and types.\n\n## Business Rules\nThe schema enforces that the `schemaVersion` must be a number with a constant value of 2, and mandates the presence of the `lastSyncedCommit` and `files` properties. The `files` property must be an object with string values, and no additional properties are allowed in the manifest object.\n\n## Data Inputs And Outputs\nInput data must be a JSON object representing a manifest, which includes `schemaVersion`, `lastSyncedCommit`, and `files`. The output is a validation result indicating whether the input data conforms to the schema.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nValidation errors will occur if required fields are missing, if `schemaVersion` is not equal to 2, or if the `files` property does not conform to the expected structure.\n\n## Dependencies\nNone identified.\n\n## Operational Notes\nThis schema follows the JSON Schema Draft 7 specification, which may have implications for compatibility with various JSON schema validators."
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: schemas/v2/manifest.schema.json\n- File name: manifest.schema.json\n- Extension: .json\n- Inferred language/type: JSON Schema\n- Content hash: 2b68ff6e8243f09ee893339c1269cb57\n- Line count: 35\n- Byte size: 783\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file defines a JSON schema for a manifest object, specifying the structure and validation rules for manifest data used in the application.\n\n## User-Visible Behavior\nUsers or developers validating against this schema will receive feedback on whether their manifest data conforms to the defined structure, including required fields and types.\n\n## Business Rules\nThe schema enforces that the manifest object must include the fields `schemaVersion`, `lastSyncedCommit`, and `files`. The `schemaVersion` must be a number with a constant value of 2. The `files` property can contain additional properties, but they must all be strings. No additional properties are allowed at the top level of the manifest object.\n\n## Data Inputs And Outputs\nInput data must be a JSON object that matches the defined schema. The output is a validation result indicating whether the input conforms to the schema, along with any validation errors if applicable.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nValidation errors will occur if the required fields are missing, if the `schemaVersion` is not equal to 2, or if any properties in the `files` object are not strings. Additional properties at the top level will also trigger validation errors.\n\n## Dependencies\nNone identified.\n\n## Operational Notes\nThis schema follows the JSON Schema Draft 7 specification. It is important to ensure that any manifest data adheres to the defined structure to avoid validation issues during processing."
 }

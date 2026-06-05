@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "f36f6e33d7ebfc6952c2fee849601a6d",
+  "metadata": {
+    "repo": "diffdoc",
+    "file_path": "src/commands/summarize.ts",
+    "file_name": "summarize.ts",
+    "extension": ".ts",
+    "line_count": 620,
+    "byte_size": 21113,
+    "content_hash": "f36f6e33d7ebfc6952c2fee849601a6d",
+    "generated_at": "2026-06-05T04:14:08.602Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 2,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: src/commands/summarize.ts\n- File name: summarize.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: f36f6e33d7ebfc6952c2fee849601a6d\n- Line count: 620\n- Byte size: 21113\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: runSummarize, ensureSummaryAsset, writeManifest, readManifest, isSummaryAssetFresh\n- External dependencies: fs (node:fs/promises), path (node:path)\n- Internal dependencies: RuntimeConfig, RepoManifestSchema, SummaryAsset, SummaryMetadata, getCurrentCommit, getGitDeltas, getRepoName, hashFileContent, hashTextContent, generateFunctionalSummary, resolveDiffdocArtifactPath, normalizeGlobPattern, compileGlobs, shouldIncludeFile, readIgnoreMatcher, walkCodeFiles\n- Public API/exports: runSummarize\n\n## Purpose\nThis file implements the `runSummarize` function, which generates summaries of code files in a repository based on specified options and configurations. It manages the creation and updating of summary assets and manifests.\n\n## User-Visible Behavior\nUsers can invoke the summarization process via the `runSummarize` function, which outputs a report detailing the scanning and summarization of files. The output includes information on scanned, updated, refreshed, skipped, pruned, and failed files, along with the duration of the operation. If run in JSON mode, the report is printed in JSON format.\n\n## Business Rules\n- The summarization mode must be either \"all\" or \"delta\".\n- Files can be included or excluded based on glob patterns.\n- Summaries are refreshed only if the `refresh` option is set to true or if the existing summary is stale.\n- The manifest file is updated to reflect changes in file hashes and to prune unreferenced summaries.\n\n## Data Inputs And Outputs\n- Inputs: Options for summarization (path, output location, mode, globs, etc.), runtime configuration, and the current state of the repository.\n- Outputs: Summary assets written to disk, updated manifest files, and console output detailing the summarization process.\n\n## Side Effects\n- Creates or updates summary files in a designated directory.\n- Modifies the manifest file to reflect the current state of the repository.\n- Deletes orphaned summary files that are no longer referenced by the manifest.\n\n## Error And Edge Cases\n- Handles missing files gracefully by removing their references from the manifest.\n- Reports failures during summarization, including invalid manifest formats and file read errors.\n- Validates the freshness of summary assets and handles cases where they are outdated or corrupted.\n\n## Dependencies\n- External: Node.js file system and path modules.\n- Internal: Various utility functions for hashing, generating summaries, and managing file paths and patterns.\n\n## Operational Notes\n- The function supports concurrency in processing files, which can be configured via runtime settings.\n- It is designed to handle large repositories efficiently by using a locking mechanism to manage access to the manifest.\n- The summarization process is idempotent, meaning repeated runs with the same inputs will yield the same results without side effects."
+}

@@ -3,19 +3,20 @@
   "schemaVersion": 2,
   "content_hash": "11af7ad818b0d8f9a44f46a939c2936b",
   "metadata": {
+    "repo": "diffdoc",
     "file_path": "LICENSE",
     "file_name": "LICENSE",
     "extension": "",
     "line_count": 22,
     "byte_size": 1098,
     "content_hash": "11af7ad818b0d8f9a44f46a939c2936b",
-    "generated_at": "2026-05-29T16:11:38.672Z",
+    "generated_at": "2026-06-05T04:14:01.986Z",
     "generator": {
       "provider": "cloud",
       "model": "gpt-4o-mini"
     },
-    "prompt_version": 1,
+    "prompt_version": 2,
     "summary_format": "structured-functional-v1"
   },
-  "summary": "## Metadata\n- File path: LICENSE\n- File name: LICENSE\n- Extension: None\n- Inferred language/type: Text document (legal license)\n- Content hash: 11af7ad818b0d8f9a44f46a939c2936b\n- Line count: 22\n- Byte size: 1098\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file serves as the legal license for the software, specifically the MIT License, which outlines the permissions and limitations regarding the use of the software.\n\n## User-Visible Behavior\nUsers obtaining this software will observe that they have the rights to use, copy, modify, merge, publish, distribute, sublicense, and sell copies of the software, provided they include the copyright notice and permission notice in all copies.\n\n## Business Rules\nThe license stipulates that the software is provided \"as is\" without any warranties, and the authors are not liable for any claims or damages arising from its use.\n\n## Data Inputs And Outputs\nThere are no data inputs or outputs in the traditional sense, as this document is a legal text rather than a functional code file.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nNone identified.\n\n## Dependencies\nNone identified.\n\n## Operational Notes\nNone identified."
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: LICENSE\n- File name: LICENSE\n- Extension: None\n- Inferred language/type: Text (License)\n- Content hash: 11af7ad818b0d8f9a44f46a939c2936b\n- Line count: 22\n- Byte size: 1098\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file serves to provide the terms under which the software can be used, modified, and distributed, specifically under the MIT License.\n\n## User-Visible Behavior\nUsers who obtain this software will see that they have the right to use, copy, modify, merge, publish, distribute, sublicense, and sell copies of the software, provided they include the copyright notice and permission notice in all copies.\n\n## Business Rules\nThe software is provided \"as is\" without any warranties, and the authors are not liable for any claims or damages arising from its use. The copyright notice and permission notice must be included in all copies or substantial portions of the software.\n\n## Data Inputs And Outputs\nThere are no specific data inputs or outputs associated with this file, as it primarily contains legal text.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nNone identified.\n\n## Dependencies\nNone identified.\n\n## Operational Notes\nNone identified."
 }

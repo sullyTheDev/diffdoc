@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "8461d6c7eca8b6863b7358e03000a30a",
+  "metadata": {
+    "repo": "diffdoc",
+    "file_path": "src/utils/llm.ts",
+    "file_name": "llm.ts",
+    "extension": ".ts",
+    "line_count": 159,
+    "byte_size": 6576,
+    "content_hash": "8461d6c7eca8b6863b7358e03000a30a",
+    "generated_at": "2026-06-05T04:14:18.859Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 2,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: src/utils/llm.ts\n- File name: llm.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 8461d6c7eca8b6863b7358e03000a30a\n- Line count: 159\n- Byte size: 6576\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: createClient, formatMetadataForPrompt, generateFunctionalSummary, generateAnswer, generateEmbeddings\n- External dependencies: OpenAI\n- Internal dependencies: None identified.\n- Public API/exports: generateFunctionalSummary, generateAnswer, generateEmbeddings\n\n## Purpose\nThis file provides utility functions for interacting with the OpenAI API, specifically for generating functional summaries, answers to prompts, and embeddings from text inputs.\n\n## User-Visible Behavior\nUsers can invoke the exported functions to generate summaries, answers, and embeddings based on provided inputs. The functions return structured responses or embeddings that can be used in further processing or analysis.\n\n## Business Rules\nThe functions utilize specific configurations for the OpenAI API, including model selection and API key management. The summary generation function requires a specific format for metadata and handles optional custom prompts.\n\n## Data Inputs And Outputs\n- Inputs:\n  - `generateFunctionalSummary`: file name, code content, metadata (including repo, file path, etc.), configuration, and an optional custom prompt.\n  - `generateAnswer`: a prompt string and configuration.\n  - `generateEmbeddings`: an array of texts and embedding configuration.\n- Outputs:\n  - `generateFunctionalSummary`: a string containing the generated functional summary.\n  - `generateAnswer`: a string containing the generated answer to the prompt.\n  - `generateEmbeddings`: a 2D array of numbers representing embeddings for the input texts.\n\n## Side Effects\nThe functions make network requests to the OpenAI API to retrieve responses, which may involve data transmission over the internet. They do not modify local state or files.\n\n## Error And Edge Cases\nIf the OpenAI API does not return a valid response, the functions return default messages indicating that no summary or response was generated. The functions also handle cases where optional parameters are not provided.\n\n## Dependencies\nThe file depends on the OpenAI package for API interactions. It also imports types from local configuration and types modules.\n\n## Operational Notes\nThe functions are designed to be asynchronous and return promises. They include a temperature setting for response variability and are structured to handle multiple types of requests to the OpenAI API efficiently."
+}

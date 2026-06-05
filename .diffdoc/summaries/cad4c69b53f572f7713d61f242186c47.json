@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "cad4c69b53f572f7713d61f242186c47",
+  "metadata": {
+    "repo": "diffdoc",
+    "file_path": ".github/workflows/diffdoc-summarize.yml",
+    "file_name": "diffdoc-summarize.yml",
+    "extension": ".yml",
+    "line_count": 32,
+    "byte_size": 967,
+    "content_hash": "cad4c69b53f572f7713d61f242186c47",
+    "generated_at": "2026-06-05T04:14:01.978Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 2,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: .github/workflows/diffdoc-summarize.yml\n- File name: diffdoc-summarize.yml\n- Extension: .yml\n- Inferred language/type: YAML\n- Content hash: cad4c69b53f572f7713d61f242186c47\n- Line count: 32\n- Byte size: 967\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: actions/checkout@v4, sullyTheDev/diffdoc-action@main\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file defines a GitHub Actions workflow that automates the summarization of DiffDoc manifests when changes are pushed to the main branch.\n\n## User-Visible Behavior\nWhen a push event occurs on the main branch (excluding specified paths), the workflow triggers and updates the DiffDoc manifest by executing a series of steps, including checking out the repository and running a summarization action.\n\n## Business Rules\nThe workflow ignores changes to specific paths, such as \".diffdoc/manifest.json\" and any files within \".diffdoc/summaries/**\" and \".diffdoc/vectra/**\". It also sets permissions for writing to the repository contents.\n\n## Data Inputs And Outputs\nInputs include the OpenAI API key, AI provider, base directory for DiffDoc, cloud LLM endpoint, and chat model, which are provided through GitHub secrets and environment variables. The output is the updated DiffDoc manifest.\n\n## Side Effects\nThe workflow writes updates to the DiffDoc manifest in the repository when executed.\n\n## Error And Edge Cases\nNone identified.\n\n## Dependencies\nThe workflow relies on the GitHub Actions checkout action and a custom action for summarization, which requires an OpenAI API key and other configuration variables.\n\n## Operational Notes\nThe workflow runs on an Ubuntu environment and allows for concurrency with a specified group name, but does not cancel in-progress jobs. The summarization step is configured to allow a concurrency of 2."
+}

@@ -3,19 +3,20 @@
   "schemaVersion": 2,
   "content_hash": "e03105acc29000cab640d195f6d4aac0",
   "metadata": {
+    "repo": "diffdoc",
     "file_path": "src/types/artifacts.ts",
     "file_name": "artifacts.ts",
     "extension": ".ts",
     "line_count": 21,
     "byte_size": 457,
     "content_hash": "e03105acc29000cab640d195f6d4aac0",
-    "generated_at": "2026-05-29T16:12:52.575Z",
+    "generated_at": "2026-06-05T04:14:17.555Z",
     "generator": {
       "provider": "cloud",
       "model": "gpt-4o-mini"
     },
-    "prompt_version": 1,
+    "prompt_version": 2,
     "summary_format": "structured-functional-v1"
   },
-  "summary": "## Metadata\n- File path: src/types/artifacts.ts\n- File name: artifacts.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: e03105acc29000cab640d195f6d4aac0\n- Line count: 21\n- Byte size: 457\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, SCHEMA_DIR_VERSION, SCHEMA_BASE_URL, RepoManifestSchema, SummaryMetadataSchema, SummaryAssetSchema, DiffdocConfigSchema, RepoManifest, SummaryMetadata, SummaryAsset, DiffdocConfig\n- External dependencies: None identified.\n- Internal dependencies: \"../schemas\"\n- Public API/exports: MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, SCHEMA_DIR_VERSION, SCHEMA_BASE_URL, RepoManifestSchema, SummaryMetadataSchema, SummaryAssetSchema, DiffdocConfigSchema, RepoManifest, SummaryMetadata, SummaryAsset, DiffdocConfig\n\n## Purpose\nThis file serves to re-export schema definitions and types from a canonical source for backwards-compatible import paths.\n\n## User-Visible Behavior\nUsers can import various schema definitions and types related to artifacts from this file, ensuring compatibility with previous import paths.\n\n## Business Rules\nNone identified.\n\n## Data Inputs And Outputs\nThis file does not take any direct inputs or produce outputs; it facilitates the import of types and schemas from another module.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nNone identified.\n\n## Dependencies\nThe file depends on the \"../schemas\" module for the exported types and schemas.\n\n## Operational Notes\nNone identified."
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: src/types/artifacts.ts\n- File name: artifacts.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: e03105acc29000cab640d195f6d4aac0\n- Line count: 21\n- Byte size: 457\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, SCHEMA_DIR_VERSION, SCHEMA_BASE_URL, RepoManifestSchema, SummaryMetadataSchema, SummaryAssetSchema, DiffdocConfigSchema, RepoManifest, SummaryMetadata, SummaryAsset, DiffdocConfig\n- External dependencies: None identified.\n- Internal dependencies: \"../schemas\"\n- Public API/exports: MANIFEST_SCHEMA_VERSION, SUMMARY_ASSET_SCHEMA_VERSION, SCHEMA_DIR_VERSION, SCHEMA_BASE_URL, RepoManifestSchema, SummaryMetadataSchema, SummaryAssetSchema, DiffdocConfigSchema, RepoManifest, SummaryMetadata, SummaryAsset, DiffdocConfig\n\n## Purpose\nThis file serves to re-export schema definitions and types from a canonical source, ensuring backwards-compatible import paths for other modules.\n\n## User-Visible Behavior\nUsers and developers can import various schema definitions and types from this file, which simplifies access and maintains compatibility with previous import paths.\n\n## Business Rules\nNone identified.\n\n## Data Inputs And Outputs\nData entering this file includes schema definitions and types from \"../schemas\". The output consists of re-exported constants and types for use in other modules.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nNone identified.\n\n## Dependencies\nThe file depends on the \"../schemas\" module for its schema definitions and types.\n\n## Operational Notes\nNone identified."
 }

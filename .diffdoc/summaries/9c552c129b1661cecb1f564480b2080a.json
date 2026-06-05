@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "9c552c129b1661cecb1f564480b2080a",
+  "metadata": {
+    "repo": "diffdoc",
+    "file_path": "src/schemas.ts",
+    "file_name": "schemas.ts",
+    "extension": ".ts",
+    "line_count": 93,
+    "byte_size": 3645,
+    "content_hash": "9c552c129b1661cecb1f564480b2080a",
+    "generated_at": "2026-06-05T04:14:15.082Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 2,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: src/schemas.ts\n- File name: schemas.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 9c552c129b1661cecb1f564480b2080a\n- Line count: 93\n- Byte size: 3645\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: DiffdocConfigSchema, RepoManifestSchema, SummaryMetadataSchema, SummaryAssetSchema\n- External dependencies: zod\n- Internal dependencies: None identified.\n- Public API/exports: DiffdocConfig, RepoManifest, SummaryMetadata, SummaryAsset\n\n## Purpose\nThis file defines various schemas using the Zod library to validate configuration and metadata structures for the Diffdoc application.\n\n## User-Visible Behavior\nUsers or developers will interact with the defined schemas when validating configuration files and repository manifests. Invalid configurations will raise validation errors, guiding users to correct their input.\n\n## Business Rules\n- The configuration schema requires specific fields to be present, such as `lastSyncedCommit` in the repository manifest.\n- Certain fields are optional, allowing for flexibility in configuration.\n- The schemas enforce data types and constraints, such as positive integers for `embedBatchSize` and `summarizeConcurrency`.\n\n## Data Inputs And Outputs\n- Inputs include configuration files (e.g., `.diffdocrc`) and repository manifests.\n- Outputs consist of validated objects that conform to the defined schemas, or validation errors if the input data does not meet the schema requirements.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nValidation errors will occur if required fields are missing or if data types do not match the expected schema. For example, providing a negative integer for `line_count` will trigger an error.\n\n## Dependencies\n- External: The file relies on the Zod library for schema validation.\n- Internal: None identified.\n\n## Operational Notes\nThe schemas are designed to be strict, meaning any deviation from the defined structure will result in validation failures. This ensures that only correctly formatted data is processed by the application."
+}

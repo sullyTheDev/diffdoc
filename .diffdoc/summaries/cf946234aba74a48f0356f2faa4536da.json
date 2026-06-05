@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "cf946234aba74a48f0356f2faa4536da",
+  "metadata": {
+    "repo": "diffdoc",
+    "file_path": "package.json",
+    "file_name": "package.json",
+    "extension": ".json",
+    "line_count": 52,
+    "byte_size": 1380,
+    "content_hash": "cf946234aba74a48f0356f2faa4536da",
+    "generated_at": "2026-06-05T04:14:01.982Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 2,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: package.json\n- File name: package.json\n- Extension: .json\n- Inferred language/type: JSON\n- Content hash: cf946234aba74a48f0356f2faa4536da\n- Line count: 52\n- Byte size: 1380\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: @modelcontextprotocol/sdk, commander, ignore, openai, simple-git, vectra, zod\n- Internal dependencies: None identified.\n- Public API/exports: diffdoc, diffdoc-mcp\n\n## Purpose\nThis file serves as the configuration for the Node.js project, defining metadata, dependencies, scripts, and other settings necessary for the operation and management of the \"diffdoc\" application.\n\n## User-Visible Behavior\nUsers can install the project and its dependencies, run build and start scripts, and access the application via command line using the defined binaries. The project can also generate schemas and clean the build directory.\n\n## Business Rules\nThe project requires Node.js version 22 or higher. It includes specific scripts for building, starting, and cleaning the project, as well as generating schemas. Dependencies and devDependencies are specified with version constraints.\n\n## Data Inputs And Outputs\nInputs include the Node.js environment and any command line arguments passed to the scripts. Outputs include the built application files in the \"dist\" directory, generated schemas, and any logs or errors produced during script execution.\n\n## Side Effects\nRunning the build or clean scripts modifies the file system by creating or deleting files in the \"dist\" directory. The application may also interact with external services through its dependencies.\n\n## Error And Edge Cases\nErrors may occur if the required Node.js version is not met, if dependencies fail to install, or if scripts encounter issues during execution (e.g., missing files or permissions). Edge cases may include handling unexpected command line arguments.\n\n## Dependencies\nThe project relies on several external packages for functionality, including SDKs and libraries for command line interfaces, file handling, and schema validation. Development dependencies are also specified for TypeScript and type definitions.\n\n## Operational Notes\nThe project uses TypeScript for development, requiring a TypeScript compiler to build the application. The scripts are designed for ease of use in a development environment, and the project structure suggests a focus on modularity and maintainability."
+}

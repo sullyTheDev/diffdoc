@@ -3,19 +3,20 @@
   "schemaVersion": 2,
   "content_hash": "b3e0161a57d466f626e79a2314e53061",
   "metadata": {
+    "repo": "diffdoc",
     "file_path": "opencode.json",
     "file_name": "opencode.json",
     "extension": ".json",
     "line_count": 12,
     "byte_size": 228,
     "content_hash": "b3e0161a57d466f626e79a2314e53061",
-    "generated_at": "2026-05-29T16:11:43.542Z",
+    "generated_at": "2026-06-05T04:14:01.981Z",
     "generator": {
       "provider": "cloud",
       "model": "gpt-4o-mini"
     },
-    "prompt_version": 1,
+    "prompt_version": 2,
     "summary_format": "structured-functional-v1"
   },
-  "summary": "## Metadata\n- File path: opencode.json\n- File name: opencode.json\n- Extension: .json\n- Inferred language/type: JSON\n- Content hash: b3e0161a57d466f626e79a2314e53061\n- Line count: 12\n- Byte size: 228\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file serves as a configuration for the DiffDoc tool, specifying how it should operate in a local environment.\n\n## User-Visible Behavior\nWhen executed, the configuration allows the DiffDoc tool to run with the specified command and settings, enabling users to generate documentation based on the defined parameters.\n\n## Business Rules\nThe configuration specifies that the DiffDoc command is enabled, has a defined timeout of 10 seconds, and uses a local type setting.\n\n## Data Inputs And Outputs\nThe input to this configuration is the command array and settings defined within the JSON structure. The output is the execution of the DiffDoc command as specified.\n\n## Side Effects\nExecuting the command defined in this configuration may result in the generation of documentation files or logs, depending on the behavior of the DiffDoc tool.\n\n## Error And Edge Cases\nIf the specified command or configuration file is missing or incorrect, the execution may fail, leading to errors in generating documentation.\n\n## Dependencies\nThe configuration references an external schema for validation but does not specify any additional dependencies.\n\n## Operational Notes\nThe configuration is designed for local execution and has a timeout setting that may affect performance if the command takes longer than expected."
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: opencode.json\n- File name: opencode.json\n- Extension: .json\n- Inferred language/type: JSON\n- Content hash: b3e0161a57d466f626e79a2314e53061\n- Line count: 12\n- Byte size: 228\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file serves as a configuration for the diffdoc tool, specifying how it should operate within the context of the project.\n\n## User-Visible Behavior\nWhen the configuration is loaded, it enables the diffdoc tool with specified parameters, allowing users to execute commands defined in the configuration.\n\n## Business Rules\nThe configuration specifies that the diffdoc tool is of type \"local,\" is enabled, and has a timeout of 10 seconds for operations.\n\n## Data Inputs And Outputs\nThe input to this configuration includes the schema URL and command parameters. The output is the configuration settings that dictate the behavior of the diffdoc tool.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nNone identified.\n\n## Dependencies\nNone identified.\n\n## Operational Notes\nThe command defined in the configuration utilizes `npx` to run the `diffdoc-mcp` tool with a specified configuration file, which may require the presence of the `.diffdocrc` file in the project directory."
 }

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "c6f42bce601a916b0d89224ab4e7518b",
+  "metadata": {
+    "repo": "diffdoc",
+    "file_path": "schemas/v2/summary-asset.schema.json",
+    "file_name": "summary-asset.schema.json",
+    "extension": ".json",
+    "line_count": 108,
+    "byte_size": 2640,
+    "content_hash": "c6f42bce601a916b0d89224ab4e7518b",
+    "generated_at": "2026-06-05T04:14:05.807Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 2,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: schemas/v2/summary-asset.schema.json\n- File name: summary-asset.schema.json\n- Extension: .json\n- Inferred language/type: JSON Schema\n- Content hash: c6f42bce601a916b0d89224ab4e7518b\n- Line count: 108\n- Byte size: 2640\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file defines a JSON schema for a summary asset, which outlines the structure and requirements for metadata related to files in the repository.\n\n## User-Visible Behavior\nUsers or developers utilizing this schema will receive validation feedback when attempting to create or manipulate summary asset objects. If the objects do not conform to the defined structure, errors will be raised indicating which properties are missing or invalid.\n\n## Business Rules\nThe schema enforces several rules, including:\n- The `schemaVersion` must be a number with a constant value of 2.\n- Required fields in the `metadata` object include `repo`, `file_path`, `file_name`, `extension`, `line_count`, `byte_size`, `content_hash`, `generated_at`, `generator`, `prompt_version`, and `summary_format`.\n- The `generator` object must contain both `provider` and `model` as required fields.\n- Additional properties are not allowed in the defined objects.\n\n## Data Inputs And Outputs\nData entering this schema includes JSON objects that represent summary assets. The schema validates these objects and outputs validation results, which may include errors if the input data does not conform to the defined structure.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nErrors may occur if:\n- Required fields are missing from the input JSON object.\n- The values of fields do not match the expected types or constraints (e.g., `line_count` or `byte_size` being negative).\n- Additional properties are included that are not defined in the schema.\n\n## Dependencies\nNone identified.\n\n## Operational Notes\nThis schema is based on JSON Schema Draft 7 and is intended for use in validating summary asset objects. It is important to ensure that any JSON objects conform to this schema to avoid validation errors in applications that utilize these assets."
+}

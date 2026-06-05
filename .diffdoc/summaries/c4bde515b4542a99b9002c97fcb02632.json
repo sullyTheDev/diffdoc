@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "c4bde515b4542a99b9002c97fcb02632",
+  "metadata": {
+    "repo": "diffdoc",
+    "file_path": "src/commands/validate.ts",
+    "file_name": "validate.ts",
+    "extension": ".ts",
+    "line_count": 139,
+    "byte_size": 4741,
+    "content_hash": "c4bde515b4542a99b9002c97fcb02632",
+    "generated_at": "2026-06-05T04:14:08.605Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 2,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: src/commands/validate.ts\n- File name: validate.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: c4bde515b4542a99b9002c97fcb02632\n- Line count: 139\n- Byte size: 4741\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: runValidate, getSummaryDir\n- External dependencies: fs (node:fs/promises), path (node:path)\n- Internal dependencies: RuntimeConfig, RepoManifestSchema, SummaryAssetSchema, SCHEMA_DIR_VERSION, SCHEMA_BASE_URL, resolveDiffdocArtifactPath\n- Public API/exports: runValidate\n\n## Purpose\nThis file is responsible for validating a manifest file and its associated summary assets against defined schemas, ensuring that the data adheres to expected formats and structures.\n\n## User-Visible Behavior\nWhen executed, the `runValidate` function will read a specified manifest file and validate its contents. It outputs a validation report either in JSON format or as a human-readable summary, detailing the validity of the manifest and any issues found with the summary assets.\n\n## Business Rules\n- The manifest file must be present and correctly formatted as JSON.\n- Each summary asset referenced in the manifest must also be present and valid according to its schema.\n- The `content_hash` of each summary asset must match its filename.\n- The validation report indicates whether the manifest and summary assets are valid, along with any issues encountered.\n\n## Data Inputs And Outputs\n- Inputs: \n  - `options`: an object containing the path to the manifest and a flag for JSON output.\n  - `config`: runtime configuration that includes the base directory for resolving paths.\n- Outputs: \n  - A validation report detailing the schema version, validity of the manifest, number of assets checked, and any validation issues.\n\n## Side Effects\nThe function may log output to the console, either in JSON format or as a formatted summary. It may also set the process exit code to indicate success or failure based on the validation results.\n\n## Error And Edge Cases\n- If the manifest file is missing, an error message is recorded.\n- If the manifest file cannot be parsed as JSON, an error message is recorded.\n- If any summary asset file is missing or cannot be parsed, corresponding error messages are recorded.\n- If the `content_hash` of a summary asset does not match its filename, an issue is logged.\n\n## Dependencies\n- External: Node.js `fs/promises` for file operations, `path` for path manipulations.\n- Internal: Various schemas and utility functions for validation and path resolution.\n\n## Operational Notes\nThe function is designed to be run in a Node.js environment. It handles asynchronous file operations and may be affected by the presence of the specified files. The validation process is idempotent, meaning repeated runs with the same inputs will yield the same results."
+}

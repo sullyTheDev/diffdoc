@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "8748e243803fa6f8fd3cef505851363c",
+  "metadata": {
+    "repo": "diffdoc",
+    "file_path": "src/commands/prune.ts",
+    "file_name": "prune.ts",
+    "extension": ".ts",
+    "line_count": 220,
+    "byte_size": 7225,
+    "content_hash": "8748e243803fa6f8fd3cef505851363c",
+    "generated_at": "2026-06-05T04:14:07.204Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 2,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: src/commands/prune.ts\n- File name: prune.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 8748e243803fa6f8fd3cef505851363c\n- Line count: 220\n- Byte size: 7225\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: runPrune, readManifest, writeManifest, promptConfirm\n- External dependencies: fs (node:fs/promises), path (node:path), readline (node:readline/promises), process (node:process)\n- Internal dependencies: RuntimeConfig, RepoManifestSchema, RepoManifest, resolveDiffdocArtifactPath, normalizeGlobPattern, compileGlobs, readIgnoreMatcher, walkCodeFiles\n- Public API/exports: runPrune\n\n## Purpose\nThis file implements the `runPrune` function, which is responsible for pruning entries from a repository manifest based on the current state of files in the repository. It identifies files that are either deleted or excluded and updates the manifest accordingly.\n\n## User-Visible Behavior\nUsers can execute the prune command, which will scan the repository for files, compare them against the manifest, and report on any files that can be pruned. The output can be in JSON format or as a human-readable summary. Users can also perform a dry run to see what would be pruned without making any changes.\n\n## Business Rules\n- The command requires a manifest file and can optionally take a path, a dry run flag, a confirmation flag, and a JSON output flag.\n- Files are considered for pruning if they are not present in the scanned files.\n- Users must confirm the pruning action unless the `--yes` flag is provided.\n- The pruning process will also delete orphaned summary assets if they are no longer referenced in the manifest.\n\n## Data Inputs And Outputs\n- Inputs: \n  - `options`: an object containing the path, manifest file name, dry run flag, confirmation flag, and JSON output flag.\n  - `config`: runtime configuration that includes repository path and glob patterns.\n- Outputs: \n  - A report detailing the number of scanned files, manifest entries, pruned entries, and deleted summary assets, either in JSON format or as console output.\n\n## Side Effects\n- The function modifies the manifest file by removing entries that are no longer valid.\n- It deletes orphaned summary assets from the filesystem if they are no longer referenced in the manifest.\n\n## Error And Edge Cases\n- If the manifest file is invalid, an error is thrown detailing the issues found.\n- If files expected to be deleted do not exist, the function handles this gracefully without crashing.\n- If the user aborts the pruning operation, the function will exit without making changes.\n\n## Dependencies\n- External: Node.js built-in modules such as `fs`, `path`, and `readline`.\n- Internal: Types and utility functions from local modules, including configuration and artifact handling.\n\n## Operational Notes\n- The function can be run in a dry run mode to preview changes without executing them.\n- It requires user confirmation unless the `--yes` flag is set.\n- The function handles file system operations asynchronously, which may impact performance depending on the number of files processed."
+}

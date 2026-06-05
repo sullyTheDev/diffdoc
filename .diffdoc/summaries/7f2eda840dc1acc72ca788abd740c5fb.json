@@ -3,19 +3,20 @@
   "schemaVersion": 2,
   "content_hash": "7f2eda840dc1acc72ca788abd740c5fb",
   "metadata": {
+    "repo": "diffdoc",
     "file_path": "tsconfig.json",
     "file_name": "tsconfig.json",
     "extension": ".json",
     "line_count": 16,
     "byte_size": 330,
     "content_hash": "7f2eda840dc1acc72ca788abd740c5fb",
-    "generated_at": "2026-05-29T16:13:10.383Z",
+    "generated_at": "2026-06-05T04:14:21.335Z",
     "generator": {
       "provider": "cloud",
       "model": "gpt-4o-mini"
     },
-    "prompt_version": 1,
+    "prompt_version": 2,
     "summary_format": "structured-functional-v1"
   },
-  "summary": "## Metadata\n- File path: tsconfig.json\n- File name: tsconfig.json\n- Extension: .json\n- Inferred language/type: TypeScript configuration\n- Content hash: 7f2eda840dc1acc72ca788abd740c5fb\n- Line count: 16\n- Byte size: 330\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file serves as a configuration for the TypeScript compiler, specifying how TypeScript code should be compiled into JavaScript.\n\n## User-Visible Behavior\nWhen the TypeScript compiler is run, it will compile the TypeScript files located in the `src` directory according to the specified options, producing output in the `dist` directory.\n\n## Business Rules\n- The target JavaScript version is set to ES2022.\n- The module system used is CommonJS.\n- Strict type checking is enforced.\n- JSON modules can be resolved.\n- Type definitions for Node.js are included.\n\n## Data Inputs And Outputs\n- Input: TypeScript files located in the `src` directory.\n- Output: Compiled JavaScript files placed in the `dist` directory.\n\n## Side Effects\nNone identified.\n\n## Error And Edge Cases\nNone identified.\n\n## Dependencies\nNone identified.\n\n## Operational Notes\nThe configuration enforces consistent casing in file names and skips type checking for library files, which can improve compilation speed."
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: tsconfig.json\n- File name: tsconfig.json\n- Extension: .json\n- Inferred language/type: TypeScript configuration\n- Content hash: 7f2eda840dc1acc72ca788abd740c5fb\n- Line count: 16\n- Byte size: 330\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: None identified.\n- External dependencies: None identified.\n- Internal dependencies: None identified.\n- Public API/exports: None identified.\n\n## Purpose\nThis file exists to configure the TypeScript compiler options for the project, specifying how TypeScript code should be compiled.\n\n## User-Visible Behavior\nUsers will observe that TypeScript files in the `src` directory are compiled to JavaScript in the `dist` directory, adhering to the specified compiler options.\n\n## Business Rules\nThe configuration enforces strict type-checking, allows for ES2022 features, and ensures consistent casing in file names. It also specifies that JSON modules can be imported.\n\n## Data Inputs And Outputs\nInput includes TypeScript files located in the `src` directory. Output consists of compiled JavaScript files generated in the `dist` directory.\n\n## Side Effects\nThe configuration may lead to the creation of compiled JavaScript files in the specified output directory, affecting the project's build artifacts.\n\n## Error And Edge Cases\nIf TypeScript files contain errors, the compilation process may fail, preventing output generation. Additionally, if the `src` directory is empty or incorrectly specified, no files will be compiled.\n\n## Dependencies\nThe configuration specifies a dependency on Node.js types for type definitions, indicating that the project may utilize Node.js features.\n\n## Operational Notes\nThe configuration allows for interoperation with ES modules and skips type checking for library files, which can improve compilation speed. It is important to maintain the directory structure as specified to ensure proper compilation."
 }

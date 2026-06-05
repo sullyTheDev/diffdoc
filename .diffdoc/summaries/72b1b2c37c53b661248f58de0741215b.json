@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "72b1b2c37c53b661248f58de0741215b",
+  "metadata": {
+    "repo": "diffdoc",
+    "file_path": "src/index.ts",
+    "file_name": "index.ts",
+    "extension": ".ts",
+    "line_count": 218,
+    "byte_size": 9794,
+    "content_hash": "72b1b2c37c53b661248f58de0741215b",
+    "generated_at": "2026-06-05T04:14:11.892Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 2,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: src/index.ts\n- File name: index.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 72b1b2c37c53b661248f58de0741215b\n- Line count: 218\n- Byte size: 9794\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: Command, buildRuntimeConfig, runEmbed, runInit, runPrune, runQuery, runSearch, runStatus, runSummarize, runValidate\n- External dependencies: commander, OpenAI-compatible APIs\n- Internal dependencies: ./config, ./commands/embed, ./commands/init, ./commands/prune, ./commands/query, ./commands/status, ./commands/summarize, ./commands/validate\n- Public API/exports: CLI commands (init, summarize, query, search, embed, status, prune, validate)\n\n## Purpose\nThis file serves as the entry point for the DiffDoc CLI application, managing various commands related to translating repository code changes into understandable summaries and managing configuration.\n\n## User-Visible Behavior\nUsers can execute commands via the CLI to initialize configuration, summarize code, query for information, search through indexed data, embed summaries, check status, prune entries, and validate manifests. Each command provides options for customization and outputs results or reports based on the command executed.\n\n## Business Rules\nCommands have specific options and behaviors, such as:\n- The `init` command can overwrite existing configurations if specified.\n- The `summarize` command supports different modes (all or delta) and can include or exclude code snapshots.\n- The `query` and `search` commands return a specified number of matches and can include code snapshots in results.\n- The `prune` command can perform a dry run to show potential changes without executing them.\n\n## Data Inputs And Outputs\nData inputs include command-line arguments, configuration file paths, and options specified by the user. Outputs can include JSON reports, console logs of errors, and the results of the commands executed (e.g., summaries, search results).\n\n## Side Effects\nThe application may create or modify configuration files, generate summary manifests, update indexes, and log output to the console. It may also make network requests to external AI services if configured to do so.\n\n## Error And Edge Cases\nThe application handles errors by catching exceptions during command execution and logging error messages to the console. Edge cases include missing configuration files, invalid command options, and network failures when accessing external services.\n\n## Dependencies\nThe application depends on the `commander` package for command-line interface management and may interact with OpenAI-compatible APIs for AI functionalities. It also relies on internal modules for configuration and command execution.\n\n## Operational Notes\nThe application is designed to be run in a Node.js environment and can handle asynchronous operations. It is important to ensure that the necessary environment variables and configuration files are set up correctly for optimal operation. The application is intended to be idempotent, meaning repeated executions with the same parameters should yield consistent results."
+}

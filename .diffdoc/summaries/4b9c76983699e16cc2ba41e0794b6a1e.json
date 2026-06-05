@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sullyTheDev/diffdoc/main/schemas/v2/summary-asset.schema.json",
+  "schemaVersion": 2,
+  "content_hash": "4b9c76983699e16cc2ba41e0794b6a1e",
+  "metadata": {
+    "repo": "diffdoc",
+    "file_path": "src/utils/git.ts",
+    "file_name": "git.ts",
+    "extension": ".ts",
+    "line_count": 78,
+    "byte_size": 2239,
+    "content_hash": "4b9c76983699e16cc2ba41e0794b6a1e",
+    "generated_at": "2026-06-05T04:14:18.097Z",
+    "generator": {
+      "provider": "cloud",
+      "model": "gpt-4o-mini"
+    },
+    "prompt_version": 2,
+    "summary_format": "structured-functional-v1"
+  },
+  "summary": "## Metadata\n- Repo: diffdoc\n- File path: src/utils/git.ts\n- File name: git.ts\n- Extension: .ts\n- Inferred language/type: TypeScript\n- Content hash: 4b9c76983699e16cc2ba41e0794b6a1e\n- Line count: 78\n- Byte size: 2239\n- Summary format: structured-functional-v1\n- Notable symbols/classes/functions: GitDeltas, normalizePath, addUnique, getGitDeltas, getCurrentCommit, getRepoName\n- External dependencies: simple-git, node:path\n- Internal dependencies: None identified.\n- Public API/exports: getGitDeltas, getCurrentCommit, getRepoName\n\n## Purpose\nThis file provides utility functions for interacting with Git repositories, including retrieving changes (deltas), the current commit, and the repository name.\n\n## User-Visible Behavior\nUsers can call the exported functions to obtain:\n- A list of modified or added files and deleted files in a Git repository.\n- The current commit hash of the repository.\n- The name of the repository based on its remote configuration or directory name.\n\n## Business Rules\n- The `getGitDeltas` function retrieves file changes since a specified reference and includes both modified/added and deleted files.\n- The `getCurrentCommit` function returns \"uncommitted\" if there are no commits in the repository.\n- The `getRepoName` function attempts to extract the repository name from the remote URL, falling back to the directory name if necessary.\n\n## Data Inputs And Outputs\n- Inputs:\n  - `repoPath`: The file path to the Git repository.\n  - `sinceRef`: A reference point for comparing changes in the repository.\n- Outputs:\n  - `getGitDeltas`: Returns an object containing arrays of modified/added and deleted file paths.\n  - `getCurrentCommit`: Returns a string representing the current commit hash or \"uncommitted\".\n  - `getRepoName`: Returns a string representing the repository name.\n\n## Side Effects\n- The functions interact with the Git repository, potentially modifying the state of the local repository (e.g., fetching status or changes).\n- They may also log errors or handle exceptions silently.\n\n## Error And Edge Cases\n- If the `sinceRef` is not provided in `getGitDeltas`, it will only return the current status of the repository.\n- If there are no remotes configured in `getRepoName`, it defaults to using the directory name.\n- Errors in Git commands are caught and handled, returning default values where applicable.\n\n## Dependencies\n- External: `simple-git` for Git operations and `node:path` for path manipulation.\n- Internal: None identified.\n\n## Operational Notes\n- The functions are asynchronous and return promises, requiring proper handling in calling code.\n- The performance may vary based on the size of the repository and the number of changes.\n- The utility functions are designed to be reusable across different parts of the application that require Git interactions."
+}
